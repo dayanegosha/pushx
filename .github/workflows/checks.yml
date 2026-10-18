@@ -20,7 +20,7 @@ jobs:
           echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
       - name: Test
         working-directory: iOS
-        run: xcodebuild -project Forma.xcodeproj -scheme Forma -destination "platform=iOS Simulator,id=$DEVICE_ID" -only-testing:FormaTests CODE_SIGNING_ALLOWED=NO test
+        run: xcodebuild -project Forma.xcodeproj -scheme Forma -destination "platform=iOS Simulator,id=$DEVICE_ID" -only-testing:FormaTests -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO test
   backend:
     runs-on: ubuntu-latest
     services:
@@ -45,7 +45,7 @@ jobs:
           node-version: '24'
       - name: Edge typecheck
         working-directory: Backend
-        run: deno check supabase/functions/delete-account/index.ts
+        run: deno check --config supabase/functions/delete-account/deno.json supabase/functions/delete-account/index.ts
       - name: Edge tests
         run: node --experimental-strip-types --test Backend/tests/delete-account.test.ts
       - name: Database tests
