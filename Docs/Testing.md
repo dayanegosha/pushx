@@ -159,6 +159,8 @@ psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f sup
 
 Release-сборка `generic/platform=iOS` проходит без подписи. В собранном Info.plist: `UIDeviceFamily = [1, 2]`, минимум 17.0, Onest зарегистрирован. Debug-флаги `UPRA_LOCAL_PREVIEW` и `FORMA_RESET_DATA` отсутствуют в Release executable.
 
+Обнаружен доступный парный физический iPhone 17 Pro с iOS 27.0.1 и включённым Developer Mode. Попытка development-сборки для него остановилась на подписи: Xcode вернул `No Accounts` и отсутствие development provisioning profile для `app.forma.pushups`. Установка и физические проверки не выполнены. Для продолжения нужно добавить аккаунт Apple Developer в Xcode → Settings → Accounts и настроить профиль с нужными capabilities; одного сертификата в Keychain недостаточно.
+
 Backend: PostgreSQL regression, 10 Edge-тестов и Deno typecheck проходят; команда Deno использует явный import map. CI: [checks](https://github.com/dayanegosha/upra-ios/actions).
 
 Снимки фактических профилей находятся в [Screenshots](Screenshots). В тренировочных UI-тестах используется явный режим касаний и локальный Debug preview. Чистый первый запуск проверяется отдельно без этого флага. Эти проверки не подтверждают точность физической камеры или живые Apple Auth / Health / App Store интеграции; соответствующие пункты приёмки выше остаются неотмеченными. Прямой прогон Duo не выполнен: нужен Xcode 27.1 и профиль Duo.
