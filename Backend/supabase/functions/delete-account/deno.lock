@@ -1,0 +1,16 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:jose@6.1.0": "6.1.0"
+  },
+  "npm": {
+    "jose@6.1.0": {
+      "integrity": "sha512-TTQJyoEoKcC1lscpVDCSsVgYzUDg/0Bt3WE//WiTPK6uOCQC2KZS4MpugbMWt/zyjkopgZoXhZuCi00gLudfUA=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:jose@6.1.0"
+    ]
+  }
+}
