@@ -1,4 +1,3 @@
-// Pure request orchestration, separated from network/JWT adapters for regression tests.
 export interface AppleClaims {
   sub: string;
   iat: number;
@@ -7,7 +6,6 @@ export interface AuthUser {
   id: string;
   identities?: Array<{
     provider: string;
-    // Auth /user versions may expose the provider subject using either field.
     id?: string;
     provider_id?: string;
     identity_data?: { sub?: string };
@@ -36,7 +34,6 @@ function appleSubjects(user: AuthUser): Set<string> {
   const values = new Set<string>();
   for (const identity of user.identities ?? []) {
     if (identity.provider !== "apple") continue;
-    // identity_data is supplied by the verified provider identity, never user_metadata.
     const subject = identity.identity_data?.sub ?? identity.provider_id ?? identity.id;
     if (typeof subject === "string" && subject.length) values.add(subject);
   }
@@ -72,7 +69,6 @@ export function createHandler(deps: Dependencies): (request: Request) => Promise
       if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
         return respond({ error: "invalid_request" }, 400);
       }
-      // Read the stream with a hard limit, including requests with no Content-Length.
       const reader = request.body?.getReader();
       if (!reader) return respond({ error: "invalid_request" }, 400);
       let length = 0;
@@ -104,14 +100,12 @@ export function createHandler(deps: Dependencies): (request: Request) => Promise
       let apple: AppleClaims;
       try { apple = await deps.verifyAppleToken(idToken); }
       catch { return respond({ error: "apple_reauthentication_required" }, 401); }
-      // This is an independent, fresh Apple authorization, not merely a valid session JWT.
       const age = deps.now() - apple.iat;
       if (!Number.isFinite(age) || age < -30 || age > 300) {
         return respond({ error: "apple_reauthentication_required" }, 401);
       }
       if (!subjects.has(apple.sub)) return respond({ error: "apple_identity_mismatch" }, 403);
       const exchanged = await deps.exchangeCode(authorizationCode);
-      // Prevent mixing a correct subject's ID token with another account's authorization code.
       let exchangedClaims: AppleClaims;
       try { exchangedClaims = await deps.verifyAppleToken(exchanged.idToken); }
       catch { return respond({ error: "apple_authorization_failed" }, 400); }
@@ -121,7 +115,6 @@ export function createHandler(deps: Dependencies): (request: Request) => Promise
       return respond({ deleted: true });
     } catch (error) {
       if (error instanceof OperationError) return respond({ error: error.code }, error.status);
-      // Tokens, authorization codes, Apple responses, and private key material are never logged.
       return respond({ error: "service_unavailable" }, 503);
     }
   };

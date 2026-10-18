@@ -2,7 +2,6 @@ import AVFoundation
 import SwiftUI
 import UIKit
 
-/// Optional live preview; hiding this view does not change face detection or save camera frames.
 struct CameraPreview: UIViewRepresentable {
     let counter: CameraCounter
 

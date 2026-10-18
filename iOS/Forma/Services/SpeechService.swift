@@ -14,8 +14,6 @@ final class SpeechService: NSObject, AVSpeechSynthesizerDelegate {
 
     func speak(count: Int, languageCode: String) {
         guard count >= 0 else { return }
-        // Keeping only the latest count prevents a voice queue from falling
-        // behind a fast set of repetitions.
         synthesizer.stopSpeaking(at: .immediate)
         let session = AVAudioSession.sharedInstance()
         do {
@@ -23,7 +21,6 @@ final class SpeechService: NSObject, AVSpeechSynthesizerDelegate {
             try session.setActive(true)
             audioSessionActive = true
         } catch {
-            // Audio setup failure never interrupts counting or changes a workout.
             return
         }
         let utterance = AVSpeechUtterance(string: String(count))

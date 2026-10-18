@@ -12,7 +12,6 @@ struct RemoteProfile: Codable, Identifiable, Sendable {
 struct FriendRow: Codable, Identifiable, Sendable {
     let userID: UUID
     let friendCode: String
-    /// accepted, incoming, or outgoing. No opponent names or emails are disclosed.
     let status: String
     let requestedAt: Date
     var id: UUID { userID }
@@ -85,8 +84,6 @@ private struct TokenResponse: Decodable {
     }
 }
 
-/// The service uses the public anon key and the current user's bearer token only.
-/// The service-role key and Apple private key belong exclusively on the backend.
 actor BackendService {
     static let shared = BackendService()
     private let urlSession: URLSession
@@ -224,7 +221,6 @@ actor BackendService {
         guard let response = response as? HTTPURLResponse else { throw ServiceError.invalidResponse }
         guard (200...299).contains(response.statusCode) else {
             let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
-            // PostgREST uses a SQLSTATE in `code` and a stable application code in `message`.
             let code = [object?["error_code"], object?["error"], object?["message"], object?["code"]]
                 .compactMap { $0 as? String }.joined(separator: " ")
             throw ServiceError.server(status: response.statusCode, code: code.lowercased())

@@ -14,8 +14,6 @@ private struct AppleCredential {
     let forAccountDeletion: Bool
 }
 
-/// A fresh cryptographically random nonce and state bind each native Apple request
-/// to exactly one callback. The raw nonce is sent to Supabase; Apple receives its hash.
 @MainActor
 private final class AppleSignInCoordinator {
     private struct Request {
@@ -29,8 +27,6 @@ private final class AppleSignInCoordinator {
         let nonce = try randomString()
         let state = try randomString()
         pending = Request(rawNonce: nonce, state: state, forAccountDeletion: forAccountDeletion)
-        // Competition uses the public friend code only, so no name/email scopes
-        // are requested. Apple may still include a relay email in its ID token.
         request.requestedScopes = []
         request.nonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
         request.state = state
@@ -144,7 +140,6 @@ final class AuthService: ObservableObject {
         catch { errorMessage = ServiceCopy.message(for: error) }
     }
 
-    /// Called from SignInWithAppleButton's completion in a Task on the main actor.
     func completeAppleSignIn(_ result: Result<ASAuthorization, Error>) async {
         guard !isBusy else { return }
         isBusy = true
@@ -166,11 +161,9 @@ final class AuthService: ObservableObject {
                 try keychain.save(session)
                 sessionVersion += 1
                 self.session = session
-                // A profile/network failure must not destroy a successfully authenticated session.
                 try await refreshProfile()
             }
         } catch let error as ASAuthorizationError where error.code == .canceled {
-            // Cancel is an explicit user choice, not a failed sign-in.
         } catch { errorMessage = ServiceCopy.message(for: error) }
     }
 
@@ -192,7 +185,6 @@ final class AuthService: ObservableObject {
             _ = try await validAccessToken()
             try await refreshProfile()
         } catch {
-            // Retain the Keychain session on network failure so local work remains usable offline.
             errorMessage = ServiceCopy.message(for: error)
         }
     }

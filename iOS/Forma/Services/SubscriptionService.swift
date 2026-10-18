@@ -2,8 +2,6 @@ import Combine
 import Foundation
 import StoreKit
 
-/// Plus is an optional, App Store-verified entitlement. The workout counter,
-/// history, friends, voice count, and Health integration remain available free.
 @MainActor
 final class SubscriptionService: ObservableObject {
     static let shared = SubscriptionService()
@@ -40,8 +38,6 @@ final class SubscriptionService: ObservableObject {
         await refresh()
     }
 
-    /// Safe at foreground/launch: it never displays the App Store authentication
-    /// prompt. Explicit restore alone calls AppStore.sync().
     func refresh() async {
         guard !isLoading else { return }
         isLoading = true
@@ -108,9 +104,6 @@ final class SubscriptionService: ObservableObject {
                   let expiration = transaction.expirationDate, expiration > now else { continue }
             candidates.append((transaction.productID, expiration))
         }
-        // An expired billing transaction can remain entitled during Apple's
-        // configured grace period. Both the transaction and renewal information
-        // must pass StoreKit signature verification before granting this access.
         for product in products {
             guard let subscription = product.subscription,
                   let statuses = try? await subscription.status else { continue }

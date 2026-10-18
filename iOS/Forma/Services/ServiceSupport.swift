@@ -1,7 +1,5 @@
 import Foundation
 
-/// User-facing service failures are translated using the app's selected language.
-/// Server response bodies are intentionally never presented verbatim.
 enum ServiceError: LocalizedError {
     case notConfigured
     case notSignedIn

@@ -71,8 +71,6 @@ const handler = createHandler({
       method: "DELETE",
       headers: {
         apikey: serviceRole,
-        // Legacy service-role JWTs use both headers. New sb_secret_ keys belong
-        // only in apikey; the API gateway performs their server authentication.
         ...(serviceRole.startsWith("sb_secret_") ? {} : { Authorization: `Bearer ${serviceRole}` }),
         "Content-Type": "application/json",
       },

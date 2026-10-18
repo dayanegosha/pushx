@@ -18,8 +18,6 @@ enum CameraCounterError: String, Error {
     case insufficientSamples, insufficientRange, interrupted
 }
 
-/// Camera frames stay in memory and are processed by Apple's on-device Vision framework.
-/// This class never records, saves, or uploads camera images.
 @MainActor
 final class CameraCounter: ObservableObject {
     @Published private(set) var count = 0
@@ -78,7 +76,6 @@ final class CameraCounter: ObservableObject {
         }
     }
 
-    /// Stop on leaving the workout or when the scene becomes inactive.
     func stop() {
         desiredRunning = false
         cameraReady = false
@@ -136,7 +133,6 @@ final class CameraCounter: ObservableObject {
                     self.failCalibration(.insufficientRange)
                 }
             } catch {
-                // Cancellation is expected when leaving the screen or pausing the app.
             }
         }
     }
@@ -187,7 +183,6 @@ final class CameraCounter: ObservableObject {
 
     private func receive(_ sample: FaceCapturePipeline.Sample) {
         guard desiredRunning, cameraReady else { return }
-        // A delayed frame queued before leaving the screen must never affect the next workout.
         guard CACurrentMediaTime() - sample.timestamp < 0.5 else { return }
         faceRect = sample.rect
         faceVisible = sample.rect != nil
@@ -210,7 +205,7 @@ final class CameraCounter: ObservableObject {
         progress = 0
         status = .cameraReady
         errorCode = error
-        errorMessage = error.rawValue // UI localizes errorCode; this is a diagnostic identifier.
+        errorMessage = error.rawValue
     }
 
     private func clearError() {
@@ -238,8 +233,6 @@ final class CameraCounter: ObservableObject {
     }
 }
 
-/// All AVCaptureSession configuration and start/stop work is serialized away from the main queue.
-/// Vision runs on a separate serial queue and sees at most 15 frames per second.
 private final class FaceCapturePipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     struct Sample {
         let rect: CGRect?
@@ -334,7 +327,6 @@ private final class FaceCapturePipeline: NSObject, AVCaptureVideoDataOutputSampl
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:])
         do {
             try handler.perform([request])
-            // Multiple people in frame are ambiguous. Never count a different person's face.
             let faces = (request.results ?? []).filter { $0.confidence >= 0.7 }
             let rect = faces.count == 1 ? faces.first?.boundingBox : nil
             onSample?(Sample(rect: rect, timestamp: timestamp))

@@ -27,8 +27,6 @@ final class HealthService: ObservableObject {
         errorMessage = nil
         defer { isBusy = false }
         do {
-            // FORMA writes only workouts. It requests no access to read health
-            // data, heart rate, energy, or other measurements.
             try await store.requestAuthorization(toShare: [workoutType], read: [])
             refreshAuthorization()
             if !isAuthorized {
@@ -42,8 +40,6 @@ final class HealthService: ObservableObject {
         refreshAuthorization()
         guard isAuthorized else { throw HealthFailure.permissionRequired }
         guard repetitions > 0, end > start else { throw HealthFailure.invalidWorkout }
-        // Concurrent requests await the same actual save result; no caller is
-        // told a workout was saved while another builder is still in progress.
         if let task = savingTasks[id] { return try await task.value }
         let task = Task { try await self.writeWorkout(id: id, start: start, end: end, repetitions: repetitions) }
         savingTasks[id] = task
@@ -65,8 +61,6 @@ final class HealthService: ObservableObject {
                 "app.forma.pushups.repetitions": repetitions
             ])
             try await builder.endCollection(at: end)
-            // No energy or heart-rate values are guessed. Repetitions use custom
-            // metadata; HealthKit's pushCount measures wheelchair pushes.
             guard try await builder.finishWorkout() != nil else { throw HealthFailure.saveFailed }
         } catch {
             builder.discardWorkout()

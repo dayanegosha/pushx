@@ -1,4 +1,3 @@
--- FORMA — PostgreSQL 15+ / Supabase. Apply once with the Supabase CLI.
 begin;
 
 create schema if not exists forma_private;
@@ -66,7 +65,6 @@ $$;
 create function forma_private.lock_users(p_a uuid, p_b uuid) returns void
 language plpgsql set search_path = '' as $$
 begin
-  -- All friend mutations take both locks in the same order.
   perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(least(p_a, p_b)::text, 42));
   if p_a <> p_b then
     perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(greatest(p_a, p_b)::text, 42));
@@ -91,7 +89,6 @@ $$;
 create trigger on_auth_user_created after insert on auth.users
 for each row execute function forma_private.create_profile();
 
--- Existing Auth users are intentionally backfilled by the same collision-safe trigger code.
 do $$
 declare v_user record; v_code text;
 begin
@@ -122,7 +119,6 @@ create policy block_select_own on public.user_blocks for select to authenticated
 using (blocker_id = (select auth.uid()));
 create policy workout_select_own on public.workouts for select to authenticated
 using (user_id = (select auth.uid()));
--- No client INSERT/UPDATE/DELETE policy or privilege. All writes pass validated RPCs.
 revoke all on public.profiles, public.friendships, public.user_blocks, public.workouts from public, anon, authenticated;
 grant select on public.profiles, public.friendships, public.user_blocks, public.workouts to authenticated;
 
@@ -329,7 +325,6 @@ begin
 end;
 $$;
 
--- Function execute is PUBLIC by default in PostgreSQL: close each endpoint explicitly.
 revoke all on all functions in schema forma_private from public, anon, authenticated;
 revoke all on function public.get_profile(), public.get_friends(), public.get_blocked_users(), public.request_friend(text),
   public.respond_friend_request(uuid, boolean), public.remove_friend(uuid), public.block_user(uuid),

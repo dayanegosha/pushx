@@ -1,7 +1,5 @@
 import Foundation
 
-/// A dimensionless face scale: sqrt(normalized bounding-box width × height).
-/// Calibration belongs to a particular phone placement and should be repeated after moving it.
 struct RepCalibration: Codable, Equatable {
     let upperScale: Double
     let lowerScale: Double
@@ -22,7 +20,6 @@ struct RepCalibration: Codable, Equatable {
         }
         let upperMedian = median(upper)
         let lowerMedian = median(lower)
-        // Both a relative and an absolute margin are necessary: a tiny distant face is noisy.
         guard lowerMedian - upperMedian >= max(0.025, upperMedian * 0.18) else {
             throw ValidationError.insufficientRange
         }
@@ -38,8 +35,6 @@ struct RepCalibration: Codable, Equatable {
     }
 }
 
-/// Pure state machine with no camera, UI, or wall-clock dependencies.
-/// A rep is emitted only after a stable upper → lower → upper movement.
 struct RepCycleEngine {
     struct Configuration {
         var upperDwell: TimeInterval = 0.12
@@ -71,7 +66,6 @@ struct RepCycleEngine {
         self.configuration = configuration
     }
 
-    /// Resuming always reacquires the upper position. Count can be preserved across a pause.
     mutating func reset(preservingCount: Bool = false) {
         if !preservingCount { count = 0 }
         resetMotion()
@@ -79,8 +73,6 @@ struct RepCycleEngine {
         lastRepAt = nil
     }
 
-    /// Nil immediately cancels a partial movement, so losing and reacquiring a face cannot count.
-    /// Timestamps must be monotonic seconds (for example CACurrentMediaTime()).
     @discardableResult
     mutating func update(faceScale: Double?, at timestamp: TimeInterval) -> Bool {
         guard timestamp.isFinite else { return false }

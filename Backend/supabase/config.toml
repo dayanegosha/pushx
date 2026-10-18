@@ -10,6 +10,4 @@ max_rows = 1000
 major_version = 17
 
 [functions.delete-account]
-# The handler always calls Auth /user to validate the session and load current
-# identities. This supports new asymmetric signing keys as well as legacy JWTs.
 verify_jwt = false
