@@ -1,0 +1,57 @@
+name: checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - name: Generate project
+        working-directory: iOS
+        run: xcodegen generate
+      - name: Choose simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for values in d["devices"].values() for v in values if v["name"].startswith("iPhone")))')
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+      - name: Test
+        working-directory: iOS
+        run: xcodebuild -project Forma.xcodeproj -scheme Forma -destination "platform=iOS Simulator,id=$DEVICE_ID" -only-testing:FormaTests CODE_SIGNING_ALLOWED=NO test
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: forma_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Edge typecheck
+        working-directory: Backend
+        run: deno check supabase/functions/delete-account/index.ts
+      - name: Edge tests
+        run: node --experimental-strip-types --test Backend/tests/delete-account.test.ts
+      - name: Database tests
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/tests/bootstrap.sql
+          psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/supabase/migrations/202610180001_forma.sql
+          psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/tests/regression.sql
