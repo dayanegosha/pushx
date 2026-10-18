@@ -21,7 +21,7 @@ enum ServiceError: LocalizedError {
         case .invalidResponse:
             return ServiceCopy.text("The server returned an unexpected response. Please try again.", "Сервер вернул неожиданный ответ. Попробуйте снова.", "服务器返回了意外响应，请重试。")
         case .secureStorage:
-            return ServiceCopy.text("The session could not be saved securely on this iPhone.", "Не удалось безопасно сохранить сеанс на этом iPhone.", "无法在此 iPhone 上安全保存会话。")
+            return ServiceCopy.text("The session could not be saved securely on this device.", "Не удалось безопасно сохранить сеанс на этом устройстве.", "无法在此设备上安全保存会话。")
         case .verificationFailed:
             return ServiceCopy.text("The App Store purchase could not be verified.", "Не удалось проверить покупку в App Store.", "无法验证 App Store 购买。")
         case .productsUnavailable:
@@ -67,7 +67,7 @@ enum ServiceCopy {
         if let error = error as? ServiceError { return error.localizedDescription }
         if let error = error as? URLError {
             if error.code == .notConnectedToInternet || error.code == .networkConnectionLost || error.code == .timedOut {
-                return text("No connection. Your workouts remain saved on this iPhone. Try again when you're online.", "Нет соединения. Тренировки сохранены на этом iPhone. Повторите попытку, когда появится интернет.", "网络未连接，训练仍保存在此 iPhone 上。请联网后重试。")
+                return text("No connection. Your workouts remain saved on this device. Try again when you're online.", "Нет соединения. Тренировки сохранены на этом устройстве. Повторите попытку, когда появится интернет.", "网络未连接，训练仍保存在此设备上。请联网后重试。")
             }
         }
         return text("Something went wrong. Please try again.", "Не удалось выполнить действие. Попробуйте снова.", "出现问题，请重试。")

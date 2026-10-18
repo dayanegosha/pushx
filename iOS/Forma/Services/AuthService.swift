@@ -170,6 +170,7 @@ final class AuthService: ObservableObject {
     func restoreSession() async {
         guard !restored else { return }
         restored = true
+        guard AppConfiguration.isBackendConfigured else { return }
         isBusy = true
         defer { isBusy = false }
         do {

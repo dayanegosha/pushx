@@ -2,7 +2,9 @@ name: checks
 on:
   push:
     branches: [main]
+    paths: ['iOS/**', 'Backend/**', '.github/workflows/**']
   pull_request:
+    paths: ['iOS/**', 'Backend/**', '.github/workflows/**']
 permissions:
   contents: read
 jobs:

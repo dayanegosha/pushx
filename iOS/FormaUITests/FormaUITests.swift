@@ -112,10 +112,13 @@ final class FormaUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.65)
         revealAndTap(counter, in: app)
         XCUIDevice.shared.orientation = .landscapeLeft
+        let landscape = expectation(for: NSPredicate { _, _ in app.frame.width > app.frame.height }, evaluatedWith: app)
+        wait(for: [landscape], timeout: 10)
         XCTAssertTrue(counter.waitForExistence(timeout: 5))
         Thread.sleep(forTimeInterval: 0.65)
         revealAndTap(counter, in: app)
         XCTAssertEqual(counter.label, "Отжиманий: 2")
+        Thread.sleep(forTimeInterval: 0.4)
         snapshot("adaptive-workout-landscape")
         XCUIDevice.shared.orientation = .portrait
         XCTAssertTrue(counter.waitForExistence(timeout: 5))

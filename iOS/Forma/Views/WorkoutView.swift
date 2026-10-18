@@ -125,9 +125,11 @@ struct WorkoutView: View {
             Button { registerTap() } label: {
                 Text("\(count)")
                     .font(AppFont.numeric(128)).monospacedDigit().lineLimit(1)
+                    .contentTransition(.identity)
                     .minimumScaleFactor(0.25).frame(maxWidth: .infinity).frame(height: 164).clipped()
-                    .foregroundStyle(count > 0 ? Color.accentColor : Color.primary)
+                    .foregroundStyle(count > 0 ? AccentChoice.current.color : Color.primary)
             }.buttonStyle(.plain).disabled(!manual || !started || paused)
+                .transaction { $0.animation = nil }
                 .accessibilityLabel(L.format("rep_count", count)).accessibilityIdentifier("rep_counter")
         }
     }
@@ -182,7 +184,7 @@ struct WorkoutView: View {
     private func summaryContent(_ result: WorkoutRecord) -> some View {
         VStack(spacing: 22) {
             Spacer(minLength: 20)
-            Image(systemName: "checkmark.circle").font(.system(size: 50, weight: .ultraLight)).foregroundStyle(Color.accentColor)
+            Image(systemName: "checkmark.circle").font(.system(size: 50, weight: .ultraLight)).foregroundStyle(AccentChoice.current.color)
             Text(L.text("well_done")).font(AppFont.text(30, weight: .semibold))
             Text("\(result.repetitions)").font(AppFont.numeric(112)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.3)
             Text(L.text("pushups_saved")).foregroundStyle(.secondary)
