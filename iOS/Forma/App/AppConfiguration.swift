@@ -36,3 +36,20 @@ enum L {
         String(format: text(key), locale: Locale(identifier: language), arguments: args)
     }
 }
+
+enum DevelopmentLaunch {
+    static var tab: Int {
+        #if DEBUG
+        return Int(ProcessInfo.processInfo.environment["FORMA_SCREEN"] ?? "0") ?? 0
+        #else
+        return 0
+        #endif
+    }
+    static var workout: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["FORMA_SCREEN"] == "workout"
+        #else
+        return false
+        #endif
+    }
+}

@@ -1,0 +1,697 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0DE615585B90F95036AEE574 /* HealthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B74370DE25C7419821E5CDC /* HealthService.swift */; };
+		1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDED05D38288080E42E9FFE /* ServiceTests.swift */; };
+		236715730362E577E948B7AE /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */; };
+		3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */; };
+		446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */; };
+		4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2061462EF1BE93E59B0E70 /* Forma.storekit */; };
+		4D3A489CFC2C5088F71CCD26 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 64F325CA4B4AA2AD5A80E34B /* Localizable.strings */; };
+		5362971B028F6052DA1395F1 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */; };
+		5BE3BF58899E0C5B7B36CACB /* WorkoutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EEFF282EE82D60F7B40C06 /* WorkoutStore.swift */; };
+		66129B5BB91FB9176FF97535 /* PlusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */; };
+		7028175C3528BD4904831FF2 /* Design.swift in Sources */ = {isa = PBXBuildFile; fileRef = A599361579CD780F0B80F880 /* Design.swift */; };
+		78D9311851C6CB916EF607FE /* RepCycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */; };
+		79B0FAC4CC4816E655B96815 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398C021D358303F287112268 /* RootView.swift */; };
+		7C2430433506BC56E2D33BE3 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75BC7507C88EAA244E80AF9 /* FriendsView.swift */; };
+		8134018884167FBFCFCE2DAE /* FormaUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C2B39EADCDB27195E94083B /* FormaUITests.swift */; };
+		83ADAA8C4448835B6406C212 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2855B9E54E9542E6E321ECE /* HistoryView.swift */; };
+		8B51A673DDAFA2297A3C7463 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966F7B1C050BC95968966810 /* CameraPreview.swift */; };
+		8E706B02336CB7945C5DF6E1 /* FormaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 463DBA3F222B72835A9C0495 /* FormaApp.swift */; };
+		91645AC6FB4511B68A027997 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61EE2F6A48694F9733A23D0 /* WorkoutView.swift */; };
+		947D80F2CBCEFA2A5B155D22 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080A4D5102367C3343B53A3B /* SpeechService.swift */; };
+		9F4EB9675CCD63650B0BE81B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF36FB005541C2F15D619FE /* SettingsView.swift */; };
+		A7D5EA90389208B768DD2A5B /* CameraCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB531714AEEA0E78FA423E7F /* CameraCounter.swift */; };
+		A86083BCE84EA98CF45D2AE5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85A04D740D98F94AF8D1C01A /* Assets.xcassets */; };
+		C00C291DCC327A4F12FE50D5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 027E7E662952DEC9C164A86F /* InfoPlist.strings */; };
+		CBE331339BA8D1CC76869281 /* RepCycleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0D8AC00591582C965D176A /* RepCycleEngine.swift */; };
+		D2A523852FDF0F0C85A35AD4 /* ServiceSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904683E424E4462C3CAFA2FF /* ServiceSupport.swift */; };
+		E0170AF88E227CF91A18D678 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */; };
+		EAA6887EFDA07C744CD04C49 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACEE8309C7739399DCD14D6 /* BackendService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A83FDB7766F9AE2CBF2F16D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5F544B9276C9BD1AAD79134F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 475DA89C102D7DDFFF38F053;
+			remoteInfo = Forma;
+		};
+		E224167435B96B1B40D13ED1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5F544B9276C9BD1AAD79134F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 475DA89C102D7DDFFF38F053;
+			remoteInfo = Forma;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		080A4D5102367C3343B53A3B /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
+		0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		1C0D8AC00591582C965D176A /* RepCycleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCycleEngine.swift; sourceTree = "<group>"; };
+		264A9B73EE8314C55721F274 /* Forma.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Forma.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		398C021D358303F287112268 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		3BF36FB005541C2F15D619FE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		43A8D4EFAAFCBD15102AF7F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		447C40DCF8555F961C24A195 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		463DBA3F222B72835A9C0495 /* FormaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormaApp.swift; sourceTree = "<group>"; };
+		4CA2F55BC6FF26452C6D9905 /* FormaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FormaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		54FAECC9256D03A7A6FF84F4 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5FD888CCE59E45ADB2731387 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		7AE2242F06C89401965C969E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		7B74370DE25C7419821E5CDC /* HealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthService.swift; sourceTree = "<group>"; };
+		7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCycleTests.swift; sourceTree = "<group>"; };
+		85A04D740D98F94AF8D1C01A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8C081682CFF6D7EDAFE6DD65 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		8C2B39EADCDB27195E94083B /* FormaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormaUITests.swift; sourceTree = "<group>"; };
+		8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutStoreTests.swift; sourceTree = "<group>"; };
+		904683E424E4462C3CAFA2FF /* ServiceSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceSupport.swift; sourceTree = "<group>"; };
+		93165A8E785D6A4671A77D73 /* Forma.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Forma.entitlements; sourceTree = "<group>"; };
+		9491F59D4859CF6F6EE98E7D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		966F7B1C050BC95968966810 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		A599361579CD780F0B80F880 /* Design.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
+		AB531714AEEA0E78FA423E7F /* CameraCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCounter.swift; sourceTree = "<group>"; };
+		BACEE8309C7739399DCD14D6 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
+		BCDED05D38288080E42E9FFE /* ServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceTests.swift; sourceTree = "<group>"; };
+		CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
+		D61EE2F6A48694F9733A23D0 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
+		D75BC7507C88EAA244E80AF9 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		D8EEFF282EE82D60F7B40C06 /* WorkoutStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutStore.swift; sourceTree = "<group>"; };
+		E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		EA2061462EF1BE93E59B0E70 /* Forma.storekit */ = {isa = PBXFileReference; path = Forma.storekit; sourceTree = "<group>"; };
+		EEAF50B067C9B77670EE0725 /* FormaUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FormaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2855B9E54E9542E6E321ECE /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0C72B323A3E623A141B9A2F0 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */,
+				BACEE8309C7739399DCD14D6 /* BackendService.swift */,
+				7B74370DE25C7419821E5CDC /* HealthService.swift */,
+				904683E424E4462C3CAFA2FF /* ServiceSupport.swift */,
+				080A4D5102367C3343B53A3B /* SpeechService.swift */,
+				CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		4CCC4034548A4D9E370AE0B3 /* Forma */ = {
+			isa = PBXGroup;
+			children = (
+				C6A786918A19ECA319223EF8 /* App */,
+				6CC2F79579EE6DF847AFC090 /* Detection */,
+				A67EAE3B88BC3EFC8867B312 /* Models */,
+				CB53C0D722337D2F503F2988 /* Resources */,
+				0C72B323A3E623A141B9A2F0 /* Services */,
+				5417385501C0A5CEF3925E0A /* Views */,
+			);
+			path = Forma;
+			sourceTree = "<group>";
+		};
+		5417385501C0A5CEF3925E0A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A599361579CD780F0B80F880 /* Design.swift */,
+				D75BC7507C88EAA244E80AF9 /* FriendsView.swift */,
+				F2855B9E54E9542E6E321ECE /* HistoryView.swift */,
+				FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */,
+				398C021D358303F287112268 /* RootView.swift */,
+				3BF36FB005541C2F15D619FE /* SettingsView.swift */,
+				D61EE2F6A48694F9733A23D0 /* WorkoutView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6CC2F79579EE6DF847AFC090 /* Detection */ = {
+			isa = PBXGroup;
+			children = (
+				AB531714AEEA0E78FA423E7F /* CameraCounter.swift */,
+				966F7B1C050BC95968966810 /* CameraPreview.swift */,
+				1C0D8AC00591582C965D176A /* RepCycleEngine.swift */,
+			);
+			path = Detection;
+			sourceTree = "<group>";
+		};
+		7BBE1106888DDF29DDA6BED6 /* FormaTests */ = {
+			isa = PBXGroup;
+			children = (
+				7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */,
+				BCDED05D38288080E42E9FFE /* ServiceTests.swift */,
+				8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */,
+			);
+			path = FormaTests;
+			sourceTree = "<group>";
+		};
+		948E0900BCA51B8785095658 = {
+			isa = PBXGroup;
+			children = (
+				4CCC4034548A4D9E370AE0B3 /* Forma */,
+				7BBE1106888DDF29DDA6BED6 /* FormaTests */,
+				C5C62073D5964E5FD5A18C0F /* FormaUITests */,
+				A91902B908C35C713400A946 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A67EAE3B88BC3EFC8867B312 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D8EEFF282EE82D60F7B40C06 /* WorkoutStore.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A91902B908C35C713400A946 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				264A9B73EE8314C55721F274 /* Forma.app */,
+				4CA2F55BC6FF26452C6D9905 /* FormaTests.xctest */,
+				EEAF50B067C9B77670EE0725 /* FormaUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C5C62073D5964E5FD5A18C0F /* FormaUITests */ = {
+			isa = PBXGroup;
+			children = (
+				8C2B39EADCDB27195E94083B /* FormaUITests.swift */,
+			);
+			path = FormaUITests;
+			sourceTree = "<group>";
+		};
+		C6A786918A19ECA319223EF8 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */,
+				463DBA3F222B72835A9C0495 /* FormaApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		CB53C0D722337D2F503F2988 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				85A04D740D98F94AF8D1C01A /* Assets.xcassets */,
+				93165A8E785D6A4671A77D73 /* Forma.entitlements */,
+				EA2061462EF1BE93E59B0E70 /* Forma.storekit */,
+				43A8D4EFAAFCBD15102AF7F6 /* Info.plist */,
+				E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */,
+				027E7E662952DEC9C164A86F /* InfoPlist.strings */,
+				64F325CA4B4AA2AD5A80E34B /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		475DA89C102D7DDFFF38F053 /* Forma */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4C5DD33CD199970FFC8F6CF4 /* Build configuration list for PBXNativeTarget "Forma" */;
+			buildPhases = (
+				C11816ED1343160C23D72171 /* Sources */,
+				E4BA11537780711623CF3F72 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Forma;
+			packageProductDependencies = (
+			);
+			productName = Forma;
+			productReference = 264A9B73EE8314C55721F274 /* Forma.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7828C4F81CF0691AF693C525 /* FormaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A5AD45DB3B556FCAFF37710 /* Build configuration list for PBXNativeTarget "FormaTests" */;
+			buildPhases = (
+				BF6C603B60A79671C1FC3047 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				326EE9B881B5AB380648F5BF /* PBXTargetDependency */,
+			);
+			name = FormaTests;
+			packageProductDependencies = (
+			);
+			productName = FormaTests;
+			productReference = 4CA2F55BC6FF26452C6D9905 /* FormaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C63ABD4BD115780108BA13B8 /* FormaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A403E721E3806D85E26222C /* Build configuration list for PBXNativeTarget "FormaUITests" */;
+			buildPhases = (
+				89491F594699ACAAB5258D35 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				050FA8A9EBBFF7E0035FF105 /* PBXTargetDependency */,
+			);
+			name = FormaUITests;
+			packageProductDependencies = (
+			);
+			productName = FormaUITests;
+			productReference = EEAF50B067C9B77670EE0725 /* FormaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5F544B9276C9BD1AAD79134F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					475DA89C102D7DDFFF38F053 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					7828C4F81CF0691AF693C525 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					C63ABD4BD115780108BA13B8 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+						TestTargetID = 475DA89C102D7DDFFF38F053;
+					};
+				};
+			};
+			buildConfigurationList = 8FD58A32398795DA0B3AFD8C /* Build configuration list for PBXProject "Forma" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				ru,
+				"zh-Hans",
+			);
+			mainGroup = 948E0900BCA51B8785095658;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A91902B908C35C713400A946 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				475DA89C102D7DDFFF38F053 /* Forma */,
+				7828C4F81CF0691AF693C525 /* FormaTests */,
+				C63ABD4BD115780108BA13B8 /* FormaUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E4BA11537780711623CF3F72 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A86083BCE84EA98CF45D2AE5 /* Assets.xcassets in Resources */,
+				4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */,
+				C00C291DCC327A4F12FE50D5 /* InfoPlist.strings in Resources */,
+				4D3A489CFC2C5088F71CCD26 /* Localizable.strings in Resources */,
+				E0170AF88E227CF91A18D678 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		89491F594699ACAAB5258D35 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8134018884167FBFCFCE2DAE /* FormaUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF6C603B60A79671C1FC3047 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78D9311851C6CB916EF607FE /* RepCycleTests.swift in Sources */,
+				1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */,
+				446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C11816ED1343160C23D72171 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5362971B028F6052DA1395F1 /* AppConfiguration.swift in Sources */,
+				236715730362E577E948B7AE /* AuthService.swift in Sources */,
+				EAA6887EFDA07C744CD04C49 /* BackendService.swift in Sources */,
+				A7D5EA90389208B768DD2A5B /* CameraCounter.swift in Sources */,
+				8B51A673DDAFA2297A3C7463 /* CameraPreview.swift in Sources */,
+				7028175C3528BD4904831FF2 /* Design.swift in Sources */,
+				8E706B02336CB7945C5DF6E1 /* FormaApp.swift in Sources */,
+				7C2430433506BC56E2D33BE3 /* FriendsView.swift in Sources */,
+				0DE615585B90F95036AEE574 /* HealthService.swift in Sources */,
+				83ADAA8C4448835B6406C212 /* HistoryView.swift in Sources */,
+				66129B5BB91FB9176FF97535 /* PlusView.swift in Sources */,
+				CBE331339BA8D1CC76869281 /* RepCycleEngine.swift in Sources */,
+				79B0FAC4CC4816E655B96815 /* RootView.swift in Sources */,
+				D2A523852FDF0F0C85A35AD4 /* ServiceSupport.swift in Sources */,
+				9F4EB9675CCD63650B0BE81B /* SettingsView.swift in Sources */,
+				947D80F2CBCEFA2A5B155D22 /* SpeechService.swift in Sources */,
+				3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */,
+				5BE3BF58899E0C5B7B36CACB /* WorkoutStore.swift in Sources */,
+				91645AC6FB4511B68A027997 /* WorkoutView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		050FA8A9EBBFF7E0035FF105 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 475DA89C102D7DDFFF38F053 /* Forma */;
+			targetProxy = E224167435B96B1B40D13ED1 /* PBXContainerItemProxy */;
+		};
+		326EE9B881B5AB380648F5BF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 475DA89C102D7DDFFF38F053 /* Forma */;
+			targetProxy = A83FDB7766F9AE2CBF2F16D6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		027E7E662952DEC9C164A86F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C081682CFF6D7EDAFE6DD65 /* en */,
+				9491F59D4859CF6F6EE98E7D /* ru */,
+				447C40DCF8555F961C24A195 /* zh-Hans */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		64F325CA4B4AA2AD5A80E34B /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5FD888CCE59E45ADB2731387 /* en */,
+				54FAECC9256D03A7A6FF84F4 /* ru */,
+				7AE2242F06C89401965C969E /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		04DBE4FCD63E51284514DA83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		082F2315D0B50BB419A4F879 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.forma.FormaTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Forma.app/Forma";
+			};
+			name = Release;
+		};
+		2773CB214A4AEB401BB4DCE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.forma.FormaUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Forma;
+			};
+			name = Release;
+		};
+		4273961BCD668F8F4190C1B4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.forma.FormaUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Forma;
+			};
+			name = Debug;
+		};
+		862B476AAE4D7F8A1523C157 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		906D08F594BE56E8370B8723 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Forma/Resources/Forma.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Forma/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.forma.pushups;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		934F8F8A5DA3A5BE7730F45D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.forma.FormaTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Forma.app/Forma";
+			};
+			name = Debug;
+		};
+		EDB6632A8469001177A204AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Forma/Resources/Forma.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Forma/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.forma.pushups;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4A403E721E3806D85E26222C /* Build configuration list for PBXNativeTarget "FormaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4273961BCD668F8F4190C1B4 /* Debug */,
+				2773CB214A4AEB401BB4DCE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4C5DD33CD199970FFC8F6CF4 /* Build configuration list for PBXNativeTarget "Forma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				906D08F594BE56E8370B8723 /* Debug */,
+				EDB6632A8469001177A204AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7A5AD45DB3B556FCAFF37710 /* Build configuration list for PBXNativeTarget "FormaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				934F8F8A5DA3A5BE7730F45D /* Debug */,
+				082F2315D0B50BB419A4F879 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8FD58A32398795DA0B3AFD8C /* Build configuration list for PBXProject "Forma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				862B476AAE4D7F8A1523C157 /* Debug */,
+				04DBE4FCD63E51284514DA83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5F544B9276C9BD1AAD79134F /* Project object */;
+}

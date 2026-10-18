@@ -28,12 +28,21 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Forma/Resources/Forma.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     scheme:
-      testTargets: [FormaTests]
+      testTargets: [FormaTests, FormaUITests]
       storeKitConfiguration: Forma/Resources/Forma.storekit
   FormaTests:
     type: bundle.unit-test
     platform: iOS
     sources: [FormaTests]
+    dependencies:
+      - target: Forma
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+  FormaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [FormaUITests]
     dependencies:
       - target: Forma
     settings:

@@ -78,11 +78,11 @@ final class ServiceTests: XCTestCase {
         ServiceURLProtocol.handler = { request in
             XCTAssertEqual(request.url?.path, "/rest/v1/rpc/get_profile")
             XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer token")
-            return (200, try Self.json(["id": userID.uuidString, "friend_code": "ABC12345", "created_at": "2026-10-18T12:01:00.987654+00:00"]))
+            return (200, try Self.json(["id": userID.uuidString, "friend_code": "ABCDEF1234", "created_at": "2026-10-18T12:01:00.987654+00:00"]))
         }
         let profile = try await service.profile(accessToken: "token")
         XCTAssertEqual(profile.id, userID)
-        XCTAssertEqual(profile.friendCode, "ABC12345")
+        XCTAssertEqual(profile.friendCode, "ABCDEF1234")
     }
 
     func testWorkoutUploadUsesImmutableIDAndDateFields() async throws {
@@ -105,10 +105,10 @@ final class ServiceTests: XCTestCase {
 
     func testRequestFriendNormalizesCodeAndParsesStatus() async throws {
         ServiceURLProtocol.handler = { request in
-            XCTAssertEqual(try Self.body(request)["p_friend_code"] as? String, "ABC12345")
+            XCTAssertEqual(try Self.body(request)["p_friend_code"] as? String, "ABCDEF1234")
             return (200, try Self.json("outgoing"))
         }
-        let status = try await service.requestFriend(code: " abc12345\n", accessToken: "token")
+        let status = try await service.requestFriend(code: " abcdef1234\n", accessToken: "token")
         XCTAssertEqual(status, "outgoing")
     }
 
@@ -116,7 +116,7 @@ final class ServiceTests: XCTestCase {
         let userID = userID
         ServiceURLProtocol.handler = { request in
             XCTAssertEqual(try Self.body(request)["p_day"] as? String, "2026-10-17")
-            return (200, try Self.json([["user_id": userID.uuidString, "friend_code": "ABC12345", "repetitions": 20, "rank": 1, "is_me": true]]))
+            return (200, try Self.json([["user_id": userID.uuidString, "friend_code": "ABCDEF1234", "repetitions": 20, "rank": 1, "is_me": true]]))
         }
         let rows = try await service.leaderboard(day: ServiceDates.date("2026-10-18T00:20:00+03:00")!, accessToken: "token")
         XCTAssertEqual(rows.first?.userID, userID)
