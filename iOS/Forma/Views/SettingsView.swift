@@ -17,19 +17,23 @@ struct SettingsView: View {
     @State private var deletion = false
     @State private var privacy = false
     @State private var manageSubscriptions = false
+    @State private var goalEditor = DevelopmentLaunch.goalEditor
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section { PageTitle(eyebrow: L.text("make_it_yours"), title: L.text("settings")).listRowBackground(Color.clear).listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 8, trailing: 0)) }
+            AdaptiveForm {
+                Section { PageTitle(title: L.text("settings")).listRowBackground(Color.clear).listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 8, trailing: 0)) }
                 Section(L.text("appearance")) {
                     Picker(L.text("theme"), selection: $theme) { ForEach(AppTheme.allCases) { value in Text(L.text(value.rawValue)).tag(value.rawValue) } }
                     Picker(L.text("language"), selection: $language) { ForEach(AppLanguage.allCases) { value in Text(value.title).tag(value.rawValue) } }
+                    AccentPickerRow()
                 }
                 Section(L.text("workout")) {
                     Toggle(L.text("voice"), isOn: $voice)
                     Toggle(L.text("haptics"), isOn: $haptics)
-                    Stepper(L.format("daily_goal", goal), value: $goal, in: 5...500, step: 5)
+                    Button { goalEditor = true } label: {
+                        HStack { Text(L.text("goal_title")); Spacer(); Text("\(goal)").foregroundStyle(.secondary).monospacedDigit(); Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary) }.foregroundStyle(.primary)
+                    }.accessibilityIdentifier("daily_goal_editor")
                 }
                 Section {
                     Toggle("Apple Health", isOn: Binding(get: { healthEnabled }, set: { enabled in
@@ -53,13 +57,13 @@ struct SettingsView: View {
                         Button(L.text("sign_out")) { Task { await auth.signOut() } }.disabled(auth.isBusy)
                         Button(L.text("delete_account"), role: .destructive) { deletion = true }
                     } else {
-                        AppleLoginButton().listRowBackground(Color.clear)
+                        AppleLoginButton().frame(maxWidth: 420).frame(maxWidth: .infinity).listRowBackground(Color.clear)
                         if !AppConfiguration.isBackendConfigured { Text(L.text("backend_not_configured")).font(.footnote).foregroundStyle(.secondary) }
                     }
                     if let error = auth.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
                 } header: { Text(L.text("account")) } footer: { Text(L.text("account_footer")) }
                 Section {
-                    Button { plus = true } label: { HStack { Text(subscription.isPremium ? L.text("plus_active") : "FORMA Plus"); Spacer(); Image(systemName: "plus.circle") } }
+                    Button { plus = true } label: { HStack { Text(subscription.isPremium ? L.text("plus_active") : "UPRA Plus"); Spacer(); Image(systemName: "plus.circle") } }
                     Button(L.text("restore_purchases")) { Task { await subscription.restore() } }.disabled(subscription.isLoading)
                     Button(L.text("manage_subscription")) { manageSubscriptions = true }
                     if let error = subscription.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
@@ -69,13 +73,13 @@ struct SettingsView: View {
                     if let url = AppConfiguration.termsURL { Link(L.text("terms"), destination: url) }
                     LabeledContent(L.text("version"), value: "1.0.0 (1)")
                 }
-            }.tint(.primary).scrollContentBackground(.hidden).background(Color.canvas).toolbar(.hidden, for: .navigationBar)
-                .sheet(isPresented: $plus) { PlusView() }
-                .sheet(isPresented: $deletion) { DeleteAccountView() }
-                .sheet(isPresented: $privacy) { PrivacyView() }
+            }.toolbar(.hidden, for: .navigationBar)
+                .sheet(isPresented: $plus) { PlusView().adaptiveSheet() }
+                .sheet(isPresented: $deletion) { DeleteAccountView().adaptiveSheet() }
+                .sheet(isPresented: $privacy) { PrivacyView().adaptiveSheet() }
+                .sheet(isPresented: $goalEditor) { GoalEditorView(goal: $goal).adaptiveSheet() }
                 .manageSubscriptionsSheet(isPresented: $manageSubscriptions)
                 .onAppear { health.refreshAuthorization() }
-                .onChange(of: auth.lastDeletedUserID) { _, user in if let user { store.deleteOwned(by: user); deletion = false } }
         }
     }
 }
@@ -85,15 +89,18 @@ struct DeleteAccountView: View {
     @EnvironmentObject private var auth: AuthService
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 24) {
-                PageTitle(eyebrow: "FORMA", title: L.text("delete_account"))
+            ScrollView {
+                AdaptiveContent(maxWidth: 640) {
+                VStack(alignment: .leading, spacing: 24) {
+                PageTitle(title: L.text("delete_account"))
                 Text(L.text("delete_account_body")).foregroundStyle(.secondary)
                 StatusNote(text: L.text("delete_subscription_note"))
-                AppleLoginButton(deletion: true)
+                AppleLoginButton(deletion: true).frame(maxWidth: 420).frame(maxWidth: .infinity)
                 if auth.isBusy { ProgressView() }
                 if let error = auth.errorMessage { StatusNote(text: error) }
-                Spacer()
-            }.padding(26).toolbar { ToolbarItem(placement: .cancellationAction) { Button(L.text("cancel")) { dismiss() } } }
+                }
+                }
+            }.background(Color.canvas).toolbar { ToolbarItem(placement: .cancellationAction) { Button(L.text("cancel")) { dismiss() } } }
         }
     }
 }
@@ -103,12 +110,14 @@ struct PrivacyView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                AdaptiveContent(maxWidth: 640) {
                 VStack(alignment: .leading, spacing: 24) {
-                    PageTitle(eyebrow: "FORMA", title: L.text("privacy"))
-                    Text(L.text("privacy_body")).lineSpacing(6)
+                    PageTitle(title: L.text("privacy"))
+                    Text(L.text("privacy_body")).lineSpacing(6).fixedSize(horizontal: false, vertical: true)
                     if let url = AppConfiguration.privacyURL { Link(L.text("full_privacy"), destination: url) }
-                }.padding(26)
-            }.toolbar { ToolbarItem(placement: .confirmationAction) { Button(L.text("done")) { dismiss() } } }
+                }
+                }
+            }.background(Color.canvas).toolbar { ToolbarItem(placement: .confirmationAction) { Button(L.text("done")) { dismiss() } } }
         }
     }
 }

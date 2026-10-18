@@ -25,10 +25,10 @@ enum ServiceError: LocalizedError {
         case .verificationFailed:
             return ServiceCopy.text("The App Store purchase could not be verified.", "Не удалось проверить покупку в App Store.", "无法验证 App Store 购买。")
         case .productsUnavailable:
-            return ServiceCopy.text("Subscriptions are currently unavailable. You can keep using FORMA for free.", "Подписки сейчас недоступны. Вы можете продолжать пользоваться FORMA бесплатно.", "订阅暂不可用，您仍可免费使用 FORMA。")
+            return ServiceCopy.text("Subscriptions are currently unavailable. You can keep using UPRA for free.", "Подписки сейчас недоступны. Вы можете продолжать пользоваться UPRA бесплатно.", "订阅暂不可用，您仍可免费使用 UPRA。")
         case .server(let status, let code):
             if code.contains("apple") || code.contains("reauth") || code.contains("identity") || code.contains("revoke") {
-                return ServiceCopy.text("Please authorize the same Apple account again to delete your FORMA account.", "Для удаления аккаунта FORMA повторно подтвердите вход в тот же аккаунт Apple.", "请重新授权同一个 Apple 账户以删除 FORMA 账户。")
+                return ServiceCopy.text("Please authorize the same Apple account again to delete your UPRA account.", "Для удаления аккаунта UPRA повторно подтвердите вход в тот же аккаунт Apple.", "请重新授权同一个 Apple 账户以删除 UPRA 账户。")
             }
             if status == 401 || ["session_expired", "refresh_token_not_found", "refresh_token_already_used", "bad_jwt", "invalid_jwt"].contains(where: { code.contains($0) }) {
                 return ServiceCopy.text("Your session has expired. Please sign in again.", "Срок действия сеанса истёк. Войдите снова.", "会话已过期，请重新登录。")

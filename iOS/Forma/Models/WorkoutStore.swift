@@ -31,13 +31,16 @@ struct WorkoutDraft: Codable {
     private struct Archive: Codable { var records: [WorkoutRecord]; var draft: WorkoutDraft? }
 
     init(directory: URL? = nil) {
-        let base = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Forma", isDirectory: true)
+        var base = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Forma", isDirectory: true)
         url = base.appendingPathComponent("workouts.json")
         #if DEBUG
         if ProcessInfo.processInfo.environment["FORMA_RESET_DATA"] == "1" { try? FileManager.default.removeItem(at: url) }
         #endif
         do {
             try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try base.setResourceValues(values)
             if FileManager.default.fileExists(atPath: url.path) {
                 let archive = try JSONDecoder().decode(Archive.self, from: Data(contentsOf: url))
                 records = archive.records

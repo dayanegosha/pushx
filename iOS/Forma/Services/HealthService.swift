@@ -30,7 +30,7 @@ final class HealthService: ObservableObject {
             try await store.requestAuthorization(toShare: [workoutType], read: [])
             refreshAuthorization()
             if !isAuthorized {
-                errorMessage = ServiceCopy.text("Allow FORMA to add workouts in Health permissions to enable this feature.", "Разрешите FORMA добавлять тренировки в настройках доступа приложения «Здоровье».", "请在“健康”权限中允许 FORMA 添加训练。")
+                errorMessage = ServiceCopy.text("Allow UPRA to add workouts in Health permissions to enable this feature.", "Разрешите UPRA добавлять тренировки в настройках доступа приложения «Здоровье».", "请在“健康”权限中允许 UPRA 添加训练。")
             }
         } catch { errorMessage = healthMessage(error) }
         return isAuthorized
@@ -57,7 +57,7 @@ final class HealthService: ObservableObject {
             try await builder.addMetadata([
                 HKMetadataKeySyncIdentifier: "app.forma.pushups.\(id.uuidString.lowercased())",
                 HKMetadataKeySyncVersion: 1,
-                HKMetadataKeyWorkoutBrandName: "FORMA",
+                HKMetadataKeyWorkoutBrandName: "UPRA",
                 "app.forma.pushups.repetitions": repetitions
             ])
             try await builder.endCollection(at: end)
@@ -73,7 +73,7 @@ final class HealthService: ObservableObject {
 
     private func healthMessage(_ error: Error) -> String {
         if let failure = error as? HealthFailure { return failure.localizedDescription }
-        return ServiceCopy.text("The workout could not be saved to Apple Health. Your FORMA record is saved; you can retry from history.", "Не удалось сохранить тренировку в Apple Health. Запись в FORMA сохранена; повторите попытку в истории.", "无法将训练存入 Apple 健康。FORMA 记录已保存，可在历史中重试。")
+        return ServiceCopy.text("The workout could not be saved to Apple Health. Your UPRA record is saved; you can retry from history.", "Не удалось сохранить тренировку в Apple Health. Запись в UPRA сохранена; повторите попытку в истории.", "无法将训练存入 Apple 健康。UPRA 记录已保存，可在历史中重试。")
     }
 }
 
@@ -82,7 +82,7 @@ private enum HealthFailure: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionRequired:
-            return ServiceCopy.text("Allow FORMA to add workouts in Apple Health.", "Разрешите FORMA добавлять тренировки в Apple Health.", "请允许 FORMA 向 Apple 健康添加训练。")
+            return ServiceCopy.text("Allow UPRA to add workouts in Apple Health.", "Разрешите UPRA добавлять тренировки в Apple Health.", "请允许 UPRA 向 Apple 健康添加训练。")
         case .invalidWorkout:
             return ServiceCopy.text("Only a completed workout with repetitions can be added to Apple Health.", "В Apple Health можно добавить завершённую тренировку с повторениями.", "仅可将包含次数的已完成训练添加到 Apple 健康。")
         case .saveFailed:

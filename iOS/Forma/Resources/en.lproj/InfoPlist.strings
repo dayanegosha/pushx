@@ -1,5 +1,5 @@
-// FORMA — en
-"CFBundleDisplayName" = "FORMA";
-"NSCameraUsageDescription" = "FORMA uses the front camera to count push-ups on your iPhone. Video is never recorded or uploaded.";
-"NSHealthShareUsageDescription" = "FORMA does not read your health records. Workout syncing only adds sessions recorded in FORMA.";
-"NSHealthUpdateUsageDescription" = "With your permission, FORMA adds your completed push-up workouts to Apple Health.";
+// UPRA — en
+"CFBundleDisplayName" = "UPRA";
+"NSCameraUsageDescription" = "UPRA uses the front camera to count push-ups on your device. Video is never recorded or uploaded.";
+"NSHealthShareUsageDescription" = "UPRA does not read your health records. Workout syncing only adds sessions recorded in UPRA.";
+"NSHealthUpdateUsageDescription" = "With your permission, UPRA adds your completed push-up workouts to Apple Health.";

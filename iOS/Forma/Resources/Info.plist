@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>FORMA</string>
+	<string>UPRA</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleExecutable</key>
@@ -19,12 +19,14 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>FORMA uses the front camera to count push-ups on your device. Video is never recorded or uploaded.</string>
+	<string>UPRA uses the front camera to count push-ups on your device. Video is never recorded or uploaded.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
@@ -40,8 +42,19 @@
 	<key>TERMS_URL</key>
 	<string>https://www.apple.com/legal/internet-services/itunes/dev/stdeula/</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>FORMA adds your completed push-up workouts to Apple Health when you enable syncing.</string>
+	<string>UPRA adds your completed push-up workouts to Apple Health when you enable syncing.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>FORMA does not read your health records. Workout syncing only writes sessions you record in FORMA.</string>
+	<string>UPRA does not read your health records. Workout syncing only writes sessions you record in UPRA.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Onest-Variable.ttf</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
 </dict>
 </plist>

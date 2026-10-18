@@ -38,9 +38,17 @@ enum L {
 }
 
 enum DevelopmentLaunch {
+    static var allowLocalSession: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["UPRA_LOCAL_PREVIEW"] == "1"
+        #else
+        return false
+        #endif
+    }
     static var tab: Int {
         #if DEBUG
-        return Int(ProcessInfo.processInfo.environment["FORMA_SCREEN"] ?? "0") ?? 0
+        let value = ProcessInfo.processInfo.environment["FORMA_SCREEN"] ?? "0"
+        return value == "goal" ? 3 : Int(value) ?? 0
         #else
         return 0
         #endif
@@ -48,6 +56,13 @@ enum DevelopmentLaunch {
     static var workout: Bool {
         #if DEBUG
         return ProcessInfo.processInfo.environment["FORMA_SCREEN"] == "workout"
+        #else
+        return false
+        #endif
+    }
+    static var goalEditor: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["FORMA_SCREEN"] == "goal"
         #else
         return false
         #endif

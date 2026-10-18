@@ -9,6 +9,7 @@ struct AppleLoginButton: View {
         SignInWithAppleButton(.continue) { request in auth.prepareAppleSignIn(request, forAccountDeletion: deletion) } onCompletion: { result in Task { await auth.completeAppleSignIn(result) } }
             .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
             .frame(height: 54).clipShape(Capsule()).disabled(auth.isBusy || !AppConfiguration.isBackendConfigured)
+            .accessibilityIdentifier("apple_sign_in")
     }
 }
 
@@ -28,18 +29,19 @@ struct FriendsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                AdaptiveContent {
                 VStack(alignment: .leading, spacing: 24) {
-                    PageTitle(eyebrow: L.text("better_together"), title: L.text("friends"))
+                    PageTitle(title: L.text("friends"))
                     if auth.session == nil {
                         InfoCard(icon: "person.2", title: L.text("friendly_rivalry"), detail: L.text("friendly_rivalry_body"))
-                        AppleLoginButton()
+                        AppleLoginButton().frame(maxWidth: 420).frame(maxWidth: .infinity)
                         Text(L.text("sign_in_optional")).font(.footnote).foregroundStyle(.secondary)
                         if !AppConfiguration.isBackendConfigured { StatusNote(text: L.text("backend_not_configured")) }
                     } else {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(L.text("your_id").uppercased()).font(.system(size: 10, weight: .bold)).tracking(2).foregroundStyle(.secondary)
+                            Text(L.text("your_id").uppercased()).font(AppFont.text(10, weight: .bold)).tracking(2).foregroundStyle(.secondary)
                             HStack {
-                                Text(auth.profile?.friendCode ?? "—").font(.system(size: 25, weight: .medium, design: .monospaced)).tracking(3).textSelection(.enabled)
+                                Text(auth.profile?.friendCode ?? "—").font(.system(size: 25, weight: .medium, design: .monospaced)).tracking(2).minimumScaleFactor(0.65).lineLimit(1).textSelection(.enabled)
                                 Spacer()
                                 if let code = auth.profile?.friendCode { ShareLink(item: code) { Image(systemName: "square.and.arrow.up") }.accessibilityLabel(L.text("share_id")) }
                             }
@@ -54,11 +56,11 @@ struct FriendsView: View {
                             Text(L.text("board_utc")).font(.caption).foregroundStyle(.secondary)
                             if leaderboard.isEmpty { Text(L.text("board_empty")).font(.subheadline).foregroundStyle(.secondary) }
                             ForEach(leaderboard, id: \.userID) { row in
-                                HStack {
+                                HStack(alignment: .firstTextBaseline) {
                                     Text(String(format: "%02d", row.rank)).font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary).frame(width: 25)
-                                    Text(row.isMe ? L.text("you") : row.friendCode).font(.system(size: 14, weight: row.isMe ? .bold : .regular, design: .monospaced))
+                                    Text(row.isMe ? L.text("you") : row.friendCode).font(.system(size: 14, weight: row.isMe ? .bold : .regular, design: .monospaced)).fixedSize(horizontal: false, vertical: true)
                                     Spacer()
-                                    Text("\(row.repetitions)").font(.system(size: 28, weight: .medium, design: .rounded))
+                                    Text("\(row.repetitions)").font(AppFont.numeric(28)).fixedSize()
                                 }.padding(.vertical, 4)
                             }
                         }.padding(22).background(Color.panel, in: RoundedRectangle(cornerRadius: 24))
@@ -94,7 +96,8 @@ struct FriendsView: View {
                     }
                     if let error { StatusNote(text: error) }
                     if let error = auth.errorMessage { StatusNote(text: error) }
-                }.padding(26)
+                }
+                }
             }.background(Color.canvas).toolbar(.hidden, for: .navigationBar).refreshable { await model.synchronize(); await refresh() }
                 .task(id: auth.session?.userID) { if auth.session != nil { await refresh() } else { loadVersion += 1; friends = []; leaderboard = []; blocked = []; busy = false; error = nil } }
         }

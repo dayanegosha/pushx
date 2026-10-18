@@ -86,7 +86,7 @@ final class SubscriptionService: ObservableObject {
             try await AppStore.sync()
             await refreshEntitlements()
             if !isPremium {
-                errorMessage = ServiceCopy.text("No active FORMA Plus subscription was found for this Apple account.", "Для этого аккаунта Apple не найдена активная подписка FORMA Plus.", "未找到此 Apple 账户的有效 FORMA Plus 订阅。")
+                errorMessage = ServiceCopy.text("No active UPRA Plus subscription was found for this Apple account.", "Для этого аккаунта Apple не найдена активная подписка UPRA Plus.", "未找到此 Apple 账户的有效 UPRA Plus 订阅。")
             }
         } catch { errorMessage = ServiceCopy.message(for: error) }
     }

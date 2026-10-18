@@ -1,5 +1,5 @@
-// FORMA — ru
-"CFBundleDisplayName" = "FORMA";
-"NSCameraUsageDescription" = "FORMA использует фронтальную камеру для подсчёта отжиманий на iPhone. Видео не записывается и не отправляется на сервер.";
-"NSHealthShareUsageDescription" = "FORMA не читает ваши медицинские данные. При синхронизации добавляются только тренировки, записанные в FORMA.";
-"NSHealthUpdateUsageDescription" = "С вашего разрешения FORMA добавляет завершённые тренировки с отжиманиями в приложение «Здоровье».";
+// UPRA — ru
+"CFBundleDisplayName" = "UPRA";
+"NSCameraUsageDescription" = "UPRA использует фронтальную камеру для подсчёта отжиманий на устройстве. Видео не записывается и не отправляется на сервер.";
+"NSHealthShareUsageDescription" = "UPRA не читает ваши медицинские данные. При синхронизации добавляются только тренировки, записанные в UPRA.";
+"NSHealthUpdateUsageDescription" = "С вашего разрешения UPRA добавляет завершённые тренировки с отжиманиями в приложение «Здоровье».";
