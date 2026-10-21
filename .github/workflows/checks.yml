@@ -55,5 +55,7 @@ jobs:
           PGPASSWORD: postgres
         run: |
           psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/tests/bootstrap.sql
-          psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/supabase/migrations/202610180001_forma.sql
+          for migration in Backend/supabase/migrations/*.sql; do
+            psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f "$migration"
+          done
           psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/tests/regression.sql

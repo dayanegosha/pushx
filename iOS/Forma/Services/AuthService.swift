@@ -27,7 +27,7 @@ private final class AppleSignInCoordinator {
         let nonce = try randomString()
         let state = try randomString()
         pending = Request(rawNonce: nonce, state: state, forAccountDeletion: forAccountDeletion)
-        request.requestedScopes = []
+        request.requestedScopes = forAccountDeletion ? [] : [.fullName]
         request.nonce = SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
         request.state = state
     }
@@ -45,7 +45,7 @@ private final class AppleSignInCoordinator {
         let name = credential.fullName.map { PersonNameComponentsFormatter().string(from: $0) }
         return AppleCredential(userID: credential.user, idToken: idToken,
                                authorizationCode: credential.authorizationCode.flatMap { String(data: $0, encoding: .utf8) },
-                               email: credential.email, displayName: name.flatMap { $0.isEmpty ? nil : $0 },
+                               email: credential.email, displayName: ProfileName.normalized(name),
                                rawNonce: pending.rawNonce, forAccountDeletion: pending.forAccountDeletion)
     }
 
@@ -106,6 +106,58 @@ private struct SessionKeychain {
     }
 }
 
+struct AppleNameKeychain {
+    let service: String
+
+    init(service: String = (Bundle.main.bundleIdentifier ?? "app.forma.pushups") + ".apple-names") {
+        self.service = service
+    }
+
+    func capture(_ name: String?, for appleUserID: String) throws -> String? {
+        if let saved = try load(for: appleUserID) { return saved }
+        guard let normalized = ProfileName.normalized(name) else { return nil }
+        try save(normalized, for: appleUserID)
+        return normalized
+    }
+
+    func load(for appleUserID: String) throws -> String? {
+        var request = query(for: appleUserID)
+        request[kSecReturnData as String] = true
+        request[kSecMatchLimit as String] = kSecMatchLimitOne
+        var value: CFTypeRef?
+        let status = SecItemCopyMatching(request as CFDictionary, &value)
+        if status == errSecItemNotFound { return nil }
+        guard status == errSecSuccess, let data = value as? Data else { throw ServiceError.secureStorage }
+        return ProfileName.normalized(String(data: data, encoding: .utf8))
+    }
+
+    func save(_ name: String, for appleUserID: String) throws {
+        guard let normalized = ProfileName.normalized(name), let data = normalized.data(using: .utf8) else {
+            throw ServiceError.invalidDisplayName
+        }
+        let query = query(for: appleUserID)
+        let changes: [String: Any] = [kSecValueData as String: data,
+                                      kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly]
+        let update = SecItemUpdate(query as CFDictionary, changes as CFDictionary)
+        if update == errSecItemNotFound {
+            guard SecItemAdd(query.merging(changes) { _, new in new } as CFDictionary, nil) == errSecSuccess else {
+                throw ServiceError.secureStorage
+            }
+        } else if update != errSecSuccess { throw ServiceError.secureStorage }
+    }
+
+    func delete(for appleUserID: String) throws {
+        let status = SecItemDelete(query(for: appleUserID) as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw ServiceError.secureStorage }
+    }
+
+    private func query(for appleUserID: String) -> [String: Any] {
+        let account = SHA256.hash(data: Data(appleUserID.utf8)).map { String(format: "%02x", $0) }.joined()
+        return [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
+                kSecAttrAccount as String: account]
+    }
+}
+
 @MainActor
 final class AuthService: ObservableObject {
     static let shared = AuthService()
@@ -117,9 +169,11 @@ final class AuthService: ObservableObject {
 
     private let backend = BackendService.shared
     private let keychain = SessionKeychain()
+    private let names = AppleNameKeychain()
     private let coordinator = AppleSignInCoordinator()
     private var refreshTask: Task<AuthSession, Error>?
     private var sessionVersion = 0
+    private var profileRevision = 0
     private var restored = false
     private var revocationObserver: NSObjectProtocol?
 
@@ -154,10 +208,13 @@ final class AuthService: ObservableObject {
                 let token = try await validAccessToken()
                 try await backend.deleteAccount(authorizationCode: code, idToken: credential.idToken, accessToken: token)
                 lastDeletedUserID = current.userID
+                let nameDeletion = Result { try names.delete(for: credential.userID) }
                 try clearSession()
+                try nameDeletion.get()
             } else {
+                let displayName = try names.capture(credential.displayName, for: credential.userID)
                 let session = try await backend.exchangeAppleToken(idToken: credential.idToken, nonce: credential.rawNonce,
-                                                                   appleUserID: credential.userID, displayName: credential.displayName)
+                                                                   appleUserID: credential.userID, displayName: displayName)
                 try keychain.save(session)
                 sessionVersion += 1
                 self.session = session
@@ -218,9 +275,48 @@ final class AuthService: ObservableObject {
 
     func refreshProfile() async throws {
         let version = sessionVersion
+        let revision = profileRevision
         let token = try await validAccessToken()
+        guard version == sessionVersion else { throw CancellationError() }
+        guard revision == profileRevision else { return }
         let result = try await backend.profile(accessToken: token)
         guard version == sessionVersion, result.id == session?.userID else { throw CancellationError() }
+        guard revision == profileRevision else { return }
+        if ProfileName.normalized(result.displayName) == nil,
+           let name = ProfileName.normalized(session?.displayName) {
+            let updated = try await backend.setDisplayName(name, onlyIfEmpty: true, accessToken: token)
+            guard version == sessionVersion, updated.id == session?.userID else { throw CancellationError() }
+            guard revision == profileRevision else { return }
+            try saveProfile(updated)
+        } else {
+            try saveProfile(result)
+        }
+    }
+
+    func updateDisplayName(_ name: String) async throws {
+        guard let normalized = ProfileName.normalized(name) else { throw ServiceError.invalidDisplayName }
+        profileRevision += 1
+        let revision = profileRevision
+        let version = sessionVersion
+        let token = try await validAccessToken()
+        guard version == sessionVersion else { throw CancellationError() }
+        guard revision == profileRevision else { return }
+        let result = try await backend.setDisplayName(normalized, accessToken: token)
+        guard version == sessionVersion, result.id == session?.userID else { throw CancellationError() }
+        guard revision == profileRevision else { return }
+        profileRevision += 1
+        try saveProfile(result)
+    }
+
+    private func saveProfile(_ result: RemoteProfile) throws {
+        guard let current = session, result.id == current.userID else { throw CancellationError() }
+        let name = ProfileName.normalized(result.displayName) ?? ProfileName.normalized(current.displayName)
+        let updated = AuthSession(userID: current.userID, accessToken: current.accessToken, refreshToken: current.refreshToken,
+                                  expiresAt: current.expiresAt, email: current.email, appleUserID: current.appleUserID,
+                                  displayName: name)
+        try keychain.save(updated)
+        if let appleUserID = current.appleUserID, let name { try names.save(name, for: appleUserID) }
+        session = updated
         profile = result
     }
 

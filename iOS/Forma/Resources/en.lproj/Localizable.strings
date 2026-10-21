@@ -1,4 +1,3 @@
-// UPRA — en
 "accept" = "Accept";
 "account" = "Account";
 "account_footer" = "Your Apple account keeps your progress and connects you with friends. A subscription is optional.";
@@ -37,7 +36,7 @@
 "dark" = "Dark";
 "decline" = "Decline";
 "delete_account" = "Delete account";
-"delete_account_body" = "Confirm the same Apple account to permanently delete your UPRA profile, friend connections and account workouts from the server and this device. Older local records without an account stay on the device. Workouts already added to Apple Health can be deleted separately in Health.";
+"delete_account_body" = "Confirm the same Apple account to permanently delete your pushx profile, friend connections and account workouts from the server and this device. Older local records without an account stay on the device. Workouts already added to Apple Health can be deleted separately in Health.";
 "delete_subscription_note" = "Deleting your account does not cancel an App Store subscription. Manage or cancel it in your Apple account settings.";
 "discard" = "Discard";
 "done" = "Done";
@@ -59,11 +58,11 @@
 "full_privacy" = "Read the full privacy policy";
 "guest_history_note" = "Older local records without an account stay on this device and do not appear on the leaderboard.";
 "haptics" = "Haptic feedback";
-"health_denied" = "Allow UPRA to add workouts in Health permissions, then try again.";
-"health_error" = "Could not add the workout to Apple Health. Your UPRA record is saved; try syncing again.";
+"health_denied" = "Allow pushx to add workouts in Health permissions, then try again.";
+"health_error" = "Could not add the workout to Apple Health. Your pushx record is saved; try syncing again.";
 "health_intro" = "Optionally add completed workouts to Apple Health. You decide when to connect.";
 "health_saved" = "Saved to Apple Health";
-"health_settings_body" = "When enabled, UPRA adds completed workouts to Apple Health. It does not read health records or estimate heart rate or calories.";
+"health_settings_body" = "When enabled, pushx adds completed workouts to Apple Health. It does not read health records or estimate heart rate or calories.";
 "history" = "History";
 "history_empty" = "Your first rep starts here";
 "history_empty_body" = "Finish a workout and your progress will appear here.";
@@ -87,16 +86,16 @@
 "pause" = "Pause";
 "paused" = "Take a breath. Resume when you are ready.";
 "phone_hint" = "Place your device screen up with your face visible to the front camera.";
-"plus_active" = "UPRA Plus is active";
-"plus_analytics" = "More insights with UPRA Plus";
+"plus_active" = "pushx Plus is active";
+"plus_analytics" = "More insights with pushx Plus";
 "plus_body" = "A little extra for your progress. The essentials stay free, including counting, history and friends.";
-"plus_title" = "A little\nmore UPRA.";
+"plus_title" = "A little\nmore pushx.";
 "position_phone" = "Place the device below your face, screen up. Keep it still and calibrate both positions.";
 "prepare" = "Get ready";
 "privacy" = "Privacy";
-"privacy_body" = "Camera frames are processed on your device and are never recorded or uploaded. Workout history is saved on the device.\n\nSign in with Apple is required to use UPRA. Your account identity lets you sync workouts and connect with friends. Friends can see your friend ID and daily results. Older local records without an account are not automatically uploaded.\n\nApple Health is optional. With your permission, UPRA adds completed workouts. It does not read your health records or estimate heart rate or calories.\n\nApp Store subscriptions are handled by Apple. UPRA does not receive your payment card details. You can manage subscriptions in your Apple account settings and delete your UPRA account in Settings.";
-"products_unavailable" = "Subscriptions are unavailable right now. You can keep using UPRA for free.";
-"purchase_not_configured" = "UPRA Plus is not available in this version yet. All essential features are free to use.";
+"privacy_body" = "Camera frames are processed on your device and are never recorded or uploaded. Workout history is saved on the device.\n\nSign in with Apple is required to use pushx. Your account identity lets you sync workouts and connect with friends. With your permission, Apple provides your name on the first sign-in. It is saved in your profile and can be edited in Settings. Friends see your name and daily results; your ID is used to find and add friends. Older local records without an account are not automatically uploaded.\n\nApple Health is optional. With your permission, pushx adds completed workouts. It does not read your health records or estimate heart rate or calories.\n\nApp Store subscriptions are handled by Apple. pushx does not receive your payment card details. You can manage subscriptions in your Apple account settings and delete your pushx account in Settings.";
+"products_unavailable" = "Subscriptions are unavailable right now. You can keep using pushx for free.";
+"purchase_not_configured" = "pushx Plus is not available in this version yet. All essential features are free to use.";
 "pushups_saved" = "Push-ups saved. Your progress counts.";
 "recalibrate" = "Calibrate again";
 "remove_friend" = "Remove friend";
@@ -135,7 +134,7 @@
 "upper_countdown" = "Hold the upper position, arms straight. Capture in %ld…";
 "version" = "Version";
 "voice" = "Voice count";
-"welcome_body" = "Sign in with Apple to keep your progress and compete with friends. Place your device screen up — UPRA will count your push-ups.";
+"welcome_body" = "Sign in with Apple to keep your progress and compete with friends. Place your device screen up — pushx will count your push-ups.";
 "welcome_title" = "Every rep.\nA little stronger.";
 "well_done" = "Well done.";
 "workout" = "Workout";
@@ -149,7 +148,7 @@
 "your_workouts" = "Your workouts";
 "blocked_users" = "Blocked users";
 "unblock" = "Unblock";
-"purchase_pending" = "Your purchase is awaiting approval. Plus will activate once Apple confirms it. You can keep using UPRA for free.";
+"purchase_pending" = "Your purchase is awaiting approval. Plus will activate once Apple confirms it. You can keep using pushx for free.";
 "accent_color" = "Accent color";
 "accent_violet" = "Violet";
 "accent_blue" = "Blue";
@@ -164,3 +163,14 @@
 "goal_slider" = "Adjust your goal";
 "sign_in_unavailable" = "Sign-in is temporarily unavailable. Please try again later.";
 "orientation_changed" = "The camera position changed. Calibrate again to continue.";
+"participant_name" = "Member";
+"profile_name" = "Name";
+"edit_name" = "Edit name";
+"name_editor_title" = "Your name";
+"name_placeholder" = "What is your name?";
+"name_hint" = "Friends will see this name on the leaderboard";
+"name_range" = "1–64 characters";
+"name_invalid" = "Enter a name with 1–64 characters";
+"save" = "Save";
+"name_save_error" = "Could not save your name. Try again.";
+"status" = "Status";

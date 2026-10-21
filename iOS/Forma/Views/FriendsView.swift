@@ -6,10 +6,96 @@ struct AppleLoginButton: View {
     @Environment(\.colorScheme) private var colorScheme
     var deletion = false
     var body: some View {
-        SignInWithAppleButton(.continue) { request in auth.prepareAppleSignIn(request, forAccountDeletion: deletion) } onCompletion: { result in Task { await auth.completeAppleSignIn(result) } }
-            .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
-            .frame(height: 54).clipShape(Capsule()).disabled(auth.isBusy || !AppConfiguration.isBackendConfigured)
-            .accessibilityIdentifier("apple_sign_in")
+        NativeAppleLoginButton(auth: auth, deletion: deletion, dark: colorScheme == .dark,
+                               enabled: !auth.isBusy && AppConfiguration.isBackendConfigured)
+            .frame(height: 44)
+    }
+}
+
+private struct NativeAppleLoginButton: UIViewRepresentable {
+    let auth: AuthService
+    let deletion: Bool
+    let dark: Bool
+    let enabled: Bool
+
+    func makeCoordinator() -> Coordinator { Coordinator(auth: auth, deletion: deletion) }
+
+    func makeUIView(context: Context) -> AppleButtonContainer {
+        let view = AppleButtonContainer()
+        context.coordinator.view = view
+        return view
+    }
+
+    func updateUIView(_ view: AppleButtonContainer, context: Context) {
+        context.coordinator.deletion = deletion
+        view.configure(dark: dark, enabled: enabled, target: context.coordinator, action: #selector(Coordinator.signIn))
+    }
+
+    @MainActor
+    final class Coordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+        let auth: AuthService
+        var deletion: Bool
+        weak var view: AppleButtonContainer?
+        private var controller: ASAuthorizationController?
+
+        init(auth: AuthService, deletion: Bool) {
+            self.auth = auth
+            self.deletion = deletion
+        }
+
+        @objc func signIn() {
+            guard !auth.isBusy, controller == nil, AppConfiguration.isBackendConfigured else { return }
+            let request = ASAuthorizationAppleIDProvider().createRequest()
+            auth.prepareAppleSignIn(request, forAccountDeletion: deletion)
+            guard auth.errorMessage == nil else { return }
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            self.controller = controller
+            controller.performRequests()
+        }
+
+        func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+            view?.window ?? ASPresentationAnchor()
+        }
+
+        func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+            self.controller = nil
+            Task { await auth.completeAppleSignIn(.success(authorization)) }
+        }
+
+        func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+            self.controller = nil
+            Task { await auth.completeAppleSignIn(.failure(error)) }
+        }
+    }
+}
+
+private final class AppleButtonContainer: UIView {
+    private var button: ASAuthorizationAppleIDButton?
+    private var dark: Bool?
+
+    func configure(dark: Bool, enabled: Bool, target: Any, action: Selector) {
+        overrideUserInterfaceStyle = dark ? .dark : .light
+        if self.dark != dark {
+            button?.removeFromSuperview()
+            let button = ASAuthorizationAppleIDButton(type: .continue, style: dark ? .white : .black)
+            button.cornerRadius = 22
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.accessibilityIdentifier = "apple_sign_in"
+            button.addTarget(target, action: action, for: .touchUpInside)
+            addSubview(button)
+            NSLayoutConstraint.activate([
+                button.leadingAnchor.constraint(equalTo: leadingAnchor),
+                button.trailingAnchor.constraint(equalTo: trailingAnchor),
+                button.topAnchor.constraint(equalTo: topAnchor),
+                button.bottomAnchor.constraint(equalTo: bottomAnchor)
+            ])
+            self.button = button
+            self.dark = dark
+        }
+        button?.overrideUserInterfaceStyle = dark ? .dark : .light
+        button?.isEnabled = enabled
     }
 }
 
@@ -39,9 +125,11 @@ struct FriendsView: View {
                         if !AppConfiguration.isBackendConfigured { StatusNote(text: L.text("backend_not_configured")) }
                     } else {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text(L.text("your_id").uppercased()).font(AppFont.text(10, weight: .bold)).tracking(2).foregroundStyle(.secondary)
+                            Text(profileName).font(AppFont.text(25, weight: .semibold)).lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true).accessibilityIdentifier("friend_profile_name")
                             HStack {
-                                Text(auth.profile?.friendCode ?? "—").font(.system(size: 25, weight: .medium, design: .monospaced)).tracking(2).minimumScaleFactor(0.65).lineLimit(1).textSelection(.enabled)
+                                Text(L.text("your_id")).font(AppFont.text(12)).foregroundStyle(.secondary)
+                                Text(auth.profile?.friendCode ?? "—").font(.system(size: 13, weight: .medium, design: .monospaced)).lineLimit(1).textSelection(.enabled).foregroundStyle(.secondary)
                                 Spacer()
                                 if let code = auth.profile?.friendCode { ShareLink(item: code) { Image(systemName: "square.and.arrow.up") }.accessibilityLabel(L.text("share_id")) }
                             }
@@ -58,7 +146,11 @@ struct FriendsView: View {
                             ForEach(leaderboard, id: \.userID) { row in
                                 HStack(alignment: .firstTextBaseline) {
                                     Text(String(format: "%02d", row.rank)).font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary).frame(width: 25)
-                                    Text(row.isMe ? L.text("you") : row.friendCode).font(.system(size: 14, weight: row.isMe ? .bold : .regular, design: .monospaced)).fixedSize(horizontal: false, vertical: true)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(name(row.displayName ?? (row.isMe ? auth.profile?.displayName ?? auth.session?.displayName : nil))).font(AppFont.text(15, weight: row.isMe ? .semibold : .regular))
+                                            .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                                        if row.isMe { Text(L.text("you")).font(AppFont.text(11)).foregroundStyle(.secondary) }
+                                    }
                                     Spacer()
                                     Text("\(row.repetitions)").font(AppFont.numeric(28)).fixedSize()
                                 }.padding(.vertical, 4)
@@ -68,7 +160,10 @@ struct FriendsView: View {
                             Text(L.text("connections")).font(.headline)
                             ForEach(friends, id: \.userID) { friend in
                                 HStack {
-                                    VStack(alignment: .leading, spacing: 5) { Text(friend.friendCode).font(.system(.subheadline, design: .monospaced)); Text(L.text("friend_" + friend.status)).font(.caption).foregroundStyle(.secondary) }
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text(name(friend.displayName)).font(AppFont.text(15)).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                                        Text(L.text("friend_" + friend.status)).font(AppFont.text(12)).foregroundStyle(.secondary)
+                                    }
                                     Spacer()
                                     if friend.status == "incoming" {
                                         Button { perform { token in try await BackendService.shared.respondToFriend(userID: friend.userID, accept: true, accessToken: token) } } label: { Image(systemName: "checkmark.circle") }.accessibilityLabel(L.text("accept"))
@@ -86,7 +181,7 @@ struct FriendsView: View {
                             Text(L.text("blocked_users")).font(.headline)
                             ForEach(blocked) { user in
                                 HStack {
-                                    Text(user.friendCode).font(.system(.subheadline, design: .monospaced))
+                                    Text(name(user.displayName)).font(AppFont.text(15)).lineLimit(2).fixedSize(horizontal: false, vertical: true)
                                     Spacer()
                                     Button(L.text("unblock")) { perform { token in try await BackendService.shared.unblockUser(userID: user.userID, accessToken: token) } }.font(.caption).disabled(busy)
                                 }.padding(18).background(Color.panel, in: RoundedRectangle(cornerRadius: 20))
@@ -102,6 +197,12 @@ struct FriendsView: View {
                 .task(id: auth.session?.userID) { if auth.session != nil { await refresh() } else { loadVersion += 1; friends = []; leaderboard = []; blocked = []; busy = false; error = nil } }
         }
     }
+    private var profileName: String { name(auth.profile?.displayName ?? auth.session?.displayName) }
+
+    private func name(_ value: String?) -> String {
+        ProfileName.normalized(value) ?? L.text("participant_name")
+    }
+
     private func perform(_ operation: @escaping (String) async throws -> Void) {
         Task {
             busy = true; error = nil

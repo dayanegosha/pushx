@@ -4,21 +4,21 @@ enum AppFont {
     static func text(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
         let name: String
         switch weight {
-        case .ultraLight: name = "Onest-Thin"
-        case .thin: name = "Onest-ExtraLight"
-        case .light: name = "Onest-Light"
-        case .medium: name = "Onest-Medium"
-        case .semibold: name = "Onest-SemiBold"
-        case .bold: name = "Onest-Bold"
-        case .heavy: name = "Onest-ExtraBold"
-        case .black: name = "Onest-Black"
-        default: name = "Onest-Regular"
+        case .ultraLight: name = "Geologica-Thin"
+        case .thin: name = "Geologica-Thin_ExtraLight"
+        case .light: name = "Geologica-Thin_Light"
+        case .medium: name = "Geologica-Thin_Medium"
+        case .semibold: name = "Geologica-Thin_SemiBold"
+        case .bold: name = "Geologica-Thin_Bold"
+        case .heavy: name = "Geologica-Thin_ExtraBold"
+        case .black: name = "Geologica-Thin_Black"
+        default: name = "Geologica-Thin_Regular"
         }
         return .custom(name, size: size, relativeTo: .body)
     }
 
     static func numeric(_ size: CGFloat) -> Font {
-        .custom("Onest-Regular", fixedSize: size).monospacedDigit()
+        .custom("Geologica-Thin_Regular", fixedSize: size).monospacedDigit()
     }
 }
 
@@ -77,18 +77,15 @@ struct StatusNote: View {
     }
 }
 
-struct UpraMark: Shape {
+struct PushMark: Shape {
     func path(in rect: CGRect) -> Path {
         func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
             CGPoint(x: rect.minX + x * rect.width, y: rect.minY + y * rect.height)
         }
         var path = Path()
-        for offset: CGFloat in [0, 0.33] {
-            path.move(to: point(0.18, 0.43 + offset))
-            path.addLine(to: point(0.43, 0.18 + offset))
-            path.addQuadCurve(to: point(0.57, 0.18 + offset), control: point(0.50, 0.11 + offset))
-            path.addLine(to: point(0.82, 0.43 + offset))
-        }
+        path.move(to: point(10 / 64, 22 / 64))
+        path.addCurve(to: point(32 / 64, 42 / 64), control1: point(21 / 64, 22 / 64), control2: point(21 / 64, 42 / 64))
+        path.addCurve(to: point(54 / 64, 22 / 64), control1: point(43 / 64, 42 / 64), control2: point(43 / 64, 22 / 64))
         return path
     }
 }
@@ -96,9 +93,9 @@ struct UpraMark: Shape {
 struct Brand: View {
     var body: some View {
         HStack(spacing: 10) {
-            UpraMark().stroke(Color.accentColor, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            PushMark().stroke(Color.ink, style: StrokeStyle(lineWidth: 2.6, lineCap: .round, lineJoin: .round))
                 .frame(width: 28, height: 28)
-            Text("UPRA").font(AppFont.text(18, weight: .bold)).tracking(2.5)
-        }.accessibilityElement(children: .ignore).accessibilityLabel("UPRA")
+            Text("pushx").font(AppFont.text(20, weight: .semibold))
+        }.accessibilityElement(children: .ignore).accessibilityLabel("pushx")
     }
 }

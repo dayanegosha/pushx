@@ -18,6 +18,11 @@ struct SettingsView: View {
     @State private var privacy = false
     @State private var manageSubscriptions = false
     @State private var goalEditor = DevelopmentLaunch.goalEditor
+    @State private var nameEditor = false
+
+    private var profileName: String {
+        ProfileName.normalized(auth.profile?.displayName ?? auth.session?.displayName) ?? L.text("participant_name")
+    }
 
     var body: some View {
         NavigationStack {
@@ -52,6 +57,15 @@ struct SettingsView: View {
                 } header: { Text("Apple Health") } footer: { Text(L.text("health_settings_body")) }
                 Section {
                     if auth.session != nil {
+                        Button { nameEditor = true } label: {
+                            HStack(alignment: .firstTextBaseline, spacing: 16) {
+                                Text(L.text("profile_name"))
+                                Spacer(minLength: 0)
+                                Text(profileName).foregroundStyle(.secondary).multilineTextAlignment(.trailing).lineLimit(2)
+                                Image(systemName: "pencil").font(.caption).foregroundStyle(.secondary)
+                            }.font(AppFont.text(16)).foregroundStyle(.primary)
+                        }.disabled(auth.isBusy).accessibilityLabel(L.text("edit_name"))
+                            .accessibilityValue(profileName).accessibilityIdentifier("edit_profile_name")
                         LabeledContent(L.text("your_id"), value: auth.profile?.friendCode ?? "—")
                         Button(L.text("sync_now")) { Task { await model.synchronize() } }.disabled(model.syncing)
                         Button(L.text("sign_out")) { Task { await auth.signOut() } }.disabled(auth.isBusy)
@@ -63,7 +77,7 @@ struct SettingsView: View {
                     if let error = auth.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
                 } header: { Text(L.text("account")) } footer: { Text(L.text("account_footer")) }
                 Section {
-                    Button { plus = true } label: { HStack { Text(subscription.isPremium ? L.text("plus_active") : "UPRA Plus"); Spacer(); Image(systemName: "plus.circle") } }
+                    Button { plus = true } label: { HStack { Text(subscription.isPremium ? L.text("plus_active") : "pushx Plus"); Spacer(); Image(systemName: "plus.circle") } }
                     Button(L.text("restore_purchases")) { Task { await subscription.restore() } }.disabled(subscription.isLoading)
                     Button(L.text("manage_subscription")) { manageSubscriptions = true }
                     if let error = subscription.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
@@ -78,6 +92,7 @@ struct SettingsView: View {
                 .sheet(isPresented: $deletion) { DeleteAccountView().adaptiveSheet() }
                 .sheet(isPresented: $privacy) { PrivacyView().adaptiveSheet() }
                 .sheet(isPresented: $goalEditor) { GoalEditorView(goal: $goal).adaptiveSheet() }
+                .sheet(isPresented: $nameEditor) { NameEditorView(name: auth.profile?.displayName ?? auth.session?.displayName ?? "").adaptiveSheet() }
                 .manageSubscriptionsSheet(isPresented: $manageSubscriptions)
                 .onAppear { health.refreshAuthorization() }
         }

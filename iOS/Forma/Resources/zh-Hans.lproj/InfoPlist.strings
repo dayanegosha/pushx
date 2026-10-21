@@ -1,5 +1,4 @@
-// UPRA — zh-Hans
-"CFBundleDisplayName" = "UPRA";
-"NSCameraUsageDescription" = "UPRA 使用前置摄像头在设备本机计算俯卧撑次数。视频不会被录制或上传。";
-"NSHealthShareUsageDescription" = "UPRA 不会读取健康记录。训练同步仅添加在 UPRA 中记录的训练。";
-"NSHealthUpdateUsageDescription" = "经你授权，UPRA 会将已完成的俯卧撑训练添加到 Apple“健康”。";
+"CFBundleDisplayName" = "pushx";
+"NSCameraUsageDescription" = "pushx 使用前置摄像头在设备本机计算俯卧撑次数。视频不会被录制或上传。";
+"NSHealthShareUsageDescription" = "pushx 不会读取健康记录。训练同步仅添加在 pushx 中记录的训练。";
+"NSHealthUpdateUsageDescription" = "经你授权，pushx 会将已完成的俯卧撑训练添加到 Apple“健康”。";

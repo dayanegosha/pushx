@@ -7,17 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		013A826D88931FD5BE33E33A /* Geologica-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F773F27DFA0AD9C1FAAC3D9 /* Geologica-Variable.ttf */; };
 		0B03DB253334515044201280 /* AppearanceControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5562FB3B6ED04D969AC85E3 /* AppearanceControls.swift */; };
 		0DE615585B90F95036AEE574 /* HealthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B74370DE25C7419821E5CDC /* HealthService.swift */; };
-		112649D4C8D0FECCB6080374 /* Onest-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 963AA23F693169C34390778F /* Onest-OFL.txt */; };
 		1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDED05D38288080E42E9FFE /* ServiceTests.swift */; };
 		236715730362E577E948B7AE /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */; };
-		2F27FCEA08B1C86F2A83057E /* Onest-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4B15D2EB707B05F943333C23 /* Onest-Variable.ttf */; };
 		3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */; };
 		446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */; };
 		4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2061462EF1BE93E59B0E70 /* Forma.storekit */; };
 		4D3A489CFC2C5088F71CCD26 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 64F325CA4B4AA2AD5A80E34B /* Localizable.strings */; };
 		5362971B028F6052DA1395F1 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */; };
+		57BF6DFBBA0800848B38BBEB /* Geologica-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 408E63BCAF98E295223A1F08 /* Geologica-OFL.txt */; };
 		5BE3BF58899E0C5B7B36CACB /* WorkoutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EEFF282EE82D60F7B40C06 /* WorkoutStore.swift */; };
 		66129B5BB91FB9176FF97535 /* PlusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */; };
 		6DD57CCBAB355D2E6D7A4EFB /* CameraGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1702BD709DB82B8FFB5AD3C /* CameraGeometry.swift */; };
@@ -37,6 +37,7 @@
 		BA99073B9F2CDB249F5C8CD7 /* AdaptiveLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D8CDE3BE87D51079577594 /* AdaptiveLayout.swift */; };
 		BB056BA203F2CA5D17B87F71 /* CameraGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF49B0DBA26C509D43959CA0 /* CameraGeometryTests.swift */; };
 		C00C291DCC327A4F12FE50D5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 027E7E662952DEC9C164A86F /* InfoPlist.strings */; };
+		C7054BD8AB706A0235CB7F6D /* NameEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91DE54C1AA9D50CEDF8CEF2 /* NameEditorView.swift */; };
 		CBE331339BA8D1CC76869281 /* RepCycleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0D8AC00591582C965D176A /* RepCycleEngine.swift */; };
 		D2A523852FDF0F0C85A35AD4 /* ServiceSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904683E424E4462C3CAFA2FF /* ServiceSupport.swift */; };
 		E0170AF88E227CF91A18D678 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */; };
@@ -67,12 +68,13 @@
 		264A9B73EE8314C55721F274 /* Forma.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Forma.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		398C021D358303F287112268 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		3BF36FB005541C2F15D619FE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		408E63BCAF98E295223A1F08 /* Geologica-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Geologica-OFL.txt"; sourceTree = "<group>"; };
 		43A8D4EFAAFCBD15102AF7F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		447C40DCF8555F961C24A195 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		463DBA3F222B72835A9C0495 /* FormaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormaApp.swift; sourceTree = "<group>"; };
-		4B15D2EB707B05F943333C23 /* Onest-Variable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Onest-Variable.ttf"; sourceTree = "<group>"; };
 		4CA2F55BC6FF26452C6D9905 /* FormaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FormaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54FAECC9256D03A7A6FF84F4 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5F773F27DFA0AD9C1FAAC3D9 /* Geologica-Variable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Geologica-Variable.ttf"; sourceTree = "<group>"; };
 		5FD888CCE59E45ADB2731387 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7AE2242F06C89401965C969E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7B74370DE25C7419821E5CDC /* HealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthService.swift; sourceTree = "<group>"; };
@@ -85,11 +87,11 @@
 		904683E424E4462C3CAFA2FF /* ServiceSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceSupport.swift; sourceTree = "<group>"; };
 		93165A8E785D6A4671A77D73 /* Forma.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Forma.entitlements; sourceTree = "<group>"; };
 		9491F59D4859CF6F6EE98E7D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		963AA23F693169C34390778F /* Onest-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Onest-OFL.txt"; sourceTree = "<group>"; };
 		966F7B1C050BC95968966810 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		A599361579CD780F0B80F880 /* Design.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
 		AB531714AEEA0E78FA423E7F /* CameraCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCounter.swift; sourceTree = "<group>"; };
 		B5562FB3B6ED04D969AC85E3 /* AppearanceControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceControls.swift; sourceTree = "<group>"; };
+		B91DE54C1AA9D50CEDF8CEF2 /* NameEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEditorView.swift; sourceTree = "<group>"; };
 		BACEE8309C7739399DCD14D6 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
 		BCDED05D38288080E42E9FFE /* ServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceTests.swift; sourceTree = "<group>"; };
 		C1702BD709DB82B8FFB5AD3C /* CameraGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraGeometry.swift; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				A599361579CD780F0B80F880 /* Design.swift */,
 				D75BC7507C88EAA244E80AF9 /* FriendsView.swift */,
 				F2855B9E54E9542E6E321ECE /* HistoryView.swift */,
+				B91DE54C1AA9D50CEDF8CEF2 /* NameEditorView.swift */,
 				FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */,
 				398C021D358303F287112268 /* RootView.swift */,
 				3BF36FB005541C2F15D619FE /* SettingsView.swift */,
@@ -234,8 +237,8 @@
 		FFB6897A32E54C1ACD6E6291 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				963AA23F693169C34390778F /* Onest-OFL.txt */,
-				4B15D2EB707B05F943333C23 /* Onest-Variable.ttf */,
+				408E63BCAF98E295223A1F08 /* Geologica-OFL.txt */,
+				5F773F27DFA0AD9C1FAAC3D9 /* Geologica-Variable.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -351,10 +354,10 @@
 			files = (
 				A86083BCE84EA98CF45D2AE5 /* Assets.xcassets in Resources */,
 				4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */,
+				57BF6DFBBA0800848B38BBEB /* Geologica-OFL.txt in Resources */,
+				013A826D88931FD5BE33E33A /* Geologica-Variable.ttf in Resources */,
 				C00C291DCC327A4F12FE50D5 /* InfoPlist.strings in Resources */,
 				4D3A489CFC2C5088F71CCD26 /* Localizable.strings in Resources */,
-				112649D4C8D0FECCB6080374 /* Onest-OFL.txt in Resources */,
-				2F27FCEA08B1C86F2A83057E /* Onest-Variable.ttf in Resources */,
 				E0170AF88E227CF91A18D678 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -398,6 +401,7 @@
 				7C2430433506BC56E2D33BE3 /* FriendsView.swift in Sources */,
 				0DE615585B90F95036AEE574 /* HealthService.swift in Sources */,
 				83ADAA8C4448835B6406C212 /* HistoryView.swift in Sources */,
+				C7054BD8AB706A0235CB7F6D /* NameEditorView.swift in Sources */,
 				66129B5BB91FB9176FF97535 /* PlusView.swift in Sources */,
 				CBE331339BA8D1CC76869281 /* RepCycleEngine.swift in Sources */,
 				79B0FAC4CC4816E655B96815 /* RootView.swift in Sources */,

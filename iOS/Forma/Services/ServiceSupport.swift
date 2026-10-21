@@ -4,6 +4,7 @@ enum ServiceError: LocalizedError {
     case notConfigured
     case notSignedIn
     case invalidAppleCredential
+    case invalidDisplayName
     case invalidResponse
     case secureStorage
     case verificationFailed
@@ -18,6 +19,8 @@ enum ServiceError: LocalizedError {
             return ServiceCopy.text("Sign in with Apple to continue.", "Чтобы продолжить, войдите через Apple.", "请使用 Apple 登录后继续。")
         case .invalidAppleCredential:
             return ServiceCopy.text("Apple could not confirm this sign-in. Please try again.", "Apple не удалось подтвердить вход. Попробуйте снова.", "Apple 无法确认此次登录，请重试。")
+        case .invalidDisplayName:
+            return ServiceCopy.text("Enter a name between 1 and 64 characters.", "Введи имя от 1 до 64 символов.", "请输入 1 至 64 个字符的姓名。")
         case .invalidResponse:
             return ServiceCopy.text("The server returned an unexpected response. Please try again.", "Сервер вернул неожиданный ответ. Попробуйте снова.", "服务器返回了意外响应，请重试。")
         case .secureStorage:
@@ -25,10 +28,11 @@ enum ServiceError: LocalizedError {
         case .verificationFailed:
             return ServiceCopy.text("The App Store purchase could not be verified.", "Не удалось проверить покупку в App Store.", "无法验证 App Store 购买。")
         case .productsUnavailable:
-            return ServiceCopy.text("Subscriptions are currently unavailable. You can keep using UPRA for free.", "Подписки сейчас недоступны. Вы можете продолжать пользоваться UPRA бесплатно.", "订阅暂不可用，您仍可免费使用 UPRA。")
+            return ServiceCopy.text("Subscriptions are currently unavailable. You can keep using pushx for free.", "Подписки сейчас недоступны. Вы можете продолжать пользоваться pushx бесплатно.", "订阅暂不可用，您仍可免费使用 pushx。")
         case .server(let status, let code):
+            if code.contains("invalid_display_name") { return ServiceError.invalidDisplayName.errorDescription }
             if code.contains("apple") || code.contains("reauth") || code.contains("identity") || code.contains("revoke") {
-                return ServiceCopy.text("Please authorize the same Apple account again to delete your UPRA account.", "Для удаления аккаунта UPRA повторно подтвердите вход в тот же аккаунт Apple.", "请重新授权同一个 Apple 账户以删除 UPRA 账户。")
+                return ServiceCopy.text("Please authorize the same Apple account again to delete your pushx account.", "Для удаления аккаунта pushx повторно подтвердите вход в тот же аккаунт Apple.", "请重新授权同一个 Apple 账户以删除 pushx 账户。")
             }
             if status == 401 || ["session_expired", "refresh_token_not_found", "refresh_token_already_used", "bad_jwt", "invalid_jwt"].contains(where: { code.contains($0) }) {
                 return ServiceCopy.text("Your session has expired. Please sign in again.", "Срок действия сеанса истёк. Войдите снова.", "会话已过期，请重新登录。")
@@ -52,6 +56,33 @@ enum ServiceError: LocalizedError {
                 return ServiceCopy.text("Too many requests. Please try again shortly.", "Слишком много запросов. Повторите попытку чуть позже.", "请求过多，请稍后重试。")
             }
             return ServiceCopy.text("The operation could not be completed. Please try again. (\(status))", "Не удалось выполнить действие. Попробуйте снова. (\(status))", "无法完成操作，请重试。 (\(status))")
+        }
+    }
+}
+
+enum ProfileName {
+    static func normalized(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let scalars = value.precomposedStringWithCanonicalMapping.unicodeScalars
+        let normalized = scalars.split(whereSeparator: isWhitespace).map(String.init).joined(separator: " ")
+        guard (1...64).contains(normalized.unicodeScalars.count),
+              !normalized.unicodeScalars.contains(where: isControl) else { return nil }
+        return normalized
+    }
+
+    private static func isWhitespace(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.value {
+        case 0x0009...0x000D, 0x0020, 0x0085, 0x00A0, 0x1680, 0x2000...0x200A,
+             0x2028, 0x2029, 0x202F, 0x205F, 0x3000: return true
+        default: return false
+        }
+    }
+
+    private static func isControl(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.value {
+        case 0x0000...0x001F, 0x007F...0x009F, 0x00AD, 0x061C, 0x180E, 0x200B...0x200F,
+             0x202A...0x202E, 0x2060...0x206F, 0xFEFF, 0xFFF9...0xFFFB: return true
+        default: return false
         }
     }
 }

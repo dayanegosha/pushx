@@ -10,7 +10,7 @@ struct PlusView: View {
                 AdaptiveContent(maxWidth: 640) {
                 VStack(alignment: .leading, spacing: 24) {
                     Brand().padding(.top, 20)
-                    Text(L.text("plus_title")).font(AppFont.text(42, weight: .semibold)).accessibilityLabel("UPRA Plus")
+                    Text(L.text("plus_title")).font(AppFont.text(42, weight: .semibold)).accessibilityLabel("pushx Plus")
                     Text(L.text("plus_body")).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     InfoCard(icon: "chart.bar.xaxis", title: L.text("advanced_stats"), detail: L.text("advanced_stats_body"))
                     InfoCard(icon: "square.and.arrow.up", title: L.text("export_csv"), detail: L.text("export_body"))

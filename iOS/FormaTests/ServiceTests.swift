@@ -1,4 +1,5 @@
 import XCTest
+import Security
 @testable import Forma
 
 private final class ServiceURLProtocol: URLProtocol, @unchecked Sendable {
@@ -60,7 +61,7 @@ final class ServiceTests: XCTestCase {
 
     func testRefreshRotatesTokenAndPreservesAppleSubject() async throws {
         let session = AuthSession(userID: userID, accessToken: "expired", refreshToken: "old-refresh", expiresAt: .distantPast,
-                                  email: nil, appleUserID: "apple-subject", displayName: nil)
+                                  email: nil, appleUserID: "apple-subject", displayName: "Георгий Журик")
         let userID = userID
         ServiceURLProtocol.handler = { request in
             XCTAssertEqual(try Self.body(request)["refresh_token"] as? String, "old-refresh")
@@ -71,6 +72,74 @@ final class ServiceTests: XCTestCase {
         XCTAssertEqual(refreshed.accessToken, "new-token")
         XCTAssertEqual(refreshed.refreshToken, "new-refresh")
         XCTAssertEqual(refreshed.appleUserID, session.appleUserID)
+        XCTAssertEqual(refreshed.displayName, session.displayName)
+    }
+
+    func testAppleNameSurvivesRepeatedSignInAndIsIsolatedByAccount() throws {
+        let status = SecItemCopyMatching([kSecClass as String: kSecClassGenericPassword,
+                                         kSecAttrService as String: "app.forma.tests.entitlement-check"] as CFDictionary, nil)
+        if status == errSecMissingEntitlement { throw XCTSkip("Keychain requires an app signature with application-identifier; this test build is unsigned.") }
+        let cache = AppleNameKeychain(service: "app.forma.tests.apple-names." + UUID().uuidString)
+        defer { try? cache.delete(for: "apple-a"); try? cache.delete(for: "apple-b") }
+        XCTAssertEqual(try cache.capture("  Георгий\u{3000}Журик  ", for: "apple-a"), "Георгий Журик")
+        XCTAssertEqual(try cache.load(for: "apple-a"), "Георгий Журик")
+        XCTAssertNil(try cache.load(for: "apple-b"))
+        XCTAssertEqual(try cache.capture(nil, for: "apple-a"), "Георгий Журик")
+        try cache.save("George", for: "apple-a")
+        XCTAssertEqual(try cache.capture("Old Apple name", for: "apple-a"), "George")
+        XCTAssertEqual(try cache.capture("小明", for: "apple-b"), "小明")
+        try cache.delete(for: "apple-a")
+        XCTAssertNil(try cache.load(for: "apple-a"))
+        XCTAssertEqual(try cache.load(for: "apple-b"), "小明")
+    }
+
+    func testProfileNameNormalizesUnicodeAndRejectsInvisibleControls() {
+        XCTAssertEqual(ProfileName.normalized("\t  Jose\u{0301}\u{00A0}\u{3000}林\n"), "José 林")
+        XCTAssertEqual(ProfileName.normalized(String(repeating: "林", count: 64)), String(repeating: "林", count: 64))
+        for value in [nil, "", "\u{00A0}\t", String(repeating: "林", count: 65), "A\u{0000}B", "A\u{200B}B", "A\u{202E}B", "A\u{FEFF}B"] {
+            XCTAssertNil(ProfileName.normalized(value))
+        }
+    }
+
+    func testDisplayNameRPCNormalizesInputAndCanImportOnlyWhenEmpty() async throws {
+        let userID = userID
+        var calls = 0
+        ServiceURLProtocol.handler = { request in
+            calls += 1
+            XCTAssertEqual(request.url?.path, "/rest/v1/rpc/set_display_name")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer token")
+            let payload = try Self.body(request)
+            XCTAssertEqual(payload["p_display_name"] as? String, "Георгий Журик")
+            XCTAssertEqual(payload["p_only_if_empty"] as? Bool, calls == 1)
+            return (200, try Self.json(["id": userID.uuidString, "friend_code": "ABCDEF1234",
+                                        "created_at": "2026-10-18T12:01:00Z", "display_name": "Георгий Журик"]))
+        }
+        let imported = try await service.setDisplayName(" Георгий\nЖурик ", onlyIfEmpty: true, accessToken: "token")
+        XCTAssertEqual(imported.displayName, "Георгий Журик")
+        _ = try await service.setDisplayName("Георгий Журик", accessToken: "token")
+        XCTAssertEqual(calls, 2)
+    }
+
+    func testInvalidNameIsRejectedBeforeNetworkRequest() async throws {
+        ServiceURLProtocol.handler = { _ in XCTFail("Invalid names must not reach the network"); return (500, Data()) }
+        do {
+            _ = try await service.setDisplayName("\u{200B}", accessToken: "token")
+            XCTFail("Invalid name was accepted")
+        } catch ServiceError.invalidDisplayName {}
+    }
+
+    func testFriendNamesDecodeAndLegacyProfilesRemainCompatible() throws {
+        let decoder = ServiceDates.decoder()
+        let common: [String: Any] = ["user_id": userID.uuidString, "friend_code": "ABCDEF1234", "display_name": "小明 王"]
+        let friend = try decoder.decode(FriendRow.self, from: Self.json(common.merging(["status": "accepted", "requested_at": "2026-10-18T12:00:00Z"]) { _, new in new }))
+        let rank = try decoder.decode(LeaderboardRow.self, from: Self.json(common.merging(["repetitions": 20, "rank": 1, "is_me": false]) { _, new in new }))
+        let blocked = try decoder.decode(BlockedFriendRow.self, from: Self.json(common))
+        XCTAssertEqual(friend.displayName, "小明 王")
+        XCTAssertEqual(rank.displayName, friend.displayName)
+        XCTAssertEqual(blocked.displayName, friend.displayName)
+        let legacy: [String: Any] = ["id": userID.uuidString, "friend_code": "ABCDEF1234", "created_at": "2026-10-18T12:00:00Z"]
+        XCTAssertNil(try decoder.decode(RemoteProfile.self, from: Self.json(legacy)).displayName)
+        XCTAssertNil(try decoder.decode(RemoteProfile.self, from: Self.json(legacy.merging(["display_name": NSNull()]) { _, new in new })).displayName)
     }
 
     func testProfileParsesPostgresMicroseconds() async throws {

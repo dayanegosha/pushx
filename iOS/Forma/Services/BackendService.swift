@@ -4,8 +4,9 @@ struct RemoteProfile: Codable, Identifiable, Sendable {
     let id: UUID
     let friendCode: String
     let createdAt: Date
+    var displayName: String? = nil
     enum CodingKeys: String, CodingKey {
-        case id, friendCode = "friend_code", createdAt = "created_at"
+        case id, friendCode = "friend_code", createdAt = "created_at", displayName = "display_name"
     }
 }
 
@@ -14,9 +15,10 @@ struct FriendRow: Codable, Identifiable, Sendable {
     let friendCode: String
     let status: String
     let requestedAt: Date
+    var displayName: String? = nil
     var id: UUID { userID }
     enum CodingKeys: String, CodingKey {
-        case userID = "user_id", friendCode = "friend_code", status, requestedAt = "requested_at"
+        case userID = "user_id", friendCode = "friend_code", status, requestedAt = "requested_at", displayName = "display_name"
     }
 }
 
@@ -26,18 +28,20 @@ struct LeaderboardRow: Codable, Identifiable, Sendable {
     let repetitions: Int
     let rank: Int
     let isMe: Bool
+    var displayName: String? = nil
     var id: UUID { userID }
     enum CodingKeys: String, CodingKey {
-        case userID = "user_id", friendCode = "friend_code", repetitions, rank, isMe = "is_me"
+        case userID = "user_id", friendCode = "friend_code", repetitions, rank, isMe = "is_me", displayName = "display_name"
     }
 }
 
 struct BlockedFriendRow: Codable, Identifiable, Sendable {
     let userID: UUID
     let friendCode: String
+    var displayName: String? = nil
     var id: UUID { userID }
     enum CodingKeys: String, CodingKey {
-        case userID = "user_id", friendCode = "friend_code"
+        case userID = "user_id", friendCode = "friend_code", displayName = "display_name"
     }
 }
 
@@ -118,6 +122,12 @@ actor BackendService {
 
     func profile(accessToken: String) async throws -> RemoteProfile {
         try await rpc("get_profile", body: [:], accessToken: accessToken, as: RemoteProfile.self)
+    }
+
+    func setDisplayName(_ name: String, onlyIfEmpty: Bool = false, accessToken: String) async throws -> RemoteProfile {
+        guard let normalized = ProfileName.normalized(name) else { throw ServiceError.invalidDisplayName }
+        return try await rpc("set_display_name", body: ["p_display_name": normalized, "p_only_if_empty": onlyIfEmpty],
+                             accessToken: accessToken, as: RemoteProfile.self)
     }
 
     func uploadWorkout(id: UUID, startedAt: Date, endedAt: Date, repetitions: Int, detectionMode: String, accessToken: String) async throws -> RemoteWorkout {

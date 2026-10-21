@@ -1,4 +1,3 @@
-// UPRA — zh-Hans
 "accept" = "接受";
 "account" = "账户";
 "account_footer" = "Apple 账户用于保存进度和好友竞赛。订阅为可选项。";
@@ -37,7 +36,7 @@
 "dark" = "深色";
 "decline" = "拒绝";
 "delete_account" = "删除账户";
-"delete_account_body" = "请验证同一个 Apple 账户，以永久删除服务器和此设备上的 UPRA 个人资料、好友关系及该账户的训练记录。未关联账户的旧本地记录将保留在设备上。已添加到 Apple“健康”的训练，可在“健康”中单独删除。";
+"delete_account_body" = "请验证同一个 Apple 账户，以永久删除服务器和此设备上的 pushx 个人资料、好友关系及该账户的训练记录。未关联账户的旧本地记录将保留在设备上。已添加到 Apple“健康”的训练，可在“健康”中单独删除。";
 "delete_subscription_note" = "删除账户不会取消 App Store 订阅。请在 Apple 账户设置中管理或取消订阅。";
 "discard" = "不保存";
 "done" = "完成";
@@ -59,11 +58,11 @@
 "full_privacy" = "查看完整隐私政策";
 "guest_history_note" = "未关联账户的旧本地记录仅保存在此设备上，不计入排行榜。";
 "haptics" = "触感反馈";
-"health_denied" = "请在“健康”权限中允许 UPRA 添加训练，然后重试。";
-"health_error" = "无法将训练添加到 Apple“健康”。UPRA 记录已保存，请尝试重新同步。";
+"health_denied" = "请在“健康”权限中允许 pushx 添加训练，然后重试。";
+"health_error" = "无法将训练添加到 Apple“健康”。pushx 记录已保存，请尝试重新同步。";
 "health_intro" = "可选择将已完成的训练添加到 Apple“健康”，由你决定是否连接。";
 "health_saved" = "已存入 Apple“健康”";
-"health_settings_body" = "启用后，UPRA 会将已完成的训练添加到 Apple“健康”。应用不会读取健康记录，也不会估算心率或卡路里。";
+"health_settings_body" = "启用后，pushx 会将已完成的训练添加到 Apple“健康”。应用不会读取健康记录，也不会估算心率或卡路里。";
 "history" = "记录";
 "history_empty" = "从第一次开始";
 "history_empty_body" = "完成一次训练后，就能在这里看到进步。";
@@ -87,16 +86,16 @@
 "pause" = "暂停";
 "paused" = "调整呼吸，准备好后再继续。";
 "phone_hint" = "将设备屏幕朝上放置，并让前置摄像头能够看到你的面部。";
-"plus_active" = "UPRA Plus 已启用";
-"plus_analytics" = "使用 UPRA Plus 查看更多统计";
+"plus_active" = "pushx Plus 已启用";
+"plus_analytics" = "使用 pushx Plus 查看更多统计";
 "plus_body" = "为进步多添一点助力。计数、历史和好友等基本功能始终免费。";
-"plus_title" = "多一点\nUPRA。";
+"plus_title" = "多一点\npushx。";
 "position_phone" = "将设备放在面部下方，屏幕朝上。保持设备不动，校准高位和低位。";
 "prepare" = "准备";
 "privacy" = "隐私";
-"privacy_body" = "相机画面仅在设备本机处理，不会被录制或上传。训练历史保存在设备上。\n\n使用 UPRA 需要通过 Apple 登录。账户标识用于同步训练记录和建立好友关系。好友可查看你的好友 ID 和每日成绩。未关联账户的旧本地记录不会自动上传。\n\nApple“健康”为可选功能。经你授权，UPRA 会添加已完成的训练，但不会读取健康记录，也不会估算心率或卡路里。\n\nApp Store 订阅由 Apple 处理，UPRA 不会接收银行卡信息。可在 Apple 账户设置中管理订阅，也可在应用设置中删除 UPRA 账户。";
-"products_unavailable" = "订阅暂不可用。你仍可免费使用 UPRA。";
-"purchase_not_configured" = "此版本暂未开放 UPRA Plus。所有基本功能均可免费使用。";
+"privacy_body" = "相机画面仅在设备本机处理，不会被录制或上传。训练历史保存在设备上。\n\n使用 pushx 需要通过 Apple 登录。账户标识用于同步训练记录和建立好友关系。经你授权，Apple 会在首次登录时提供姓名。姓名保存在个人资料中，可在设置里修改。好友可以看到你的姓名和每日成绩；ID 用于查找和添加好友。未关联账户的旧本地记录不会自动上传。\n\nApple“健康”为可选功能。经你授权，pushx 会添加已完成的训练，但不会读取健康记录，也不会估算心率或卡路里。\n\nApp Store 订阅由 Apple 处理，pushx 不会接收银行卡信息。可在 Apple 账户设置中管理订阅，也可在应用设置中删除 pushx 账户。";
+"products_unavailable" = "订阅暂不可用。你仍可免费使用 pushx。";
+"purchase_not_configured" = "此版本暂未开放 pushx Plus。所有基本功能均可免费使用。";
 "pushups_saved" = "俯卧撑已保存，进步已记录。";
 "recalibrate" = "重新校准";
 "remove_friend" = "移除好友";
@@ -135,7 +134,7 @@
 "upper_countdown" = "保持高位，手臂伸直。%ld 秒后采集…";
 "version" = "版本";
 "voice" = "语音计数";
-"welcome_body" = "使用 Apple 登录以保存进度并与好友竞赛。将设备屏幕朝上放置，让 UPRA 为你计算俯卧撑。";
+"welcome_body" = "使用 Apple 登录以保存进度并与好友竞赛。将设备屏幕朝上放置，让 pushx 为你计算俯卧撑。";
 "welcome_title" = "每一次，\n都更进一步。";
 "well_done" = "做得好。";
 "workout" = "训练";
@@ -149,7 +148,7 @@
 "your_workouts" = "我的训练";
 "blocked_users" = "已屏蔽的用户";
 "unblock" = "取消屏蔽";
-"purchase_pending" = "购买正在等待批准。Apple 确认后，Plus 将自动启用。在此期间，你仍可免费使用 UPRA。";
+"purchase_pending" = "购买正在等待批准。Apple 确认后，Plus 将自动启用。在此期间，你仍可免费使用 pushx。";
 "accent_color" = "强调色";
 "accent_violet" = "紫色";
 "accent_blue" = "蓝色";
@@ -164,3 +163,14 @@
 "goal_slider" = "调整目标";
 "sign_in_unavailable" = "暂时无法登录，请稍后重试。";
 "orientation_changed" = "摄像头位置已改变。请重新校准以继续。";
+"participant_name" = "成员";
+"profile_name" = "姓名";
+"edit_name" = "修改姓名";
+"name_editor_title" = "你的姓名";
+"name_placeholder" = "你叫什么名字？";
+"name_hint" = "好友会在排行榜中看到此姓名";
+"name_range" = "1 至 64 个字符";
+"name_invalid" = "请输入 1 至 64 个字符的姓名";
+"save" = "保存";
+"name_save_error" = "无法保存姓名，请重试。";
+"status" = "状态";

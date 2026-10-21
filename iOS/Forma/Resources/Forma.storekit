@@ -14,7 +14,7 @@
     {
       "id": "3F277740-C721-4A41-BC47-C99DCFE3D3A7",
       "localizations": [],
-      "name": "UPRA Plus",
+      "name": "pushx Plus",
       "subscriptions": [
         {
           "adHocOffers": [],
@@ -27,13 +27,13 @@
           "localizations": [
             {
               "description": "Extended statistics and CSV export",
-              "displayName": "UPRA Plus",
+              "displayName": "pushx Plus",
               "locale": "en_US"
             }
           ],
           "productID": "forma.plus.monthly",
           "recurringSubscriptionPeriod": "P1M",
-          "referenceName": "UPRA Plus Monthly",
+          "referenceName": "pushx Plus Monthly",
           "subscriptionGroupID": "3F277740-C721-4A41-BC47-C99DCFE3D3A7",
           "type": "RecurringSubscription",
           "winBackOffers": []
@@ -49,13 +49,13 @@
           "localizations": [
             {
               "description": "Extended statistics and CSV export",
-              "displayName": "UPRA Plus",
+              "displayName": "pushx Plus",
               "locale": "en_US"
             }
           ],
           "productID": "forma.plus.yearly",
           "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "UPRA Plus Yearly",
+          "referenceName": "pushx Plus Yearly",
           "subscriptionGroupID": "3F277740-C721-4A41-BC47-C99DCFE3D3A7",
           "type": "RecurringSubscription",
           "winBackOffers": []

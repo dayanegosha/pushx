@@ -1,4 +1,4 @@
-# UPRA · сервер и API
+# pushx · сервер и API
 
 Серверная часть подготовлена для Supabase: Auth с Apple, PostgreSQL с RLS и Edge Function удаления аккаунта. Она **не развёрнута**: в комплекте нет проекта Supabase, ключей Apple или работающего публичного адреса. При первом запуске Release обязателен вход с Apple: счётчик и история открываются после получения сессии. Без развёрнутого сервера и публичной конфигурации экран входа не пропускает дальше — это блокирующая задача перед релизом. Только Debug-флаг `UPRA_LOCAL_PREVIEW=1` разрешает локальную проверку интерфейса. Подписка не требуется для счётчика, друзей и рейтинга.
 
@@ -52,6 +52,10 @@ Content-Type: application/json
 
 Храните токены в Keychain, обновляйте сессию до истечения/после 401 с единственной повторной попыткой. Из ответа refresh сохраняются оба новых токена. Локальная история должна оставаться привязана к владельцу, чтобы при смене Apple аккаунта результаты одного человека не загрузились другому. Самостоятельное назначение другого `user_id` серверным RPC не поддерживается.
 
+Apple передаёт имя при первом разрешении на вход. Клиент запрашивает `.fullName` без email scope и сохраняет имя в Keychain по Apple subject **до** сетевого обмена. После получения профиля имя импортируется через `set_display_name` с `p_only_if_empty: true`, поэтому параллельный вход не перезапишет уже изменённое имя. Обычное редактирование в настройках передаёт `false`. При выходе локальный кеш имени сохраняется; при успешном удалении аккаунта удаляется вместе с сессией.
+
+`set_display_name` не принимает user ID: владелец определяется через `auth.uid()`. Имя приводится к NFC, Unicode-пробелы схлопываются в один обычный пробел, пробелы по краям удаляются. Допускается 1–64 Unicode scalar values; оставшиеся управляющие, нулевой ширины и bidi-контроли отвергаются с `invalid_display_name`. Это отображаемое имя, оно не используется для авторизации и не обязано быть уникальным.
+
 ## Общий формат API
 
 Все RPC — `POST https://PROJECT.supabase.co/rest/v1/rpc/FUNCTION`:
@@ -66,17 +70,18 @@ JSONB-функции возвращают непосредственно объ�
 
 | RPC | JSON запроса | JSON ответа |
 | --- | --- | --- |
-| `get_profile` | `{}` | `{"id":"UUID","friend_code":"0A1B2C3D4E","created_at":"2026-10-18T10:00:00+00:00"}` |
-| `get_friends` | `{}` | `[{"user_id":"UUID","friend_code":"1A2B3C4D5E","status":"accepted","requested_at":"2026-10-18T10:00:00+00:00"}]` |
-| `get_blocked_users` | `{}` | `[{"user_id":"UUID","friend_code":"1A2B3C4D5E"}]`, только собственный список блокировок |
+| `get_profile` | `{}` | `{"id":"UUID","friend_code":"0A1B2C3D4E","created_at":"2026-10-18T10:00:00+00:00","display_name":"Георгий"}` |
+| `set_display_name` | `{"p_display_name":"Георгий","p_only_if_empty":false}` | тот же объект, что `get_profile` |
+| `get_friends` | `{}` | `[{"user_id":"UUID","friend_code":"1A2B3C4D5E","display_name":"Александр","status":"accepted","requested_at":"2026-10-18T10:00:00+00:00"}]` |
+| `get_blocked_users` | `{}` | `[{"user_id":"UUID","friend_code":"1A2B3C4D5E","display_name":"Александр"}]`, только собственный список блокировок |
 | `request_friend` | `{"p_friend_code":"1A2B3C4D5E"}` | JSON-строка: `"outgoing"`, `"incoming"` или `"accepted"` |
 | `respond_friend_request` | `{"p_user_id":"UUID","p_accept":true}` | void |
 | `remove_friend` | `{"p_user_id":"UUID"}` | void; также отменяет свою исходящую заявку |
 | `block_user` | `{"p_user_id":"UUID"}` | void; удаляет дружбу/заявку и закрывает новые заявки в обе стороны |
 | `unblock_user` | `{"p_user_id":"UUID"}` | void; снимает только свою блокировку, дружбу не восстанавливает |
-| `get_daily_leaderboard` | `{"p_day":"2026-10-18"}` | `[{"user_id":"UUID","friend_code":"0A1B2C3D4E","repetitions":42,"rank":1,"is_me":true}]` |
+| `get_daily_leaderboard` | `{"p_day":"2026-10-18"}` | `[{"user_id":"UUID","friend_code":"0A1B2C3D4E","display_name":"Георгий","repetitions":42,"rank":1,"is_me":true}]` |
 
-`get_friends.status` принимает `accepted`, `incoming`, `outgoing`. Встречная заявка не принимается автоматически: получатель явно вызывает `respond_friend_request`. Принять собственную заявку нельзя. Удаление и блокировка идемпотентны. Friend code — десять заглавных hex-символов; ввод нормализуется по регистру и пробелам по краям. Пользовательские имена и фотографии не загружаются: личность в соревновании представлена кодом. Профили нельзя перечислить через таблицу; поиск работает только по точному коду.
+`get_friends.status` принимает `accepted`, `incoming`, `outgoing`. Встречная заявка не принимается автоматически: получатель явно вызывает `respond_friend_request`. Принять собственную заявку нельзя. Удаление и блокировка идемпотентны. Friend code — десять заглавных hex-символов; ввод нормализуется по регистру и пробелам по краям. В соревновании отображается имя; код остаётся для поиска и добавления друзей. Фотографии не загружаются. Поле `display_name` может быть `null` у старого профиля; клиент показывает локализованную подпись «Участник», не подставляет код вместо имени. Профили нельзя перечислить через таблицу; поиск работает только по точному коду.
 
 Ограничения: 100 подтверждённых друзей, 20 исходящих ожидающих заявок, 30 новых успешных заявок в час на пользователя. Повторная отправка существующей заявки не создаёт новую. Таблица `user_blocks` доступна на чтение только блокирующему, поля `blocker_id`, `blocked_id`, `created_at`. Табличные изменения с клиента запрещены.
 
@@ -160,7 +165,7 @@ PostgREST возвращает стандартный объект `{"code":"220
 | Код SQL | Сообщения |
 | --- | --- |
 | `42501` | `authentication_required` |
-| `22023` | `invalid_friend_code`, `friend_unavailable`, `too_many_pending_requests`, `friend_limit_reached`, `friend_request_rate_limit`, `invalid_friend_request`, `friend_request_not_found`, `invalid_user`, `invalid_workout`, `workout_id_conflict`, `workout_time_overlap`, `daily_limit_reached`, `invalid_day` |
+| `22023` | `invalid_friend_code`, `friend_unavailable`, `too_many_pending_requests`, `friend_limit_reached`, `friend_request_rate_limit`, `invalid_friend_request`, `friend_request_not_found`, `invalid_user`, `invalid_workout`, `workout_id_conflict`, `workout_time_overlap`, `daily_limit_reached`, `invalid_day`, `invalid_display_name` |
 
 Edge Function возвращает `{"error":"CODE"}`:
 
@@ -188,7 +193,7 @@ node --experimental-strip-types --test tests/delete-account.test.ts
 SQL-тесты запускайте **только в пустой одноразовой локальной БД**, так как `bootstrap.sql` создаёт тестовые роли и Auth schema:
 
 ```sh
-psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f supabase/migrations/202610180001_forma.sql -f tests/regression.sql
+psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f supabase/migrations/202610180001_forma.sql -f supabase/migrations/202610210001_profile_display_names.sql -f tests/regression.sql
 ```
 
 На настоящем локальном Supabase bootstrap не применяется; Auth и роли уже создаёт платформа. Для проверки Deno adapter:

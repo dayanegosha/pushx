@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 final class FormaUITests: XCTestCase {
     override func setUpWithError() throws {
@@ -10,11 +11,14 @@ final class FormaUITests: XCTestCase {
 
     func testFirstLaunchRequiresAppleSignIn() {
         let app = XCUIApplication()
-        app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "dark"]
-        app.launch()
-        XCTAssertTrue(app.buttons["apple_sign_in"].waitForExistence(timeout: 15))
-        XCTAssertFalse(app.buttons["start_workout"].exists)
-        snapshot("sign-in-dark")
+        for theme in ["dark", "light"] {
+            app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", theme]
+            app.launch()
+            XCTAssertTrue(app.buttons["apple_sign_in"].waitForExistence(timeout: 15))
+            XCTAssertFalse(app.buttons["start_workout"].exists)
+            snapshot("sign-in-" + theme)
+            app.terminate()
+        }
     }
 
     func testGoalAndAccentCanBeChanged() {
@@ -39,6 +43,29 @@ final class FormaUITests: XCTestCase {
         XCTAssertTrue(blue.isSelected)
         XCTAssertTrue(app.buttons["daily_goal_editor"].staticTexts["200"].exists)
         app.buttons["accent_violet"].tap()
+    }
+
+    func testHomeCounterFitsWithoutScrolling() {
+        let app = XCUIApplication()
+        app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
+        app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "dark"]
+        app.launch()
+        let start = app.buttons["start_workout"]
+        XCTAssertTrue(start.waitForExistence(timeout: 15))
+        XCTAssertTrue(start.isHittable)
+        XCTAssertEqual(app.scrollViews.count, 0)
+        let initialFrame = start.frame
+        app.swipeUp()
+        XCTAssertEqual(start.frame, initialFrame)
+        snapshot("home-fixed-portrait")
+        XCUIDevice.shared.orientation = .landscapeLeft
+        Thread.sleep(forTimeInterval: 1)
+        let isTablet = UIDevice.current.userInterfaceIdiom == .pad
+        XCTAssertEqual(app.frame.width > app.frame.height, isTablet)
+        XCTAssertTrue(start.isHittable)
+        XCTAssertEqual(app.scrollViews.count, 0)
+        XCTAssertTrue(app.frame.contains(start.frame))
+        snapshot(isTablet ? "home-fixed-landscape" : "home-portrait-locked")
     }
 
     func testLocalPreviewWorkoutCanBeSavedAndSurvivesRelaunch() {
@@ -112,14 +139,15 @@ final class FormaUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.65)
         revealAndTap(counter, in: app)
         XCUIDevice.shared.orientation = .landscapeLeft
-        let landscape = expectation(for: NSPredicate { _, _ in app.frame.width > app.frame.height }, evaluatedWith: app)
-        wait(for: [landscape], timeout: 10)
+        Thread.sleep(forTimeInterval: 1)
+        let isTablet = UIDevice.current.userInterfaceIdiom == .pad
+        XCTAssertEqual(app.frame.width > app.frame.height, isTablet)
         XCTAssertTrue(counter.waitForExistence(timeout: 5))
         Thread.sleep(forTimeInterval: 0.65)
         revealAndTap(counter, in: app)
         XCTAssertEqual(counter.label, "Отжиманий: 2")
         Thread.sleep(forTimeInterval: 0.4)
-        snapshot("adaptive-workout-landscape")
+        snapshot(isTablet ? "adaptive-workout-landscape" : "workout-portrait-locked")
         XCUIDevice.shared.orientation = .portrait
         XCTAssertTrue(counter.waitForExistence(timeout: 5))
         XCTAssertEqual(counter.label, "Отжиманий: 2")
@@ -136,7 +164,11 @@ final class FormaUITests: XCTestCase {
         app.launch()
         let start = app.buttons["start_workout"]
         XCTAssertTrue(start.waitForExistence(timeout: 15))
-        revealAndTap(start, in: app)
+        XCTAssertTrue(start.isHittable)
+        XCTAssertEqual(app.scrollViews.count, 0)
+        XCTAssertTrue(app.frame.contains(start.frame))
+        snapshot("largest-text-home")
+        start.tap()
         let manual = app.segmentedControls.buttons["Касания"]
         XCTAssertTrue(manual.waitForExistence(timeout: 10))
         manual.tap()

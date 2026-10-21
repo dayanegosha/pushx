@@ -27,7 +27,7 @@ struct WelcomeView: View {
             AdaptiveContent(maxWidth: 560) {
             VStack(alignment: .leading, spacing: 24) {
                 Brand().padding(.top, 20)
-                UpraMark().stroke(Color.accentColor, style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                PushMark().stroke(Color.ink, style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
                     .frame(width: 80, height: 80).frame(maxWidth: .infinity).padding(.vertical, 16)
                 Text(L.text("welcome_title")).font(AppFont.text(36, weight: .semibold))
                 Text(L.text("welcome_body")).font(AppFont.text(14)).foregroundStyle(.secondary).lineSpacing(4)
@@ -56,76 +56,110 @@ struct HomeView: View {
     @EnvironmentObject private var model: AppModel
     @AppStorage("dailyGoal") private var dailyGoal = 50
     @State private var workout = DevelopmentLaunch.workout
+    @State private var showStatus = false
     private var records: [WorkoutRecord] { store.visible(for: auth.session?.userID) }
     private var today: Int { records.filter { Calendar.current.isDateInToday($0.endedAt) }.reduce(0) { $0 + $1.repetitions } }
 
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
-                ScrollView {
-                    AdaptiveContent(maxWidth: 920) {
-                        VStack(spacing: 28) {
-                            HStack {
-                                Brand()
-                                Spacer()
-                                Text(Date.now.formatted(.dateTime.locale(Locale(identifier: L.language)).day().month(.abbreviated)))
-                                    .font(AppFont.text(12, weight: .medium)).foregroundStyle(.secondary)
-                            }
-                            PageTitle(title: L.text("home_title"))
-                            if geometry.size.width >= 800 && !dynamicTypeSize.isAccessibilitySize {
-                                HStack(spacing: 56) {
-                                    progressRing(diameter: 320)
-                                    VStack(spacing: 32) {
-                                        statistics
-                                        startButton
-                                        placementHint
-                                    }.frame(maxWidth: .infinity)
-                                }.padding(.vertical, 24)
-                            } else {
-                                progressRing(diameter: geometry.size.width >= 600 ? 320 : min(260, geometry.size.width - 40))
+                let horizontal = geometry.size.width >= 800 || (geometry.size.width >= 640 && geometry.size.width > geometry.size.height)
+                let compact = geometry.size.height < 680
+                VStack(spacing: compact ? 12 : 20) {
+                    header
+                    if horizontal && dynamicTypeSize.isAccessibilitySize {
+                        HStack(spacing: 24) {
+                            accessibleReadout(compact: compact).frame(maxWidth: .infinity)
+                            startButton.frame(maxWidth: 390)
+                        }.frame(maxHeight: .infinity)
+                    } else if horizontal {
+                        HStack(spacing: 40) {
+                            VStack(alignment: .leading, spacing: 16) {
+                                if !compact && !dynamicTypeSize.isAccessibilitySize { title }
+                                progressRing(diameter: max(120, min(320, geometry.size.height - 160)))
+                                    .frame(maxWidth: .infinity)
+                            }.frame(maxWidth: .infinity)
+                            VStack(spacing: 24) {
                                 statistics
                                 startButton
                                 placementHint
-                            }
-                            if store.recoveredWorkout { StatusNote(text: L.text("workout_recovered")) }
-                            if let error = store.storageError { StatusNote(text: error) }
-                            if let error = model.healthError { StatusNote(text: error) }
-                            if let error = model.syncError { StatusNote(text: error) }
-                            InfoCard(icon: "sparkle", title: L.text("small_steps"), detail: L.text("small_steps_body"))
+                            }.frame(maxWidth: 390)
+                        }.frame(maxHeight: .infinity)
+                    } else {
+                        Spacer(minLength: 0)
+                        if dynamicTypeSize.isAccessibilitySize {
+                            accessibleReadout(compact: compact)
+                        } else {
+                            progressRing(diameter: max(120, min(300, geometry.size.width - 64,
+                                geometry.size.height - (compact ? 350 : 450))))
                         }
+                        Spacer(minLength: 0)
+                        if !dynamicTypeSize.isAccessibilitySize { statistics }
+                        startButton
+                        if !compact && !dynamicTypeSize.isAccessibilitySize { placementHint }
                     }
-                }.background(Color.canvas)
+                }
+                    .padding(.horizontal, 20).padding(.vertical, compact ? 16 : 24)
+                    .frame(maxWidth: 920, maxHeight: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.canvas)
                     .toolbar(.hidden, for: .navigationBar)
-                    .refreshable { await model.synchronize() }
             }
         }
+        .alert(L.text("status"), isPresented: $showStatus) {
+            Button(L.text("done"), role: .cancel) {}
+        } message: { Text(statusMessages.joined(separator: "\n\n")) }
         .fullScreenCover(isPresented: $workout) { WorkoutView() }
     }
 
-    private func progressRing(diameter: CGFloat) -> some View {
-        VStack(spacing: 16) {
-            if dynamicTypeSize.isAccessibilitySize {
-                Text(L.text("today")).font(AppFont.text(16, weight: .medium))
+    private var header: some View {
+        HStack(spacing: 16) {
+            Brand().dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            Spacer()
+            if !statusMessages.isEmpty {
+                Button { showStatus = true } label: { Image(systemName: "exclamationmark.circle").frame(width: 44, height: 44) }
+                    .accessibilityLabel(L.text("status")).accessibilityValue(statusMessages.joined(separator: ". "))
             }
-            ZStack {
+            Text(Date.now.formatted(.dateTime.locale(Locale(identifier: L.language)).day().month(.abbreviated)))
+                .font(AppFont.text(12, weight: .medium)).foregroundStyle(.secondary).lineLimit(1)
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+        }
+    }
+
+    private var title: some View {
+        Text(L.text("home_title")).font(AppFont.text(36, weight: .semibold))
+            .lineLimit(2).minimumScaleFactor(0.75).frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var statusMessages: [String] {
+        [store.recoveredWorkout ? L.text("workout_recovered") : nil,
+         store.storageError, model.healthError, model.syncError].compactMap { $0 }
+    }
+
+    private func accessibleReadout(compact: Bool) -> some View {
+        VStack(spacing: 12) {
+            Text(L.text("today")).font(AppFont.text(16, weight: .medium))
+                .dynamicTypeSize(...(compact ? DynamicTypeSize.xxxLarge : .accessibility5))
+            Text("\(today)").font(AppFont.numeric(compact ? 64 : 88)).lineLimit(1).minimumScaleFactor(0.3)
+                .frame(maxWidth: .infinity).frame(height: compact ? 84 : 116)
+            Text(L.format("of_goal", dailyGoal)).font(AppFont.text(16)).foregroundStyle(.secondary)
+                .lineLimit(2).multilineTextAlignment(.center)
+                .dynamicTypeSize(...(compact ? DynamicTypeSize.xxxLarge : .accessibility5))
+        }.accessibilityElement(children: .combine)
+    }
+
+    private func progressRing(diameter: CGFloat) -> some View {
+        ZStack {
             Circle().stroke(Color.primary.opacity(0.07), lineWidth: 1)
             Circle().trim(from: 0, to: min(1, CGFloat(today) / CGFloat(max(dailyGoal, 1))))
                 .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 5, lineCap: .round)).rotationEffect(.degrees(-90))
             VStack(spacing: 6) {
-                if !dynamicTypeSize.isAccessibilitySize {
-                    Text(L.text("today").uppercased()).font(AppFont.text(10, weight: .semibold)).tracking(3).foregroundStyle(.secondary)
-                }
-                Text("\(today)").font(AppFont.numeric(88)).monospacedDigit().lineLimit(1)
-                    .minimumScaleFactor(0.3).frame(width: max(80, diameter - 64), height: 116).clipped()
-                if !dynamicTypeSize.isAccessibilitySize {
-                    Text(L.format("of_goal", dailyGoal)).font(AppFont.text(13)).foregroundStyle(.secondary)
-                }
-            }.padding(24)
-            }.frame(width: diameter, height: diameter)
-            if dynamicTypeSize.isAccessibilitySize {
-                Text(L.format("of_goal", dailyGoal)).font(AppFont.text(16)).foregroundStyle(.secondary)
-            }
-        }.padding(.vertical, 2)
+                Text(L.text("today").uppercased()).font(AppFont.text(10, weight: .semibold)).tracking(3).foregroundStyle(.secondary)
+                Text("\(today)").font(AppFont.numeric(min(88, diameter * 0.34))).lineLimit(1)
+                    .minimumScaleFactor(0.3).frame(width: max(60, diameter - 48), height: diameter * 0.44).clipped()
+                Text(L.format("of_goal", dailyGoal)).font(AppFont.text(diameter < 180 ? 11 : 13)).foregroundStyle(.secondary)
+            }.padding(16).dynamicTypeSize(...DynamicTypeSize.large)
+        }.frame(width: diameter, height: diameter).accessibilityElement(children: .combine)
     }
 
     @ViewBuilder private var statistics: some View {
@@ -156,7 +190,16 @@ struct HomeView: View {
 
     private var startButton: some View {
         Button { workout = true } label: {
-            HStack { Text(L.text("start_workout")); Spacer(); Image(systemName: "arrow.up.right") }.padding(.horizontal, 26)
+            HStack {
+                Text(L.text("start_workout")).fixedSize(horizontal: false, vertical: true)
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer()
+                    Image(systemName: "arrow.up.right").accessibilityHidden(true)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 26)
+            .contentShape(Rectangle())
         }.buttonStyle(FilledButton()).accessibilityIdentifier("start_workout")
     }
 

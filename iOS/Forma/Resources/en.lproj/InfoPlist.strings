@@ -1,5 +1,4 @@
-// UPRA — en
-"CFBundleDisplayName" = "UPRA";
-"NSCameraUsageDescription" = "UPRA uses the front camera to count push-ups on your device. Video is never recorded or uploaded.";
-"NSHealthShareUsageDescription" = "UPRA does not read your health records. Workout syncing only adds sessions recorded in UPRA.";
-"NSHealthUpdateUsageDescription" = "With your permission, UPRA adds your completed push-up workouts to Apple Health.";
+"CFBundleDisplayName" = "pushx";
+"NSCameraUsageDescription" = "pushx uses the front camera to count push-ups on your device. Video is never recorded or uploaded.";
+"NSHealthShareUsageDescription" = "pushx does not read your health records. Workout syncing only adds sessions recorded in pushx.";
+"NSHealthUpdateUsageDescription" = "With your permission, pushx adds your completed push-up workouts to Apple Health.";
