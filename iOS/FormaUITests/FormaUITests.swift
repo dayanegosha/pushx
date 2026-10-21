@@ -45,6 +45,57 @@ final class FormaUITests: XCTestCase {
         app.buttons["accent_violet"].tap()
     }
 
+    func testLanguageChangesKeepSettingsOpenAndRefreshTabs() {
+        let app = XCUIApplication()
+        app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
+        app.launchEnvironment["FORMA_SCREEN"] = "3"
+        app.launchArguments = ["-onboarded", "YES", "-theme", "dark"]
+        app.launch()
+        let language = app.buttons["appearance_language"]
+        XCTAssertTrue(language.waitForExistence(timeout: 15))
+        language.tap()
+        app.buttons["English"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Settings"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(language.isHittable)
+        XCTAssertFalse(app.buttons["start_workout"].exists)
+        XCTAssertTrue(app.buttons["appearance_theme"].exists)
+        snapshot("settings-live-english")
+        language.tap()
+        app.buttons["简体中文"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["设置"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(language.isHittable)
+        XCTAssertFalse(app.buttons["start_workout"].exists)
+        snapshot("settings-live-chinese")
+        language.tap()
+        app.buttons["Русский"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Настройки"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(language.isHittable)
+    }
+
+    func testAppearanceMenusFollowAccentAndAccountCardFits() {
+        let app = XCUIApplication()
+        app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
+        app.launchEnvironment["FORMA_SCREEN"] = "3"
+        app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "dark"]
+        app.launch()
+        let blue = app.buttons["accent_blue"]
+        XCTAssertTrue(blue.waitForExistence(timeout: 15))
+        blue.tap()
+        XCTAssertTrue(blue.isSelected)
+        XCTAssertTrue(app.buttons["appearance_theme"].isHittable)
+        XCTAssertTrue(app.buttons["appearance_language"].isHittable)
+        snapshot("settings-accent-blue")
+        app.buttons["accent_rose"].tap()
+        snapshot("settings-accent-rose")
+        let apple = app.buttons["apple_sign_in"]
+        for _ in 0..<4 {
+            if apple.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(apple.isHittable)
+        snapshot("settings-account-card")
+    }
+
     func testHomeCounterFitsWithoutScrolling() {
         let app = XCUIApplication()
         app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
@@ -68,40 +119,22 @@ final class FormaUITests: XCTestCase {
         snapshot(isTablet ? "home-fixed-landscape" : "home-portrait-locked")
     }
 
-    func testLocalPreviewWorkoutCanBeSavedAndSurvivesRelaunch() {
+    func testSimulatorCannotCreateManualOrCameraRecordings() {
         let app = XCUIApplication()
         app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
-        app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "dark"]
         app.launchEnvironment["FORMA_RESET_DATA"] = "1"
+        app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "dark"]
         app.launch()
-        let start = app.buttons["start_workout"]
-        XCTAssertTrue(start.waitForExistence(timeout: 15))
-        snapshot("home-dark")
-        revealAndTap(start, in: app)
-        let manual = app.segmentedControls.buttons["Касания"]
-        XCTAssertTrue(manual.waitForExistence(timeout: 10))
-        manual.tap()
-        revealAndTap(app.buttons["begin_workout"], in: app)
-        let counter = app.buttons["rep_counter"]
-        XCTAssertTrue(counter.waitForExistence(timeout: 5))
-        for _ in 0..<3 {
-            Thread.sleep(forTimeInterval: 0.65)
-            counter.tap()
-        }
-        snapshot("workout-dark")
-        revealAndTap(app.buttons["finish_workout"], in: app)
-        XCTAssertTrue(app.buttons["workout_done"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["3"].exists)
-        app.buttons["workout_done"].tap()
-        app.buttons["История"].firstMatch.tap()
-        XCTAssertTrue(app.staticTexts["3"].firstMatch.waitForExistence(timeout: 5))
-        snapshot("history-dark")
-        app.terminate()
-        app.launchEnvironment.removeValue(forKey: "FORMA_RESET_DATA")
-        app.launch()
-        XCTAssertTrue(start.waitForExistence(timeout: 10))
-        app.buttons["История"].firstMatch.tap()
-        XCTAssertTrue(app.staticTexts["3"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["start_workout"].waitForExistence(timeout: 15))
+        app.buttons["start_workout"].tap()
+        XCTAssertTrue(app.staticTexts["distance_unavailable"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.segmentedControls.count, 0)
+        XCTAssertFalse(app.buttons["rep_counter"].exists)
+        XCTAssertFalse(app.buttons["begin_workout"].exists)
+        XCTAssertTrue(app.buttons["close_workout"].isHittable)
+        snapshot("automatic-counting-unavailable-simulator")
+        app.buttons["close_workout"].tap()
+        XCTAssertTrue(app.buttons["start_workout"].waitForExistence(timeout: 5))
     }
 
     func testThemesAndLanguages() {
@@ -124,36 +157,18 @@ final class FormaUITests: XCTestCase {
     func testRotationKeepsWorkoutAndControlsReachable() {
         let app = XCUIApplication()
         app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
-        app.launchEnvironment["FORMA_RESET_DATA"] = "1"
         app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "light"]
         app.launch()
-        let start = app.buttons["start_workout"]
-        XCTAssertTrue(start.waitForExistence(timeout: 15))
-        snapshot("adaptive-home-portrait")
-        revealAndTap(start, in: app)
-        let manual = app.segmentedControls.buttons["Касания"]
-        XCTAssertTrue(manual.waitForExistence(timeout: 10))
-        manual.tap()
-        revealAndTap(app.buttons["begin_workout"], in: app)
-        let counter = app.buttons["rep_counter"]
-        Thread.sleep(forTimeInterval: 0.65)
-        revealAndTap(counter, in: app)
+        XCTAssertTrue(app.buttons["start_workout"].waitForExistence(timeout: 15))
+        app.buttons["start_workout"].tap()
+        XCTAssertTrue(app.staticTexts["distance_unavailable"].waitForExistence(timeout: 10))
         XCUIDevice.shared.orientation = .landscapeLeft
         Thread.sleep(forTimeInterval: 1)
-        let isTablet = UIDevice.current.userInterfaceIdiom == .pad
-        XCTAssertEqual(app.frame.width > app.frame.height, isTablet)
-        XCTAssertTrue(counter.waitForExistence(timeout: 5))
-        Thread.sleep(forTimeInterval: 0.65)
-        revealAndTap(counter, in: app)
-        XCTAssertEqual(counter.label, "Отжиманий: 2")
-        Thread.sleep(forTimeInterval: 0.4)
-        snapshot(isTablet ? "adaptive-workout-landscape" : "workout-portrait-locked")
-        XCUIDevice.shared.orientation = .portrait
-        XCTAssertTrue(counter.waitForExistence(timeout: 5))
-        XCTAssertEqual(counter.label, "Отжиманий: 2")
-        revealAndTap(app.buttons["finish_workout"], in: app)
-        XCTAssertTrue(app.buttons["workout_done"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["2"].exists)
+        XCTAssertEqual(app.frame.width > app.frame.height, UIDevice.current.userInterfaceIdiom == .pad)
+        XCTAssertTrue(app.buttons["close_workout"].isHittable)
+        snapshot("automatic-workout-orientation")
+        app.buttons["close_workout"].tap()
+        XCTAssertTrue(app.buttons["start_workout"].waitForExistence(timeout: 5))
     }
 
     func testLargestTextKeepsPrimaryActionReachable() {
@@ -169,11 +184,8 @@ final class FormaUITests: XCTestCase {
         XCTAssertTrue(app.frame.contains(start.frame))
         snapshot("largest-text-home")
         start.tap()
-        let manual = app.segmentedControls.buttons["Касания"]
-        XCTAssertTrue(manual.waitForExistence(timeout: 10))
-        manual.tap()
-        revealAndTap(app.buttons["begin_workout"], in: app)
-        XCTAssertTrue(app.buttons["rep_counter"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["distance_unavailable"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["close_workout"].isHittable)
         snapshot("largest-text-workout")
     }
 

@@ -12,6 +12,7 @@
 		0DE615585B90F95036AEE574 /* HealthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B74370DE25C7419821E5CDC /* HealthService.swift */; };
 		1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDED05D38288080E42E9FFE /* ServiceTests.swift */; };
 		236715730362E577E948B7AE /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */; };
+		3A5A1E6FBB61557BDE9335A7 /* FaceDistanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB54EEE028170DB02B8F8E3 /* FaceDistanceEngine.swift */; };
 		3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */; };
 		446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */; };
 		4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2061462EF1BE93E59B0E70 /* Forma.storekit */; };
@@ -27,13 +28,12 @@
 		7C2430433506BC56E2D33BE3 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75BC7507C88EAA244E80AF9 /* FriendsView.swift */; };
 		8134018884167FBFCFCE2DAE /* FormaUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C2B39EADCDB27195E94083B /* FormaUITests.swift */; };
 		83ADAA8C4448835B6406C212 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2855B9E54E9542E6E321ECE /* HistoryView.swift */; };
-		8B51A673DDAFA2297A3C7463 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966F7B1C050BC95968966810 /* CameraPreview.swift */; };
 		8E706B02336CB7945C5DF6E1 /* FormaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 463DBA3F222B72835A9C0495 /* FormaApp.swift */; };
 		91645AC6FB4511B68A027997 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61EE2F6A48694F9733A23D0 /* WorkoutView.swift */; };
 		947D80F2CBCEFA2A5B155D22 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080A4D5102367C3343B53A3B /* SpeechService.swift */; };
 		9F4EB9675CCD63650B0BE81B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF36FB005541C2F15D619FE /* SettingsView.swift */; };
-		A7D5EA90389208B768DD2A5B /* CameraCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB531714AEEA0E78FA423E7F /* CameraCounter.swift */; };
 		A86083BCE84EA98CF45D2AE5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85A04D740D98F94AF8D1C01A /* Assets.xcassets */; };
+		B913ABF0A8BB5F57BA4E43E1 /* FaceDistanceCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30B7A7810326A086770DA4 /* FaceDistanceCounter.swift */; };
 		BA99073B9F2CDB249F5C8CD7 /* AdaptiveLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D8CDE3BE87D51079577594 /* AdaptiveLayout.swift */; };
 		BB056BA203F2CA5D17B87F71 /* CameraGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF49B0DBA26C509D43959CA0 /* CameraGeometryTests.swift */; };
 		C00C291DCC327A4F12FE50D5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 027E7E662952DEC9C164A86F /* InfoPlist.strings */; };
@@ -41,6 +41,7 @@
 		CBE331339BA8D1CC76869281 /* RepCycleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0D8AC00591582C965D176A /* RepCycleEngine.swift */; };
 		D2A523852FDF0F0C85A35AD4 /* ServiceSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904683E424E4462C3CAFA2FF /* ServiceSupport.swift */; };
 		E0170AF88E227CF91A18D678 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */; };
+		E489DB6C901A1A599D62E7BF /* FaceDistanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442269BE6C9DBED72BA68B53 /* FaceDistanceTests.swift */; };
 		EAA6887EFDA07C744CD04C49 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACEE8309C7739399DCD14D6 /* BackendService.swift */; };
 /* End PBXBuildFile section */
 
@@ -67,9 +68,12 @@
 		1C0D8AC00591582C965D176A /* RepCycleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCycleEngine.swift; sourceTree = "<group>"; };
 		264A9B73EE8314C55721F274 /* Forma.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Forma.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		398C021D358303F287112268 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		3B30B7A7810326A086770DA4 /* FaceDistanceCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDistanceCounter.swift; sourceTree = "<group>"; };
+		3BB54EEE028170DB02B8F8E3 /* FaceDistanceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDistanceEngine.swift; sourceTree = "<group>"; };
 		3BF36FB005541C2F15D619FE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		408E63BCAF98E295223A1F08 /* Geologica-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Geologica-OFL.txt"; sourceTree = "<group>"; };
 		43A8D4EFAAFCBD15102AF7F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		442269BE6C9DBED72BA68B53 /* FaceDistanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDistanceTests.swift; sourceTree = "<group>"; };
 		447C40DCF8555F961C24A195 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		463DBA3F222B72835A9C0495 /* FormaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormaApp.swift; sourceTree = "<group>"; };
 		4CA2F55BC6FF26452C6D9905 /* FormaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FormaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,9 +91,7 @@
 		904683E424E4462C3CAFA2FF /* ServiceSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceSupport.swift; sourceTree = "<group>"; };
 		93165A8E785D6A4671A77D73 /* Forma.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Forma.entitlements; sourceTree = "<group>"; };
 		9491F59D4859CF6F6EE98E7D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		966F7B1C050BC95968966810 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		A599361579CD780F0B80F880 /* Design.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
-		AB531714AEEA0E78FA423E7F /* CameraCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCounter.swift; sourceTree = "<group>"; };
 		B5562FB3B6ED04D969AC85E3 /* AppearanceControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceControls.swift; sourceTree = "<group>"; };
 		B91DE54C1AA9D50CEDF8CEF2 /* NameEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEditorView.swift; sourceTree = "<group>"; };
 		BACEE8309C7739399DCD14D6 /* BackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendService.swift; sourceTree = "<group>"; };
@@ -155,9 +157,9 @@
 		6CC2F79579EE6DF847AFC090 /* Detection */ = {
 			isa = PBXGroup;
 			children = (
-				AB531714AEEA0E78FA423E7F /* CameraCounter.swift */,
 				C1702BD709DB82B8FFB5AD3C /* CameraGeometry.swift */,
-				966F7B1C050BC95968966810 /* CameraPreview.swift */,
+				3B30B7A7810326A086770DA4 /* FaceDistanceCounter.swift */,
+				3BB54EEE028170DB02B8F8E3 /* FaceDistanceEngine.swift */,
 				1C0D8AC00591582C965D176A /* RepCycleEngine.swift */,
 			);
 			path = Detection;
@@ -167,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				DF49B0DBA26C509D43959CA0 /* CameraGeometryTests.swift */,
+				442269BE6C9DBED72BA68B53 /* FaceDistanceTests.swift */,
 				7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */,
 				BCDED05D38288080E42E9FFE /* ServiceTests.swift */,
 				8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */,
@@ -378,6 +381,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB056BA203F2CA5D17B87F71 /* CameraGeometryTests.swift in Sources */,
+				E489DB6C901A1A599D62E7BF /* FaceDistanceTests.swift in Sources */,
 				78D9311851C6CB916EF607FE /* RepCycleTests.swift in Sources */,
 				1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */,
 				446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */,
@@ -393,10 +397,10 @@
 				0B03DB253334515044201280 /* AppearanceControls.swift in Sources */,
 				236715730362E577E948B7AE /* AuthService.swift in Sources */,
 				EAA6887EFDA07C744CD04C49 /* BackendService.swift in Sources */,
-				A7D5EA90389208B768DD2A5B /* CameraCounter.swift in Sources */,
 				6DD57CCBAB355D2E6D7A4EFB /* CameraGeometry.swift in Sources */,
-				8B51A673DDAFA2297A3C7463 /* CameraPreview.swift in Sources */,
 				7028175C3528BD4904831FF2 /* Design.swift in Sources */,
+				B913ABF0A8BB5F57BA4E43E1 /* FaceDistanceCounter.swift in Sources */,
+				3A5A1E6FBB61557BDE9335A7 /* FaceDistanceEngine.swift in Sources */,
 				8E706B02336CB7945C5DF6E1 /* FormaApp.swift in Sources */,
 				7C2430433506BC56E2D33BE3 /* FriendsView.swift in Sources */,
 				0DE615585B90F95036AEE574 /* HealthService.swift in Sources */,

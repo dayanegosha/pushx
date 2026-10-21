@@ -3,6 +3,7 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject private var auth: AuthService
     @AppStorage("onboarded") private var onboarded = false
+    @AppStorage("language") private var language = "system"
     @State private var selection = DevelopmentLaunch.tab
     var body: some View {
         if !onboarded || (!DevelopmentLaunch.allowLocalSession && auth.session == nil) {
@@ -13,7 +14,7 @@ struct RootView: View {
                 HistoryView().tabItem { Label(L.text("history"), systemImage: "chart.xyaxis.line") }.tag(1)
                 FriendsView().tabItem { Label(L.text("friends"), systemImage: "person.2") }.tag(2)
                 SettingsView().tabItem { Label(L.text("settings"), systemImage: "slider.horizontal.3") }.tag(3)
-            }
+            }.environment(\.locale, Locale(identifier: AppLanguage(rawValue: language)?.code ?? "en"))
         }
     }
 }
@@ -37,7 +38,7 @@ struct WelcomeView: View {
                 if !AppConfiguration.isBackendConfigured { StatusNote(text: L.text("sign_in_unavailable")) }
                 Text(L.text("free_forever")).font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                 Button(L.text("privacy")) { privacy = true }.font(.footnote).frame(maxWidth: .infinity)
-                InfoCard(icon: "viewfinder", title: L.text("on_device"), detail: L.text("on_device_body"))
+                InfoCard(icon: "face.dashed", title: L.text("on_device"), detail: L.text("on_device_body"))
                 InfoCard(icon: "heart", title: "Apple Health", detail: L.text("health_intro"))
             }
             }
@@ -205,7 +206,7 @@ struct HomeView: View {
 
     private var placementHint: some View {
         HStack(spacing: 7) {
-            Image(systemName: "viewfinder").font(.caption)
+            Image(systemName: "face.dashed").font(.caption)
             Text(L.text("phone_hint")).font(AppFont.text(12)).foregroundStyle(.secondary)
         }
     }

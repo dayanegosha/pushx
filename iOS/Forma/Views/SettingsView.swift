@@ -29,8 +29,12 @@ struct SettingsView: View {
             AdaptiveForm {
                 Section { PageTitle(title: L.text("settings")).listRowBackground(Color.clear).listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 8, trailing: 0)) }
                 Section(L.text("appearance")) {
-                    Picker(L.text("theme"), selection: $theme) { ForEach(AppTheme.allCases) { value in Text(L.text(value.rawValue)).tag(value.rawValue) } }
-                    Picker(L.text("language"), selection: $language) { ForEach(AppLanguage.allCases) { value in Text(value.title).tag(value.rawValue) } }
+                    AppearanceMenuRow(title: L.text("theme"), value: L.text(theme), selection: $theme, identifier: "appearance_theme") {
+                        ForEach(AppTheme.allCases) { value in Text(L.text(value.rawValue)).tag(value.rawValue) }
+                    }
+                    AppearanceMenuRow(title: L.text("language"), value: (AppLanguage(rawValue: language) ?? .system).title, selection: $language, identifier: "appearance_language") {
+                        ForEach(AppLanguage.allCases) { value in Text(value.title).tag(value.rawValue) }
+                    }
                     AccentPickerRow()
                 }
                 Section(L.text("workout")) {
@@ -70,11 +74,20 @@ struct SettingsView: View {
                         Button(L.text("sync_now")) { Task { await model.synchronize() } }.disabled(model.syncing)
                         Button(L.text("sign_out")) { Task { await auth.signOut() } }.disabled(auth.isBusy)
                         Button(L.text("delete_account"), role: .destructive) { deletion = true }
+                        if let error = auth.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
                     } else {
-                        AppleLoginButton().frame(maxWidth: 420).frame(maxWidth: .infinity).listRowBackground(Color.clear)
-                        if !AppConfiguration.isBackendConfigured { Text(L.text("backend_not_configured")).font(.footnote).foregroundStyle(.secondary) }
+                        VStack(alignment: .leading, spacing: 16) {
+                            AppleLoginButton().frame(maxWidth: 420).frame(maxWidth: .infinity)
+                            if !AppConfiguration.isBackendConfigured {
+                                Text(L.text("backend_not_configured")).font(.footnote).foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            if let error = auth.errorMessage {
+                                Text(error).font(.footnote).foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }.padding(.vertical, 8).listRowSeparator(.hidden)
                     }
-                    if let error = auth.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
                 } header: { Text(L.text("account")) } footer: { Text(L.text("account_footer")) }
                 Section {
                     Button { plus = true } label: { HStack { Text(subscription.isPremium ? L.text("plus_active") : "pushx Plus"); Spacer(); Image(systemName: "plus.circle") } }

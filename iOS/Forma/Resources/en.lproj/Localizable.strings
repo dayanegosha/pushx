@@ -18,11 +18,11 @@
 "calibrate" = "Calibrate camera";
 "calibrated" = "Ready. Return to the upper position to begin.";
 "calibration_failed" = "Calibration did not work. Keep your face in view, hold each position and try again.";
-"camera_denied" = "Allow camera access in Settings to count automatically, or choose Touch.";
+"camera_denied" = "Allow camera access in Settings for automatic counting.";
 "camera_help" = "Keep your face over the front camera. A rep counts after a full upper–lower–upper cycle. Calibrate again whenever you move, rotate or fold the device.";
 "camera_interrupted" = "The camera stopped. Reconnect it, then resume when you are ready.";
-"camera_mode" = "Camera";
-"camera_unavailable" = "The front camera is unavailable. Choose Touch to keep training.";
+"camera_mode" = "Automatic";
+"camera_unavailable" = "Face tracking is unavailable on this device.";
 "cancel" = "Cancel";
 "close" = "Close";
 "cloud_saved" = "Synced to your account";
@@ -80,12 +80,12 @@
 "min" = "min";
 "monthly" = "Monthly";
 "of_goal" = "of %ld daily goal";
-"on_device" = "Your camera. Your privacy.";
-"on_device_body" = "Face detection runs on your device. Video is never recorded or uploaded.";
+"on_device" = "Just the counter";
+"on_device_body" = "Face movement is processed on your device. No camera preview is shown, and video and face data are never saved.";
 "open_settings" = "Open Settings";
 "pause" = "Pause";
 "paused" = "Take a breath. Resume when you are ready.";
-"phone_hint" = "Place your device screen up with your face visible to the front camera.";
+"phone_hint" = "Place your device screen up beneath your face. Counting starts after a brief setup.";
 "plus_active" = "pushx Plus is active";
 "plus_analytics" = "More insights with pushx Plus";
 "plus_body" = "A little extra for your progress. The essentials stay free, including counting, history and friends.";
@@ -174,3 +174,22 @@
 "save" = "Save";
 "name_save_error" = "Could not save your name. Try again.";
 "status" = "Status";
+
+"distance_position" = "Place your iPhone screen up and hold a plank above it.";
+
+"distance_help" = "After starting, hold the upper position for a second. Then do your push-ups — pushx will count.";
+
+"distance_hold_upper" = "Hold the upper position for a second.";
+
+"distance_privacy_note" = "The camera only counts reps. No preview or video recording.";
+
+"distance_unavailable" = "Automatic counting is unavailable";
+
+"distance_unavailable_body" = "Face tracking is unavailable on this device. History, settings and Apple Health remain available. Counting requires a compatible physical device.";
+
+"distance_permission_title" = "Allow camera access";
+
+"distance_permission_body" = "The camera detects face movement. Only the counter appears onscreen; video and face data are never saved.";
+
+"distance_signal_ready" = "Ready to count";
+"distance_signal_search" = "Face the screen";

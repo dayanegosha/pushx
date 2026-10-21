@@ -31,6 +31,44 @@ enum AccentChoice: String, CaseIterable, Identifiable {
     }
 }
 
+struct AppearanceMenuRow<Options: View>: View {
+    let title: String
+    let value: String
+    @Binding var selection: String
+    let identifier: String
+    private let options: Options
+    @AppStorage("accentColor") private var accent = AccentChoice.violet.rawValue
+
+    init(title: String, value: String, selection: Binding<String>, identifier: String, @ViewBuilder options: () -> Options) {
+        self.title = title
+        self.value = value
+        self._selection = selection
+        self.identifier = identifier
+        self.options = options()
+    }
+
+    var body: some View {
+        Menu {
+            Picker(title, selection: $selection) { options }
+        } label: {
+            HStack(spacing: 12) {
+                Text(title).foregroundStyle(.primary)
+                Spacer(minLength: 12)
+                Text(value).multilineTextAlignment(.trailing)
+                    .foregroundStyle((AccentChoice(rawValue: accent) ?? .violet).color)
+                    .accessibilityIdentifier(identifier + "_value")
+                Image(systemName: "chevron.up.chevron.down").font(.caption.weight(.semibold))
+                    .foregroundStyle((AccentChoice(rawValue: accent) ?? .violet).color)
+                    .accessibilityHidden(true)
+            }.contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityValue(value)
+        .accessibilityIdentifier(identifier)
+    }
+}
+
 struct AccentPickerRow: View {
     @AppStorage("accentColor") private var accent = AccentChoice.violet.rawValue
     private var selection: AccentChoice { AccentChoice(rawValue: accent) ?? .violet }

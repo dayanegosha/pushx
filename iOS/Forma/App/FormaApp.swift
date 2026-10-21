@@ -25,7 +25,6 @@ import SwiftUI
                 .tint((AccentChoice(rawValue: accentColor) ?? .violet).color)
                 .accentColor((AccentChoice(rawValue: accentColor) ?? .violet).color)
                 .environment(\.locale, Locale(identifier: L.language))
-                .id(language)
                 .task {
                     await auth.restoreSession()
                     startupComplete = true

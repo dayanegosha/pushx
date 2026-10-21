@@ -18,11 +18,11 @@
 "calibrate" = "校准摄像头";
 "calibrated" = "已就绪。开始前，请回到手臂伸直的位置。";
 "calibration_failed" = "校准未成功。请让面部保持在画面中，稳定保持每个姿势后重试。";
-"camera_denied" = "请在“设置”中允许相机访问以自动计数，或选择点按模式。";
+"camera_denied" = "请在设置中允许访问摄像头，以使用自动计数。";
 "camera_help" = "请让面部位于前置摄像头上方。完成一次“高位—低位—高位”动作后才会计数。每次移动、旋转或折叠设备后，请重新校准。";
 "camera_interrupted" = "相机已停止。请重新连接，然后在准备好后继续。";
-"camera_mode" = "相机";
-"camera_unavailable" = "前置摄像头不可用。请选择点按模式继续训练。";
+"camera_mode" = "自动计数";
+"camera_unavailable" = "此设备不支持面部跟踪。";
 "cancel" = "取消";
 "close" = "关闭";
 "cloud_saved" = "已同步到账户";
@@ -80,12 +80,12 @@
 "min" = "分钟";
 "monthly" = "月度订阅";
 "of_goal" = "每日目标 %ld 次";
-"on_device" = "只在本机，安心计数";
-"on_device_body" = "面部检测在设备本机运行。视频不会被录制或上传。";
+"on_device" = "只有计数器";
+"on_device_body" = "面部运动仅在设备本机处理，不显示摄像头预览，也不保存视频或面部数据。";
 "open_settings" = "打开设置";
 "pause" = "暂停";
 "paused" = "调整呼吸，准备好后再继续。";
-"phone_hint" = "将设备屏幕朝上放置，并让前置摄像头能够看到你的面部。";
+"phone_hint" = "将设备屏幕朝上放在面部下方，短暂设置后即可开始计数。";
 "plus_active" = "pushx Plus 已启用";
 "plus_analytics" = "使用 pushx Plus 查看更多统计";
 "plus_body" = "为进步多添一点助力。计数、历史和好友等基本功能始终免费。";
@@ -174,3 +174,22 @@
 "save" = "保存";
 "name_save_error" = "无法保存姓名，请重试。";
 "status" = "状态";
+
+"distance_position" = "将 iPhone 屏幕朝上放置，在手机上方保持平板支撑姿势。";
+
+"distance_help" = "开始后，在上方保持一秒，然后开始俯卧撑，pushx 会自动计数。";
+
+"distance_hold_upper" = "在上方姿势保持一秒。";
+
+"distance_privacy_note" = "摄像头仅用于计数，不显示预览，也不录制视频。";
+
+"distance_unavailable" = "无法自动计数";
+
+"distance_unavailable_body" = "此设备不支持面部跟踪。您仍可使用历史记录、设置和 Apple 健康。自动计数需要兼容的实体设备。";
+
+"distance_permission_title" = "允许访问摄像头";
+
+"distance_permission_body" = "摄像头用于检测面部运动。屏幕只显示计数器，不保存视频或面部数据。";
+
+"distance_signal_ready" = "计数器已就绪";
+"distance_signal_search" = "请面向屏幕";
