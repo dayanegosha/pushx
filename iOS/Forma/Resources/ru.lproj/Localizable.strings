@@ -193,3 +193,22 @@
 
 "distance_signal_ready" = "Счётчик готов";
 "distance_signal_search" = "Повернись лицом к экрану";
+
+"workout_voice_on" = "Включён";
+"workout_voice_off" = "Выключен";
+"workout_interrupted" = "Отслеживание прервано";
+"workout_connecting" = "Подключение";
+"workout_ready" = "Можно начинать";
+"workout_tracking" = "Ищем лицо";
+"workout_measuring" = "Определяем положение";
+"workout_counting" = "Считаем повторения";
+"workout_repetitions" = "ПОВТОРЕНИЯ";
+"workout_position_short" = "Экран вверх. В своём темпе.";
+"workout_paused_hint" = "Счёт сохранён. Продолжайте, когда будете готовы.";
+"workout_face_hint" = "Вернитесь в верхнее положение и смотрите в сторону экрана.";
+"workout_guide_title" = "Немного места.\nКаждое повторение.";
+"workout_guide_body" = "Положите устройство на пол экраном вверх под лицом и не двигайте его. Начните с верхнего положения, затем опускайтесь и поднимайтесь — pushx следит за расстоянием до лица.";
+"workout_continue" = "Продолжить";
+
+"workout_phone_moving" = "Устройство движется";
+"workout_hold_steady" = "Не двигайте его, чтобы продолжить";

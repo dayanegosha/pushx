@@ -193,3 +193,22 @@
 
 "distance_signal_ready" = "Ready to count";
 "distance_signal_search" = "Face the screen";
+
+"workout_voice_on" = "On";
+"workout_voice_off" = "Off";
+"workout_interrupted" = "Tracking interrupted";
+"workout_connecting" = "Connecting";
+"workout_ready" = "Ready when you are";
+"workout_tracking" = "Finding your face";
+"workout_measuring" = "Measuring your position";
+"workout_counting" = "Counting";
+"workout_repetitions" = "REPETITIONS";
+"workout_position_short" = "Screen up. Your pace.";
+"workout_paused_hint" = "Your count is safe. Continue when you are ready.";
+"workout_face_hint" = "Return to the upper position and look towards the screen.";
+"workout_guide_title" = "A little space.\nEvery rep.";
+"workout_guide_body" = "Place your device flat on the floor, screen up, beneath your face. Keep it still. Start in the upper position, then lower and rise naturally — pushx follows the distance to your face.";
+"workout_continue" = "Continue";
+
+"workout_phone_moving" = "Device moved";
+"workout_hold_steady" = "Hold it still to continue";
