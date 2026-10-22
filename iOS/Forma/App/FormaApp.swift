@@ -26,13 +26,17 @@ import SwiftUI
                 .accentColor((AccentChoice(rawValue: accentColor) ?? .violet).color)
                 .environment(\.locale, Locale(identifier: L.language))
                 .task {
+                    await DailyReminderService.shared.refresh()
                     await auth.restoreSession()
                     startupComplete = true
                     await subscription.start()
                     await model.synchronize()
                 }
                 .onChange(of: scenePhase) { _, value in
-                    if value == .active { Task { await subscription.refresh(); await model.synchronize() } }
+                    if value == .active { Task { await DailyReminderService.shared.refresh(); await subscription.refresh(); await model.synchronize() } }
+                }
+                .onChange(of: language) { _, _ in
+                    Task { await DailyReminderService.shared.refresh() }
                 }
                 .onChange(of: auth.session?.userID) { _, _ in
                     Task { await model.synchronize() }

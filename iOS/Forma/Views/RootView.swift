@@ -58,53 +58,57 @@ struct HomeView: View {
     @AppStorage("dailyGoal") private var dailyGoal = 50
     @State private var workout = DevelopmentLaunch.workout
     @State private var showStatus = false
+    @State private var showStreak = false
     private var records: [WorkoutRecord] { store.visible(for: auth.session?.userID) }
-    private var today: Int { records.filter { Calendar.current.isDateInToday($0.endedAt) }.reduce(0) { $0 + $1.repetitions } }
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geometry in
-                let horizontal = geometry.size.width >= 800 || (geometry.size.width >= 640 && geometry.size.width > geometry.size.height)
-                let compact = geometry.size.height < 680
-                VStack(spacing: compact ? 12 : 20) {
-                    header
-                    if horizontal && dynamicTypeSize.isAccessibilitySize {
-                        HStack(spacing: 24) {
-                            accessibleReadout(compact: compact).frame(maxWidth: .infinity)
-                            startButton.frame(maxWidth: 390)
-                        }.frame(maxHeight: .infinity)
-                    } else if horizontal {
-                        HStack(spacing: 40) {
-                            VStack(alignment: .leading, spacing: 16) {
-                                if !compact && !dynamicTypeSize.isAccessibilitySize { title }
-                                progressRing(diameter: max(120, min(320, geometry.size.height - 160)))
-                                    .frame(maxWidth: .infinity)
-                            }.frame(maxWidth: .infinity)
-                            VStack(spacing: 24) {
-                                statistics
-                                startButton
-                                placementHint
-                            }.frame(maxWidth: 390)
-                        }.frame(maxHeight: .infinity)
-                    } else {
-                        Spacer(minLength: 0)
-                        if dynamicTypeSize.isAccessibilitySize {
-                            accessibleReadout(compact: compact)
+            TimelineView(.periodic(from: .now, by: 60)) { timeline in
+                let now = max(timeline.date, Date.now)
+                let currentStreak = StreakCalculator.calculate(records: records, calendar: .current, now: now)
+                GeometryReader { geometry in
+                    let horizontal = geometry.size.width >= 800 || (geometry.size.width >= 640 && geometry.size.width > geometry.size.height)
+                    let compact = geometry.size.height < 680
+                    VStack(spacing: compact ? 12 : 20) {
+                        header(streak: currentStreak, now: now, showDate: geometry.size.width >= 500)
+                        if horizontal && dynamicTypeSize.isAccessibilitySize {
+                            HStack(spacing: 24) {
+                                accessibleReadout(compact: compact, today: currentStreak.todayRepetitions).frame(maxWidth: .infinity)
+                                startButton.frame(maxWidth: 390)
+                            }.frame(maxHeight: .infinity)
+                        } else if horizontal {
+                            HStack(spacing: 40) {
+                                VStack(alignment: .leading, spacing: 16) {
+                                    if !compact && !dynamicTypeSize.isAccessibilitySize { title }
+                                    progressRing(diameter: max(120, min(320, geometry.size.height - 160)), today: currentStreak.todayRepetitions)
+                                        .frame(maxWidth: .infinity)
+                                }.frame(maxWidth: .infinity)
+                                VStack(spacing: 24) {
+                                    statistics
+                                    startButton
+                                    placementHint
+                                }.frame(maxWidth: 390)
+                            }.frame(maxHeight: .infinity)
                         } else {
-                            progressRing(diameter: max(120, min(300, geometry.size.width - 64,
-                                geometry.size.height - (compact ? 350 : 450))))
+                            Spacer(minLength: 0)
+                            if dynamicTypeSize.isAccessibilitySize {
+                                accessibleReadout(compact: compact, today: currentStreak.todayRepetitions)
+                            } else {
+                                progressRing(diameter: max(120, min(300, geometry.size.width - 64,
+                                    geometry.size.height - (compact ? 350 : 450))), today: currentStreak.todayRepetitions)
+                            }
+                            Spacer(minLength: 0)
+                            if !dynamicTypeSize.isAccessibilitySize { statistics }
+                            startButton
+                            if !compact && !dynamicTypeSize.isAccessibilitySize { placementHint }
                         }
-                        Spacer(minLength: 0)
-                        if !dynamicTypeSize.isAccessibilitySize { statistics }
-                        startButton
-                        if !compact && !dynamicTypeSize.isAccessibilitySize { placementHint }
                     }
+                        .padding(.horizontal, 20).padding(.vertical, compact ? 16 : 24)
+                        .frame(maxWidth: 920, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.canvas)
+                        .toolbar(.hidden, for: .navigationBar)
                 }
-                    .padding(.horizontal, 20).padding(.vertical, compact ? 16 : 24)
-                    .frame(maxWidth: 920, maxHeight: .infinity)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.canvas)
-                    .toolbar(.hidden, for: .navigationBar)
             }
         }
         .alert(L.text("status"), isPresented: $showStatus) {
@@ -113,17 +117,35 @@ struct HomeView: View {
         .fullScreenCover(isPresented: $workout) { WorkoutView() }
     }
 
-    private var header: some View {
-        HStack(spacing: 16) {
+    private func header(streak: StreakStatus, now: Date, showDate: Bool) -> some View {
+        HStack(spacing: 12) {
             Brand().dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             Spacer()
             if !statusMessages.isEmpty {
                 Button { showStatus = true } label: { Image(systemName: "exclamationmark.circle").frame(width: 44, height: 44) }
                     .accessibilityLabel(L.text("status")).accessibilityValue(statusMessages.joined(separator: ". "))
             }
-            Text(Date.now.formatted(.dateTime.locale(Locale(identifier: L.language)).day().month(.abbreviated)))
-                .font(AppFont.text(12, weight: .medium)).foregroundStyle(.secondary).lineLimit(1)
-                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            if showDate {
+                Text(now.formatted(.dateTime.locale(Locale(identifier: L.language)).day().month(.abbreviated)))
+                    .font(AppFont.text(12, weight: .medium)).foregroundStyle(.secondary).lineLimit(1)
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            }
+            Button { showStreak = true } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "flame.fill").font(.system(size: 16))
+                        .foregroundStyle(streak.currentDays > 0 ? Color.accentColor : Color.secondary)
+                    Text("\(streak.currentDays)").font(AppFont.numeric(18)).lineLimit(1).minimumScaleFactor(0.5)
+                }.padding(.horizontal, 10).frame(minHeight: 44)
+                    .background(Color.panel, in: Capsule())
+            }.buttonStyle(.plain)
+                .accessibilityLabel(L.text("streak_title"))
+                .accessibilityValue(L.format("streak_accessibility", streak.currentDays, min(streak.todayRepetitions, StreakCalculator.dailyMinimum)))
+                .accessibilityIdentifier("home_streak")
+                .alert(L.text("streak_title"), isPresented: $showStreak) {
+                    Button(L.text("done"), role: .cancel) {}
+                } message: {
+                    Text(L.format("streak_details", streak.currentDays, min(streak.todayRepetitions, StreakCalculator.dailyMinimum)))
+                }
         }
     }
 
@@ -137,7 +159,7 @@ struct HomeView: View {
          store.storageError, model.healthError, model.syncError].compactMap { $0 }
     }
 
-    private func accessibleReadout(compact: Bool) -> some View {
+    private func accessibleReadout(compact: Bool, today: Int) -> some View {
         VStack(spacing: 12) {
             Text(L.text("today")).font(AppFont.text(16, weight: .medium))
                 .dynamicTypeSize(...(compact ? DynamicTypeSize.xxxLarge : .accessibility5))
@@ -149,7 +171,7 @@ struct HomeView: View {
         }.accessibilityElement(children: .combine)
     }
 
-    private func progressRing(diameter: CGFloat) -> some View {
+    private func progressRing(diameter: CGFloat, today: Int) -> some View {
         ZStack {
             Circle().stroke(Color.primary.opacity(0.07), lineWidth: 1)
             Circle().trim(from: 0, to: min(1, CGFloat(today) / CGFloat(max(dailyGoal, 1))))

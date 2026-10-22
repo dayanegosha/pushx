@@ -212,3 +212,28 @@
 
 "workout_phone_moving" = "Device moved";
 "workout_hold_steady" = "Hold it still to continue";
+
+"workout_placement_one" = "Place your device on the floor beneath your face, screen up.";
+"workout_placement_two" = "Keep the device still. Hold the upper position for a moment.";
+"workout_placement_three" = "Lower and rise. Each full movement counts as one rep.";
+
+"workout_notice_connecting" = "Starting the counter.";
+"workout_notice_face" = "Look towards the screen.";
+"workout_notice_paused" = "Continue when you are ready.";
+"workout_notice_interrupted" = "Your count is saved. Try reconnecting.";
+"workout_notice_permission" = "Enable the camera in Settings.";
+
+"reminder_section" = "Reminders";
+"reminder_toggle" = "Remind me once a day";
+"reminder_time" = "Time";
+"reminder_footer" = "One quiet reminder at your chosen time. Turn it off whenever you like.";
+"reminder_open_settings" = "Allow notifications in iOS Settings";
+"reminder_denied" = "Notifications are turned off in iOS Settings.";
+"reminder_permission_needed" = "Allow notifications to enable your reminder.";
+"reminder_error" = "Could not schedule your reminder. Please try again.";
+"reminder_notification_title" = "A little movement with pushx";
+"reminder_notification_body" = "Have a minute? You could do a few push-ups.";
+
+"streak_title" = "Daily streak";
+"streak_accessibility" = "Consecutive days: %d. Today: %d of 5 push-ups.";
+"streak_details" = "Consecutive days: %d\nToday: %d of 5 push-ups\n\nComplete at least 5 push-ups each day. Workouts add up. A missed day resets the streak.";

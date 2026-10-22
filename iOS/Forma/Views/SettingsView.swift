@@ -6,6 +6,8 @@ struct SettingsView: View {
     @EnvironmentObject private var store: WorkoutStore
     @EnvironmentObject private var model: AppModel
     @EnvironmentObject private var subscription: SubscriptionService
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var reminder = DailyReminderService.shared
     @StateObject private var health = HealthService.shared
     @AppStorage("theme") private var theme = "system"
     @AppStorage("language") private var language = "system"
@@ -44,6 +46,25 @@ struct SettingsView: View {
                         HStack { Text(L.text("goal_title")); Spacer(); Text("\(goal)").foregroundStyle(.secondary).monospacedDigit(); Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary) }.foregroundStyle(.primary)
                     }.accessibilityIdentifier("daily_goal_editor")
                 }
+                Section {
+                    Toggle(L.text("reminder_toggle"), isOn: Binding(get: { reminder.isEnabled }, set: { enabled in
+                        Task { await reminder.setEnabled(enabled) }
+                    })).accessibilityIdentifier("reminder_toggle")
+                    if reminder.isEnabled {
+                        DatePicker(L.text("reminder_time"), selection: Binding(get: {
+                            Calendar.current.date(from: DateComponents(hour: reminder.hour, minute: reminder.minute)) ?? .now
+                        }, set: { date in
+                            let time = Calendar.current.dateComponents([.hour, .minute], from: date)
+                            Task { await reminder.setTime(hour: time.hour ?? 20, minute: time.minute ?? 0) }
+                        }), displayedComponents: .hourAndMinute).accessibilityIdentifier("reminder_time")
+                    }
+                    if let error = reminder.errorMessage { Text(error).font(.footnote).foregroundStyle(.secondary) }
+                    if reminder.isPermissionDenied {
+                        Button(L.text("reminder_open_settings")) {
+                            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                        }.accessibilityIdentifier("reminder_open_settings")
+                    }
+                } header: { Text(L.text("reminder_section")) } footer: { Text(L.text("reminder_footer")) }
                 Section {
                     Toggle("Apple Health", isOn: Binding(get: { healthEnabled }, set: { enabled in
                         if enabled {
@@ -108,6 +129,10 @@ struct SettingsView: View {
                 .sheet(isPresented: $nameEditor) { NameEditorView(name: auth.profile?.displayName ?? auth.session?.displayName ?? "").adaptiveSheet() }
                 .manageSubscriptionsSheet(isPresented: $manageSubscriptions)
                 .onAppear { health.refreshAuthorization() }
+                .task { await reminder.refresh() }
+                .onChange(of: scenePhase) { _, value in
+                    if value == .active { Task { await reminder.refresh() } }
+                }
         }
     }
 }

@@ -212,3 +212,28 @@
 
 "workout_phone_moving" = "设备发生移动";
 "workout_hold_steady" = "保持设备静止以继续";
+
+"workout_placement_one" = "将设备放在脸部下方的地面上，屏幕朝上。";
+"workout_placement_two" = "保持设备静止，在最高位置稍作停留。";
+"workout_placement_three" = "下降并撑起，每个完整动作计为一次。";
+
+"workout_notice_connecting" = "正在启动计数器。";
+"workout_notice_face" = "请面向屏幕。";
+"workout_notice_paused" = "准备好后继续。";
+"workout_notice_interrupted" = "次数已保留，请重新连接。";
+"workout_notice_permission" = "请在设置中允许使用相机。";
+
+"reminder_section" = "提醒";
+"reminder_toggle" = "每天提醒一次";
+"reminder_time" = "时间";
+"reminder_footer" = "每天在所选时间安静提醒一次，可随时关闭。";
+"reminder_open_settings" = "在 iOS 设置中允许通知";
+"reminder_denied" = "通知已在 iOS 设置中关闭。";
+"reminder_permission_needed" = "请允许通知以开启提醒。";
+"reminder_error" = "无法设置提醒，请重试。";
+"reminder_notification_title" = "和 pushx 一起动一动";
+"reminder_notification_body" = "有空时，可以做几个俯卧撑。";
+
+"streak_title" = "连续锻炼";
+"streak_accessibility" = "连续锻炼：%d 天。今日：%d/5 次俯卧撑。";
+"streak_details" = "连续锻炼：%d 天\n今日：%d/5 次俯卧撑\n\n每天至少完成 5 次俯卧撑，多次训练的次数可累加。中断一天，连续记录将重置。";

@@ -10,12 +10,14 @@
 		013A826D88931FD5BE33E33A /* Geologica-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F773F27DFA0AD9C1FAAC3D9 /* Geologica-Variable.ttf */; };
 		0B03DB253334515044201280 /* AppearanceControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5562FB3B6ED04D969AC85E3 /* AppearanceControls.swift */; };
 		0DE615585B90F95036AEE574 /* HealthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B74370DE25C7419821E5CDC /* HealthService.swift */; };
+		110335E4110268EEA437DA83 /* DailyReminderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2312C74747E1615690835A5 /* DailyReminderTests.swift */; };
 		1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDED05D38288080E42E9FFE /* ServiceTests.swift */; };
 		236715730362E577E948B7AE /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */; };
 		30FDDC91D1960337E6D9AF71 /* DeviceStabilityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495D1B31B64FBC63769B677C /* DeviceStabilityTracker.swift */; };
 		3A5A1E6FBB61557BDE9335A7 /* FaceDistanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB54EEE028170DB02B8F8E3 /* FaceDistanceEngine.swift */; };
 		3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */; };
 		446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */; };
+		471940294C4D2BDE5F66F336 /* StreakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DEDAD5CE08730ACFC51051B /* StreakTests.swift */; };
 		4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2061462EF1BE93E59B0E70 /* Forma.storekit */; };
 		4D3A489CFC2C5088F71CCD26 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 64F325CA4B4AA2AD5A80E34B /* Localizable.strings */; };
 		5362971B028F6052DA1395F1 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */; };
@@ -33,6 +35,7 @@
 		8E706B02336CB7945C5DF6E1 /* FormaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 463DBA3F222B72835A9C0495 /* FormaApp.swift */; };
 		91645AC6FB4511B68A027997 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61EE2F6A48694F9733A23D0 /* WorkoutView.swift */; };
 		947D80F2CBCEFA2A5B155D22 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080A4D5102367C3343B53A3B /* SpeechService.swift */; };
+		9970704B26B9FAB661A389CC /* StreakCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B55F6B62A6C6F2B1E73E23B /* StreakCalculator.swift */; };
 		9F4EB9675CCD63650B0BE81B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF36FB005541C2F15D619FE /* SettingsView.swift */; };
 		A86083BCE84EA98CF45D2AE5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85A04D740D98F94AF8D1C01A /* Assets.xcassets */; };
 		B913ABF0A8BB5F57BA4E43E1 /* FaceDistanceCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B30B7A7810326A086770DA4 /* FaceDistanceCounter.swift */; };
@@ -42,6 +45,7 @@
 		C7054BD8AB706A0235CB7F6D /* NameEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91DE54C1AA9D50CEDF8CEF2 /* NameEditorView.swift */; };
 		CBE331339BA8D1CC76869281 /* RepCycleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0D8AC00591582C965D176A /* RepCycleEngine.swift */; };
 		D2A523852FDF0F0C85A35AD4 /* ServiceSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 904683E424E4462C3CAFA2FF /* ServiceSupport.swift */; };
+		DCAF4F2489FDAE92E46B9FB5 /* DailyReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C3D5AA7FAD457171907542 /* DailyReminderService.swift */; };
 		E0170AF88E227CF91A18D678 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */; };
 		E489DB6C901A1A599D62E7BF /* FaceDistanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442269BE6C9DBED72BA68B53 /* FaceDistanceTests.swift */; };
 		EAA6887EFDA07C744CD04C49 /* BackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACEE8309C7739399DCD14D6 /* BackendService.swift */; };
@@ -83,12 +87,15 @@
 		495D1B31B64FBC63769B677C /* DeviceStabilityTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStabilityTracker.swift; sourceTree = "<group>"; };
 		4C6437A76C3B1360E0541E17 /* DeviceStabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStabilityTests.swift; sourceTree = "<group>"; };
 		4CA2F55BC6FF26452C6D9905 /* FormaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FormaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DEDAD5CE08730ACFC51051B /* StreakTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakTests.swift; sourceTree = "<group>"; };
 		54FAECC9256D03A7A6FF84F4 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5F773F27DFA0AD9C1FAAC3D9 /* Geologica-Variable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Geologica-Variable.ttf"; sourceTree = "<group>"; };
 		5FD888CCE59E45ADB2731387 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6B55F6B62A6C6F2B1E73E23B /* StreakCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalculator.swift; sourceTree = "<group>"; };
 		7AE2242F06C89401965C969E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7B74370DE25C7419821E5CDC /* HealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthService.swift; sourceTree = "<group>"; };
 		7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCycleTests.swift; sourceTree = "<group>"; };
+		83C3D5AA7FAD457171907542 /* DailyReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReminderService.swift; sourceTree = "<group>"; };
 		85A04D740D98F94AF8D1C01A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		87D8CDE3BE87D51079577594 /* AdaptiveLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveLayout.swift; sourceTree = "<group>"; };
 		8C081682CFF6D7EDAFE6DD65 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -97,6 +104,7 @@
 		904683E424E4462C3CAFA2FF /* ServiceSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceSupport.swift; sourceTree = "<group>"; };
 		93165A8E785D6A4671A77D73 /* Forma.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Forma.entitlements; sourceTree = "<group>"; };
 		9491F59D4859CF6F6EE98E7D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		A2312C74747E1615690835A5 /* DailyReminderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyReminderTests.swift; sourceTree = "<group>"; };
 		A599361579CD780F0B80F880 /* Design.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
 		AD3E2B881683BDFD84C6C410 /* DepthDistanceSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepthDistanceSampler.swift; sourceTree = "<group>"; };
 		B5562FB3B6ED04D969AC85E3 /* AppearanceControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceControls.swift; sourceTree = "<group>"; };
@@ -124,6 +132,7 @@
 			children = (
 				0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */,
 				BACEE8309C7739399DCD14D6 /* BackendService.swift */,
+				83C3D5AA7FAD457171907542 /* DailyReminderService.swift */,
 				7B74370DE25C7419821E5CDC /* HealthService.swift */,
 				904683E424E4462C3CAFA2FF /* ServiceSupport.swift */,
 				080A4D5102367C3343B53A3B /* SpeechService.swift */,
@@ -179,11 +188,13 @@
 			isa = PBXGroup;
 			children = (
 				DF49B0DBA26C509D43959CA0 /* CameraGeometryTests.swift */,
+				A2312C74747E1615690835A5 /* DailyReminderTests.swift */,
 				D7E828B4374F682DA1F7E1C6 /* DepthDistanceTests.swift */,
 				4C6437A76C3B1360E0541E17 /* DeviceStabilityTests.swift */,
 				442269BE6C9DBED72BA68B53 /* FaceDistanceTests.swift */,
 				7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */,
 				BCDED05D38288080E42E9FFE /* ServiceTests.swift */,
+				4DEDAD5CE08730ACFC51051B /* StreakTests.swift */,
 				8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */,
 			);
 			path = FormaTests;
@@ -202,6 +213,7 @@
 		A67EAE3B88BC3EFC8867B312 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6B55F6B62A6C6F2B1E73E23B /* StreakCalculator.swift */,
 				D8EEFF282EE82D60F7B40C06 /* WorkoutStore.swift */,
 			);
 			path = Models;
@@ -393,11 +405,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB056BA203F2CA5D17B87F71 /* CameraGeometryTests.swift in Sources */,
+				110335E4110268EEA437DA83 /* DailyReminderTests.swift in Sources */,
 				EC4A3495F8FF781D7B6ED7F2 /* DepthDistanceTests.swift in Sources */,
 				FD943AC64925F2CF50F9912B /* DeviceStabilityTests.swift in Sources */,
 				E489DB6C901A1A599D62E7BF /* FaceDistanceTests.swift in Sources */,
 				78D9311851C6CB916EF607FE /* RepCycleTests.swift in Sources */,
 				1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */,
+				471940294C4D2BDE5F66F336 /* StreakTests.swift in Sources */,
 				446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,6 +426,7 @@
 				236715730362E577E948B7AE /* AuthService.swift in Sources */,
 				EAA6887EFDA07C744CD04C49 /* BackendService.swift in Sources */,
 				6DD57CCBAB355D2E6D7A4EFB /* CameraGeometry.swift in Sources */,
+				DCAF4F2489FDAE92E46B9FB5 /* DailyReminderService.swift in Sources */,
 				56D9E776FC2FC7B91BE4A1FE /* DepthDistanceSampler.swift in Sources */,
 				7028175C3528BD4904831FF2 /* Design.swift in Sources */,
 				30FDDC91D1960337E6D9AF71 /* DeviceStabilityTracker.swift in Sources */,
@@ -428,6 +443,7 @@
 				D2A523852FDF0F0C85A35AD4 /* ServiceSupport.swift in Sources */,
 				9F4EB9675CCD63650B0BE81B /* SettingsView.swift in Sources */,
 				947D80F2CBCEFA2A5B155D22 /* SpeechService.swift in Sources */,
+				9970704B26B9FAB661A389CC /* StreakCalculator.swift in Sources */,
 				3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */,
 				5BE3BF58899E0C5B7B36CACB /* WorkoutStore.swift in Sources */,
 				91645AC6FB4511B68A027997 /* WorkoutView.swift in Sources */,
