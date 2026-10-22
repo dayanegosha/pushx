@@ -66,15 +66,33 @@ private final class AppleSignInCoordinator {
     }
 }
 
-private struct SessionKeychain {
-    private var service: String { (Bundle.main.bundleIdentifier ?? "app.forma.pushups") + ".auth" }
+@MainActor
+protocol AuthSessionStorage {
+    func load() throws -> AuthSession?
+    func save(_ session: AuthSession) throws
+    func delete() throws
+}
+
+struct SessionKeychain: AuthSessionStorage {
+    private let service: String
+    private let defaults: UserDefaults
     private let account = "supabase-session-v1"
+    private let suppressedKey = "authSessionSuppressed"
+
+    init(service: String = (Bundle.main.bundleIdentifier ?? "app.forma.pushups") + ".auth", defaults: UserDefaults = .standard) {
+        self.service = service
+        self.defaults = defaults
+    }
 
     private var query: [String: Any] {
         [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account]
     }
 
     func load() throws -> AuthSession? {
+        if defaults.bool(forKey: suppressedKey) {
+            try delete()
+            return nil
+        }
         var request = query
         request[kSecReturnData as String] = true
         request[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -82,7 +100,11 @@ private struct SessionKeychain {
         let status = SecItemCopyMatching(request as CFDictionary, &value)
         if status == errSecItemNotFound { return nil }
         guard status == errSecSuccess, let data = value as? Data else { throw ServiceError.secureStorage }
-        do { return try JSONDecoder().decode(AuthSession.self, from: data) }
+        do {
+            let session = try JSONDecoder().decode(AuthSession.self, from: data)
+            guard session.hasValidCredentials else { throw ServiceError.invalidResponse }
+            return session
+        }
         catch {
             try delete()
             return nil
@@ -98,9 +120,11 @@ private struct SessionKeychain {
             let new = query.merging(changes) { _, new in new }
             guard SecItemAdd(new as CFDictionary, nil) == errSecSuccess else { throw ServiceError.secureStorage }
         } else if update != errSecSuccess { throw ServiceError.secureStorage }
+        defaults.set(false, forKey: suppressedKey)
     }
 
     func delete() throws {
+        defaults.set(true, forKey: suppressedKey)
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw ServiceError.secureStorage }
     }
@@ -167,8 +191,8 @@ final class AuthService: ObservableObject {
     @Published private(set) var lastDeletedUserID: UUID?
     @Published var errorMessage: String?
 
-    private let backend = BackendService.shared
-    private let keychain = SessionKeychain()
+    private let backend: BackendService
+    private let keychain: any AuthSessionStorage
     private let names = AppleNameKeychain()
     private let coordinator = AppleSignInCoordinator()
     private var refreshTask: Task<AuthSession, Error>?
@@ -177,7 +201,9 @@ final class AuthService: ObservableObject {
     private var restored = false
     private var revocationObserver: NSObjectProtocol?
 
-    private init() {
+    init(backend: BackendService = .shared, sessionStorage: (any AuthSessionStorage)? = nil) {
+        self.backend = backend
+        self.keychain = sessionStorage ?? SessionKeychain()
         revocationObserver = NotificationCenter.default.addObserver(
             forName: ASAuthorizationAppleIDProvider.credentialRevokedNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -198,6 +224,7 @@ final class AuthService: ObservableObject {
         guard !isBusy else { return }
         isBusy = true
         errorMessage = nil
+        var version = sessionVersion
         defer { isBusy = false }
         do {
             let credential = try coordinator.consume(result)
@@ -206,28 +233,36 @@ final class AuthService: ObservableObject {
                       current.appleUserID == nil || current.appleUserID == credential.userID,
                       let code = credential.authorizationCode, !code.isEmpty else { throw ServiceError.invalidAppleCredential }
                 let token = try await validAccessToken()
+                guard version == sessionVersion, session?.userID == current.userID else { throw CancellationError() }
                 try await backend.deleteAccount(authorizationCode: code, idToken: credential.idToken, accessToken: token)
                 lastDeletedUserID = current.userID
                 let nameDeletion = Result { try names.delete(for: credential.userID) }
+                guard version == sessionVersion, session?.userID == current.userID else { throw CancellationError() }
+                version = sessionVersion + 1
                 try clearSession()
                 try nameDeletion.get()
             } else {
                 let displayName = try names.capture(credential.displayName, for: credential.userID)
                 let session = try await backend.exchangeAppleToken(idToken: credential.idToken, nonce: credential.rawNonce,
                                                                    appleUserID: credential.userID, displayName: displayName)
+                guard version == sessionVersion else { throw CancellationError() }
                 try keychain.save(session)
                 sessionVersion += 1
+                version = sessionVersion
                 self.session = session
+                profile = nil
                 try await refreshProfile()
             }
         } catch let error as ASAuthorizationError where error.code == .canceled {
-        } catch { errorMessage = ServiceCopy.message(for: error) }
+        } catch is CancellationError {
+        } catch { if version == sessionVersion { errorMessage = ServiceCopy.message(for: error) } }
     }
 
     func restoreSession() async {
         guard !restored else { return }
         restored = true
-        guard AppConfiguration.isBackendConfigured else { return }
+        guard backend.isConfigured else { return }
+        var version = sessionVersion
         isBusy = true
         defer { isBusy = false }
         do {
@@ -235,15 +270,19 @@ final class AuthService: ObservableObject {
             guard let stored = session else { return }
             if let appleID = stored.appleUserID {
                 let state = try await ASAuthorizationAppleIDProvider().credentialState(forUserID: appleID)
+                guard version == sessionVersion, session?.userID == stored.userID else { throw CancellationError() }
                 if state == .revoked || state == .notFound || state == .transferred {
+                    version = sessionVersion + 1
                     try clearSession()
                     return
                 }
             }
             _ = try await validAccessToken()
+            guard version == sessionVersion else { throw CancellationError() }
             try await refreshProfile()
+        } catch is CancellationError {
         } catch {
-            errorMessage = ServiceCopy.message(for: error)
+            if version == sessionVersion { errorMessage = ServiceCopy.message(for: error) }
         }
     }
 
@@ -256,14 +295,23 @@ final class AuthService: ObservableObject {
             guard sessionVersion == version, session?.userID == current.userID else { throw CancellationError() }
             return refreshed.accessToken
         }
-        let task = Task { try await backend.refresh(current) }
+        let task = Task {
+            let refreshed = try await backend.refresh(current)
+            guard self.sessionVersion == version, let latest = self.session,
+                  latest.userID == current.userID else { throw CancellationError() }
+            let updated = AuthSession(userID: refreshed.userID, accessToken: refreshed.accessToken,
+                                      refreshToken: refreshed.refreshToken, expiresAt: refreshed.expiresAt,
+                                      email: refreshed.email, appleUserID: latest.appleUserID,
+                                      displayName: latest.displayName)
+            try self.keychain.save(updated)
+            self.session = updated
+            return updated
+        }
         refreshTask = task
-        defer { refreshTask = nil }
+        defer { if sessionVersion == version { refreshTask = nil } }
         do {
             let refreshed = try await task.value
             guard sessionVersion == version, session?.userID == current.userID else { throw CancellationError() }
-            try keychain.save(refreshed)
-            session = refreshed
             return refreshed.accessToken
         } catch {
             if case ServiceError.server(let status, _) = error, status == 400 || status == 401 {

@@ -20,6 +20,22 @@ private final class ServiceURLProtocol: URLProtocol, @unchecked Sendable {
     override func stopLoading() {}
 }
 
+@MainActor
+private final class SessionStorageStub: AuthSessionStorage {
+    var value: AuthSession?
+    var failSave = false
+    var saveCalls = 0
+
+    init(_ session: AuthSession) { value = session }
+    func load() throws -> AuthSession? { value }
+    func save(_ session: AuthSession) throws {
+        saveCalls += 1
+        if failSave { throw ServiceError.secureStorage }
+        value = session
+    }
+    func delete() throws { value = nil }
+}
+
 final class ServiceTests: XCTestCase {
     private let userID = UUID(uuidString: "12345678-1234-1234-1234-123456789abc")!
     private let workoutID = UUID(uuidString: "12345678-1234-1234-1234-123456789abd")!
@@ -241,6 +257,141 @@ final class ServiceTests: XCTestCase {
             _ = try await unconfigured.profile(accessToken: "token")
             XCTFail("Cloud operations require deployed backend configuration")
         } catch ServiceError.notConfigured {}
+    }
+
+    func testSensitiveRequestsDisableCachesAndCookies() async throws {
+        let userID = userID
+        ServiceURLProtocol.handler = { request in
+            XCTAssertEqual(request.cachePolicy, .reloadIgnoringLocalCacheData)
+            XCTAssertFalse(request.httpShouldHandleCookies)
+            return (200, try Self.json(["id": userID.uuidString, "friend_code": "ABCDEF1234", "created_at": "2026-10-18T12:00:00Z"]))
+        }
+        _ = try await service.profile(accessToken: "token")
+    }
+
+    func testUnsafeBackendConfigurationCannotSendCredentials() async throws {
+        ServiceURLProtocol.handler = { _ in XCTFail("Unsafe configurations must not send requests"); return (500, Data()) }
+        for address in ["http://forma-tests.invalid", "https://user:password@forma-tests.invalid", "https://forma-tests.invalid?key=value", "https://forma-tests.invalid#fragment"] {
+            let invalid = BackendService(baseURL: URL(string: address), anonKey: "public-test-key")
+            do {
+                _ = try await invalid.profile(accessToken: "token")
+                XCTFail("Unsafe configuration was accepted: \(address)")
+            } catch ServiceError.notConfigured {}
+        }
+    }
+
+    func testMalformedOrDifferentAccountRefreshCannotReplaceCredentials() async throws {
+        let current = AuthSession(userID: userID, accessToken: "old", refreshToken: "refresh", expiresAt: .distantPast,
+                                  email: nil, appleUserID: nil, displayName: nil)
+        for (id, token, lifetime) in [(UUID(), "token", 3600), (userID, "", 3600), (userID, "bad\r\ntoken", 3600), (userID, "token", -1)] {
+            ServiceURLProtocol.handler = { _ in
+                (200, try Self.json(["access_token": token, "refresh_token": "rotated", "expires_in": lifetime, "user": ["id": id.uuidString]]))
+            }
+            do {
+                _ = try await service.refresh(current)
+                XCTFail("Malformed refresh was accepted")
+            } catch ServiceError.invalidResponse {}
+        }
+    }
+
+    func testAuthenticatedRedirectsAreRejectedBeforeFollowing() {
+        let delegate = BackendRequestDelegate()
+        let original = URL(string: "https://forma-tests.invalid/auth/v1/token")!
+        let redirected = URLRequest(url: URL(string: "https://another.invalid/capture")!)
+        let response = HTTPURLResponse(url: original, statusCode: 307, httpVersion: nil, headerFields: ["Location": redirected.url!.absoluteString])!
+        var decided = false
+        let task = URLSession.shared.dataTask(with: original)
+        delegate.urlSession(.shared, task: task, willPerformHTTPRedirection: response, newRequest: redirected) { request in
+            decided = true
+            XCTAssertNil(request)
+        }
+        XCTAssertTrue(decided)
+        task.cancel()
+    }
+
+    @MainActor
+    func testSignOutDuringRefreshCannotRestoreSession() async throws {
+        let session = AuthSession(userID: userID, accessToken: "old", refreshToken: "refresh", expiresAt: .distantPast,
+                                  email: nil, appleUserID: nil, displayName: nil)
+        let storage = SessionStorageStub(session)
+        let auth = AuthService(backend: service, sessionStorage: storage)
+        let started = expectation(description: "Refresh is awaiting its response")
+        let release = DispatchSemaphore(value: 0)
+        defer { release.signal() }
+        let userID = userID
+        ServiceURLProtocol.handler = { request in
+            if request.url?.path == "/auth/v1/logout" { return (204, Data()) }
+            started.fulfill()
+            guard release.wait(timeout: .now() + 5) == .success else { throw URLError(.timedOut) }
+            return (200, try Self.json(["access_token": "rotated", "refresh_token": "rotated-refresh", "expires_in": 3600, "user": ["id": userID.uuidString]]))
+        }
+        let restoring = Task { await auth.restoreSession() }
+        await fulfillment(of: [started], timeout: 5)
+        let signingOut = Task { await auth.signOut() }
+        await Task.yield()
+        XCTAssertNil(auth.session)
+        release.signal()
+        await signingOut.value
+        await restoring.value
+        XCTAssertNil(auth.session)
+        XCTAssertNil(storage.value)
+        XCTAssertEqual(storage.saveCalls, 0)
+        XCTAssertNil(auth.errorMessage)
+    }
+
+    @MainActor
+    func testSuppressedKeychainSessionCannotReturnAfterRestart() throws {
+        let status = SecItemCopyMatching([kSecClass as String: kSecClassGenericPassword,
+                                         kSecAttrService as String: "app.forma.tests.entitlement-check"] as CFDictionary, nil)
+        if status == errSecMissingEntitlement { throw XCTSkip("This test requires a signed app with Keychain access.") }
+        let suite = "pushx.session.tests." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let storage = SessionKeychain(service: suite, defaults: defaults)
+        defer { try? storage.delete() }
+        let session = AuthSession(userID: userID, accessToken: "token", refreshToken: "refresh",
+                                  expiresAt: Date().addingTimeInterval(3600), email: nil, appleUserID: nil, displayName: nil)
+        try storage.save(session)
+        XCTAssertEqual(try storage.load()?.accessToken, "token")
+        defaults.set(true, forKey: "authSessionSuppressed")
+        let afterRestart = SessionKeychain(service: suite, defaults: defaults)
+        XCTAssertNil(try afterRestart.load())
+        try afterRestart.save(session)
+        XCTAssertFalse(defaults.bool(forKey: "authSessionSuppressed"))
+        XCTAssertEqual(try afterRestart.load()?.accessToken, "token")
+    }
+
+    @MainActor
+    func testConcurrentRefreshWaitersCannotReceiveUnpersistedTokens() async throws {
+        let session = AuthSession(userID: userID, accessToken: "old", refreshToken: "refresh", expiresAt: .distantPast,
+                                  email: nil, appleUserID: nil, displayName: nil)
+        let storage = SessionStorageStub(session)
+        storage.failSave = true
+        let auth = AuthService(backend: service, sessionStorage: storage)
+        let started = expectation(description: "Refresh is awaiting its response")
+        let release = DispatchSemaphore(value: 0)
+        defer { release.signal() }
+        let userID = userID
+        ServiceURLProtocol.handler = { _ in
+            started.fulfill()
+            guard release.wait(timeout: .now() + 5) == .success else { throw URLError(.timedOut) }
+            return (200, try Self.json(["access_token": "rotated", "refresh_token": "rotated-refresh", "expires_in": 3600, "user": ["id": userID.uuidString]]))
+        }
+        let restoring = Task { await auth.restoreSession() }
+        await fulfillment(of: [started], timeout: 5)
+        let waiter = Task { () -> Bool in
+            do { _ = try await auth.validAccessToken(); return false }
+            catch ServiceError.secureStorage { return true }
+            catch { return false }
+        }
+        await Task.yield()
+        release.signal()
+        let failedSecurely = await waiter.value
+        await restoring.value
+        XCTAssertTrue(failedSecurely)
+        XCTAssertEqual(storage.saveCalls, 1)
+        XCTAssertEqual(auth.session?.accessToken, "old")
+        XCTAssertEqual(storage.value?.refreshToken, "refresh")
     }
 
     private func workoutRow() -> [String: Any] {

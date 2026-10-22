@@ -67,6 +67,14 @@ struct AuthSession: Codable, Sendable {
     let email: String?
     let appleUserID: String?
     let displayName: String?
+
+    var hasValidCredentials: Bool {
+        Self.isValidToken(accessToken) && Self.isValidToken(refreshToken) && expiresAt.timeIntervalSince1970.isFinite
+    }
+
+    static func isValidToken(_ value: String) -> Bool {
+        !value.isEmpty && value.utf8.count <= 16_384 && !value.unicodeScalars.contains { CharacterSet.whitespacesAndNewlines.union(.controlCharacters).contains($0) }
+    }
 }
 
 private struct TokenResponse: Decodable {
@@ -81,10 +89,21 @@ private struct TokenResponse: Decodable {
         case expiresIn = "expires_in", expiresAt = "expires_at", user
     }
 
-    func session(appleUserID: String?, displayName: String?) -> AuthSession {
-        AuthSession(userID: user.id, accessToken: accessToken, refreshToken: refreshToken,
-                    expiresAt: expiresAt.map(Date.init(timeIntervalSince1970:)) ?? Date().addingTimeInterval(expiresIn),
-                    email: user.email, appleUserID: appleUserID, displayName: displayName)
+    func session(appleUserID: String?, displayName: String?) throws -> AuthSession {
+        let result = AuthSession(userID: user.id, accessToken: accessToken, refreshToken: refreshToken,
+                                 expiresAt: expiresAt.map(Date.init(timeIntervalSince1970:)) ?? Date().addingTimeInterval(expiresIn),
+                                 email: user.email, appleUserID: appleUserID, displayName: displayName)
+        guard expiresIn.isFinite, expiresIn > 0, result.hasValidCredentials, result.expiresAt > Date() else {
+            throw ServiceError.invalidResponse
+        }
+        return result
+    }
+}
+
+final class BackendRequestDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(nil)
     }
 }
 
@@ -93,12 +112,21 @@ actor BackendService {
     private let urlSession: URLSession
     private let baseURL: URL?
     private let anonKey: String
+    private let requestDelegate = BackendRequestDelegate()
+    nonisolated let isConfigured: Bool
 
-    init(urlSession: URLSession = .shared, baseURL: URL? = AppConfiguration.supabaseURL,
+    init(urlSession: URLSession? = nil, baseURL: URL? = AppConfiguration.supabaseURL,
          anonKey: String = AppConfiguration.supabaseAnonKey) {
-        self.urlSession = urlSession
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.urlCache = nil
+        self.urlSession = urlSession ?? URLSession(configuration: configuration)
         self.baseURL = baseURL
         self.anonKey = anonKey
+        isConfigured = baseURL?.scheme == "https" && baseURL?.host?.isEmpty == false
+            && baseURL?.user == nil && baseURL?.password == nil && baseURL?.query == nil && baseURL?.fragment == nil
+            && AuthSession.isValidToken(anonKey) && !anonKey.contains("$(") && !anonKey.hasPrefix("sb_secret_")
     }
 
     func exchangeAppleToken(idToken: String, nonce: String, appleUserID: String, displayName: String?) async throws -> AuthSession {
@@ -106,13 +134,15 @@ actor BackendService {
         let response = try await send(path: "auth/v1/token", method: "POST", body: body,
                                       query: [URLQueryItem(name: "grant_type", value: "id_token")])
         let token = try decode(TokenResponse.self, data: response)
-        return token.session(appleUserID: appleUserID, displayName: displayName)
+        return try token.session(appleUserID: appleUserID, displayName: displayName)
     }
 
     func refresh(_ session: AuthSession) async throws -> AuthSession {
         let response = try await send(path: "auth/v1/token", method: "POST", body: ["refresh_token": session.refreshToken],
                                       query: [URLQueryItem(name: "grant_type", value: "refresh_token")])
-        return try decode(TokenResponse.self, data: response).session(appleUserID: session.appleUserID, displayName: session.displayName)
+        let result = try decode(TokenResponse.self, data: response).session(appleUserID: session.appleUserID, displayName: session.displayName)
+        guard result.userID == session.userID else { throw ServiceError.invalidResponse }
+        return result
     }
 
     func logout(accessToken: String) async throws {
@@ -214,20 +244,22 @@ actor BackendService {
 
     private func send(path: String, method: String, body: [String: Any]? = nil, accessToken: String? = nil,
                       query: [URLQueryItem] = []) async throws -> Data {
-        guard let baseURL, baseURL.scheme == "https", baseURL.host != nil,
-              !anonKey.isEmpty, !anonKey.contains("$(") else { throw ServiceError.notConfigured }
+        guard isConfigured, let baseURL else { throw ServiceError.notConfigured }
+        if let accessToken, !AuthSession.isValidToken(accessToken) { throw ServiceError.notSignedIn }
         let endpoint = path.split(separator: "/").reduce(baseURL) { $0.appendingPathComponent(String($1)) }
         guard var components = URLComponents(url: endpoint, resolvingAgainstBaseURL: false) else { throw ServiceError.notConfigured }
         if !query.isEmpty { components.queryItems = query }
         guard let url = components.url else { throw ServiceError.notConfigured }
         var request = URLRequest(url: url, timeoutInterval: 30)
+        request.cachePolicy = .reloadIgnoringLocalCacheData
+        request.httpShouldHandleCookies = false
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
         if let accessToken { request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization") }
         if let body { request.httpBody = try JSONSerialization.data(withJSONObject: body) }
-        let (data, response) = try await urlSession.data(for: request)
+        let (data, response) = try await urlSession.data(for: request, delegate: requestDelegate)
         guard let response = response as? HTTPURLResponse else { throw ServiceError.invalidResponse }
         guard (200...299).contains(response.statusCode) else {
             let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
