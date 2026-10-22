@@ -412,7 +412,7 @@ private struct WorkoutPlacementIllustration: View {
                         path.addLine(to: CGPoint(x: width * 0.83, y: height * 0.5))
                     }.stroke(AccentChoice.current.color.opacity(0.6), style: StrokeStyle(lineWidth: 1.5, lineCap: .round, dash: [3, 5]))
                 }
-            }
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

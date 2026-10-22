@@ -206,7 +206,7 @@
 "workout_position_short" = "Screen up. Your pace.";
 "workout_paused_hint" = "Your count is safe. Continue when you are ready.";
 "workout_face_hint" = "Return to the upper position and look towards the screen.";
-"workout_guide_title" = "A little space.\nEvery rep.";
+"workout_guide_title" = "Before you start";
 "workout_guide_body" = "Place your device flat on the floor, screen up, beneath your face. Keep it still. Start in the upper position, then lower and rise naturally — pushx follows the distance to your face.";
 "workout_continue" = "Continue";
 

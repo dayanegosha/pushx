@@ -206,7 +206,7 @@
 "workout_position_short" = "屏幕朝上，按自己的节奏。";
 "workout_paused_hint" = "次数已保留，准备好后继续。";
 "workout_face_hint" = "回到最高位置，面向屏幕。";
-"workout_guide_title" = "一点空间，\n每一次进步。";
+"workout_guide_title" = "开始前";
 "workout_guide_body" = "将设备平放在脸部下方的地面上，屏幕朝上，并保持设备静止。从最高位置开始，自然下降并撑起，pushx 会根据面部距离计算次数。";
 "workout_continue" = "继续";
 
