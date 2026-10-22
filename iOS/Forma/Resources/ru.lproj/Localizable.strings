@@ -237,3 +237,17 @@
 "streak_title" = "Серия дней";
 "streak_accessibility" = "Дней подряд: %d. Сегодня: %d из 5 отжиманий.";
 "streak_details" = "Дней подряд: %d\nСегодня: %d из 5 отжиманий\n\nВыполняйте не менее 5 отжиманий в день. Результаты тренировок складываются. Пропущенный день обнуляет серию.";
+
+"statistics" = "Статистика";
+"streak_current" = "Текущая серия";
+"streak_longest" = "Лучшая серия";
+"streak_calendar_open" = "Открыть календарь серии в статистике.";
+"streak_calendar_rule" = "5 отжиманий в день продолжают серию. Результаты тренировок складываются.";
+"streak_calendar_previous" = "Предыдущий месяц";
+"streak_calendar_next" = "Следующий месяц";
+"streak_calendar_total" = "Отжиманий: %d";
+"streak_calendar_complete" = "Дневной минимум выполнен";
+"streak_calendar_progress" = "В процессе — выполните 5 отжиманий за сегодня";
+"streak_calendar_missed" = "Дневной минимум не выполнен";
+"streak_calendar_future" = "Будущий день";
+"streak_calendar_day_accessibility" = "Отжиманий: %d. %@.";

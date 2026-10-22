@@ -31,7 +31,8 @@ struct HistoryView: View {
             ScrollView {
                 AdaptiveContent(maxWidth: 760) {
                 VStack(alignment: .leading, spacing: 24) {
-                    PageTitle(title: L.text("history"))
+                    PageTitle(title: L.text("statistics"))
+                    StreakCalendarView(records: records)
                     VStack(alignment: .leading, spacing: 22) {
                         HStack(alignment: .firstTextBaseline) { Text(L.text("last_7_days")).font(AppFont.text(15, weight: .medium)).fixedSize(horizontal: false, vertical: true); Spacer(); Text("\(days.reduce(0) { $0 + $1.reps })").font(AppFont.numeric(24)).fixedSize() }
                         Chart(days, id: \.date) { day in

@@ -189,6 +189,42 @@ final class FormaUITests: XCTestCase {
         snapshot("largest-text-workout")
     }
 
+    func testStreakOpensStatisticsAndRemindersStartDisabled() {
+        let app = XCUIApplication()
+        app.launchEnvironment["UPRA_LOCAL_PREVIEW"] = "1"
+        app.launchEnvironment["FORMA_RESET_DATA"] = "1"
+        app.launchArguments = ["-onboarded", "YES", "-language", "ru", "-theme", "dark", "-dailyReminderEnabled", "NO"]
+        app.launch()
+        let streak = app.buttons["home_streak"]
+        XCTAssertTrue(streak.waitForExistence(timeout: 15))
+        XCTAssertTrue(streak.isHittable)
+        XCTAssertTrue((streak.value as? String)?.contains("0 из 5") == true)
+        XCTAssertEqual(app.scrollViews.count, 0)
+        streak.tap()
+        let calendar = app.descendants(matching: .any)["streak_calendar"].firstMatch
+        XCTAssertTrue(calendar.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tabBars.buttons["Статистика"].isSelected)
+        XCTAssertEqual(app.alerts.count, 0)
+        snapshot("streak-statistics-calendar")
+        app.tabBars.buttons["Настройки"].tap()
+        XCTAssertTrue(app.buttons["appearance_theme"].waitForExistence(timeout: 10))
+        let reminder = app.switches["reminder_toggle"]
+        for _ in 0..<8 {
+            if reminder.isHittable { break }
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+                .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)))
+        }
+        if !reminder.isHittable {
+            snapshot("reminder-default-off-diagnostics")
+            print(app.debugDescription)
+        }
+        XCTAssertTrue(reminder.isHittable)
+        XCTAssertEqual(reminder.value as? String, "0")
+        XCTAssertFalse(app.datePickers["reminder_time"].exists)
+        XCTAssertEqual(app.alerts.count, 0)
+        snapshot("reminder-default-off")
+    }
+
     private func revealAndTap(_ element: XCUIElement, in app: XCUIApplication) {
         for _ in 0..<5 {
             if element.isHittable { element.tap(); return }

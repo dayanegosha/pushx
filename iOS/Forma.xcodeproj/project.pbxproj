@@ -13,6 +13,7 @@
 		110335E4110268EEA437DA83 /* DailyReminderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2312C74747E1615690835A5 /* DailyReminderTests.swift */; };
 		1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDED05D38288080E42E9FFE /* ServiceTests.swift */; };
 		236715730362E577E948B7AE /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */; };
+		255CEFC40E951E04CC86BD27 /* StreakCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A180285F3B1633706094D /* StreakCalendarView.swift */; };
 		30FDDC91D1960337E6D9AF71 /* DeviceStabilityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495D1B31B64FBC63769B677C /* DeviceStabilityTracker.swift */; };
 		3A5A1E6FBB61557BDE9335A7 /* FaceDistanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB54EEE028170DB02B8F8E3 /* FaceDistanceEngine.swift */; };
 		3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */; };
@@ -121,6 +122,7 @@
 		E9153A2B9AB33C500C459B4B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		EA2061462EF1BE93E59B0E70 /* Forma.storekit */ = {isa = PBXFileReference; path = Forma.storekit; sourceTree = "<group>"; };
 		EEAF50B067C9B77670EE0725 /* FormaUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FormaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F13A180285F3B1633706094D /* StreakCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalendarView.swift; sourceTree = "<group>"; };
 		F2855B9E54E9542E6E321ECE /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusView.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				FF1AA53E134C08FB3D46C4A4 /* PlusView.swift */,
 				398C021D358303F287112268 /* RootView.swift */,
 				3BF36FB005541C2F15D619FE /* SettingsView.swift */,
+				F13A180285F3B1633706094D /* StreakCalendarView.swift */,
 				D61EE2F6A48694F9733A23D0 /* WorkoutView.swift */,
 			);
 			path = Views;
@@ -444,6 +447,7 @@
 				9F4EB9675CCD63650B0BE81B /* SettingsView.swift in Sources */,
 				947D80F2CBCEFA2A5B155D22 /* SpeechService.swift in Sources */,
 				9970704B26B9FAB661A389CC /* StreakCalculator.swift in Sources */,
+				255CEFC40E951E04CC86BD27 /* StreakCalendarView.swift in Sources */,
 				3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */,
 				5BE3BF58899E0C5B7B36CACB /* WorkoutStore.swift in Sources */,
 				91645AC6FB4511B68A027997 /* WorkoutView.swift in Sources */,

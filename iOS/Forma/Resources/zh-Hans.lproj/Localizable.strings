@@ -237,3 +237,17 @@
 "streak_title" = "连续锻炼";
 "streak_accessibility" = "连续锻炼：%d 天。今日：%d/5 次俯卧撑。";
 "streak_details" = "连续锻炼：%d 天\n今日：%d/5 次俯卧撑\n\n每天至少完成 5 次俯卧撑，多次训练的次数可累加。中断一天，连续记录将重置。";
+
+"statistics" = "统计";
+"streak_current" = "当前连续天数";
+"streak_longest" = "最长连续天数";
+"streak_calendar_open" = "在统计中打开连续锻炼日历。";
+"streak_calendar_rule" = "每天完成 5 次俯卧撑即可延续记录，多次训练的次数可累加。";
+"streak_calendar_previous" = "上个月";
+"streak_calendar_next" = "下个月";
+"streak_calendar_total" = "俯卧撑：%d 次";
+"streak_calendar_complete" = "已达到每日最低目标";
+"streak_calendar_progress" = "进行中，今天需完成 5 次俯卧撑";
+"streak_calendar_missed" = "未达到每日最低目标";
+"streak_calendar_future" = "未来日期";
+"streak_calendar_day_accessibility" = "%d 次俯卧撑。%@。";

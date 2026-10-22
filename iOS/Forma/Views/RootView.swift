@@ -10,8 +10,8 @@ struct RootView: View {
             WelcomeView { onboarded = true }
         } else {
             TabView(selection: $selection) {
-                HomeView().tabItem { Label(L.text("train"), systemImage: "circle.circle") }.tag(0)
-                HistoryView().tabItem { Label(L.text("history"), systemImage: "chart.xyaxis.line") }.tag(1)
+                HomeView(onStreakTap: { selection = 1 }).tabItem { Label(L.text("train"), systemImage: "circle.circle") }.tag(0)
+                HistoryView().tabItem { Label(L.text("statistics"), systemImage: "chart.xyaxis.line") }.tag(1)
                 FriendsView().tabItem { Label(L.text("friends"), systemImage: "person.2") }.tag(2)
                 SettingsView().tabItem { Label(L.text("settings"), systemImage: "slider.horizontal.3") }.tag(3)
             }.environment(\.locale, Locale(identifier: AppLanguage(rawValue: language)?.code ?? "en"))
@@ -51,6 +51,7 @@ struct WelcomeView: View {
 }
 
 struct HomeView: View {
+    var onStreakTap: () -> Void = {}
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var store: WorkoutStore
     @EnvironmentObject private var auth: AuthService
@@ -58,7 +59,6 @@ struct HomeView: View {
     @AppStorage("dailyGoal") private var dailyGoal = 50
     @State private var workout = DevelopmentLaunch.workout
     @State private var showStatus = false
-    @State private var showStreak = false
     private var records: [WorkoutRecord] { store.visible(for: auth.session?.userID) }
 
     var body: some View {
@@ -130,7 +130,7 @@ struct HomeView: View {
                     .font(AppFont.text(12, weight: .medium)).foregroundStyle(.secondary).lineLimit(1)
                     .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
-            Button { showStreak = true } label: {
+            Button(action: onStreakTap) {
                 HStack(spacing: 6) {
                     Image(systemName: "flame.fill").font(.system(size: 16))
                         .foregroundStyle(streak.currentDays > 0 ? Color.accentColor : Color.secondary)
@@ -141,11 +141,7 @@ struct HomeView: View {
                 .accessibilityLabel(L.text("streak_title"))
                 .accessibilityValue(L.format("streak_accessibility", streak.currentDays, min(streak.todayRepetitions, StreakCalculator.dailyMinimum)))
                 .accessibilityIdentifier("home_streak")
-                .alert(L.text("streak_title"), isPresented: $showStreak) {
-                    Button(L.text("done"), role: .cancel) {}
-                } message: {
-                    Text(L.format("streak_details", streak.currentDays, min(streak.todayRepetitions, StreakCalculator.dailyMinimum)))
-                }
+                .accessibilityHint(L.text("streak_calendar_open"))
         }
     }
 

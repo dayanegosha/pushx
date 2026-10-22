@@ -237,3 +237,17 @@
 "streak_title" = "Daily streak";
 "streak_accessibility" = "Consecutive days: %d. Today: %d of 5 push-ups.";
 "streak_details" = "Consecutive days: %d\nToday: %d of 5 push-ups\n\nComplete at least 5 push-ups each day. Workouts add up. A missed day resets the streak.";
+
+"statistics" = "Statistics";
+"streak_current" = "Current streak";
+"streak_longest" = "Longest streak";
+"streak_calendar_open" = "Open your streak calendar in Statistics.";
+"streak_calendar_rule" = "5 push-ups in a day keeps your streak going. Workouts add up.";
+"streak_calendar_previous" = "Previous month";
+"streak_calendar_next" = "Next month";
+"streak_calendar_total" = "Push-ups: %d";
+"streak_calendar_complete" = "Daily minimum reached";
+"streak_calendar_progress" = "In progress — reach 5 push-ups today";
+"streak_calendar_missed" = "Daily minimum not reached";
+"streak_calendar_future" = "Upcoming day";
+"streak_calendar_day_accessibility" = "%d push-ups. %@.";

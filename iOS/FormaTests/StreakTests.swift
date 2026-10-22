@@ -149,6 +149,52 @@ final class StreakTests: XCTestCase {
         XCTAssertFalse(utcResult.todayQualified)
     }
 
+    func testDailyTotalsIncludePartialDaysAndSumAtTheLocalMidnightBoundary() {
+        let utc = calendar()
+        let local = calendar("Europe/Moscow")
+        let midnight = date(2026, 10, 21, hour: 21, calendar: utc)
+        let now = date(2026, 10, 22, calendar: utc)
+        let records = [record(endedAt: midnight.addingTimeInterval(-1), repetitions: 2),
+                       record(endedAt: midnight, repetitions: 1),
+                       record(endedAt: midnight.addingTimeInterval(60), repetitions: 3)]
+        let localTotals = StreakCalculator.dailyTotals(records: records, calendar: local, now: now)
+        XCTAssertEqual(localTotals, [local.startOfDay(for: midnight.addingTimeInterval(-1)): 2,
+                                     local.startOfDay(for: midnight): 4])
+        let utcTotals = StreakCalculator.dailyTotals(records: records, calendar: utc, now: now)
+        XCTAssertEqual(utcTotals, [utc.startOfDay(for: midnight): 6])
+    }
+
+    func testDailyTotalsExcludeFutureNonpositiveAndInvalidWorkouts() {
+        let calendar = calendar()
+        let now = date(2026, 10, 22, calendar: calendar)
+        let records = [record(endedAt: now, repetitions: 3),
+                       record(endedAt: now, repetitions: 0),
+                       record(endedAt: now, repetitions: -4),
+                       record(endedAt: now.addingTimeInterval(1), repetitions: 5),
+                       record(endedAt: date(2026, 10, 23, calendar: calendar), repetitions: 10),
+                       record(endedAt: Date(timeIntervalSinceReferenceDate: .nan)),
+                       record(endedAt: Date(timeIntervalSinceReferenceDate: -.infinity))]
+        XCTAssertEqual(StreakCalculator.dailyTotals(records: records, calendar: calendar, now: now),
+                       [calendar.startOfDay(for: now): 3])
+        XCTAssertTrue(StreakCalculator.dailyTotals(records: records, calendar: calendar,
+                                                   now: Date(timeIntervalSinceReferenceDate: .nan)).isEmpty)
+    }
+
+    func testDailyTotalsPreserveLongHistoryAndRepetitionsAboveTheQualificationThreshold() {
+        let calendar = calendar()
+        let now = date(2026, 10, 22, hour: 18, calendar: calendar)
+        let today = date(2026, 10, 22, calendar: calendar)
+        var records = (0..<800).map {
+            record(endedAt: calendar.date(byAdding: .day, value: -$0, to: today)!, repetitions: 100)
+        }
+        records.append(record(endedAt: today, repetitions: .max))
+        let totals = StreakCalculator.dailyTotals(records: records, calendar: calendar, now: now)
+        XCTAssertEqual(totals.count, 800)
+        XCTAssertEqual(totals[calendar.startOfDay(for: today)], Int.max)
+        let oldest = calendar.date(byAdding: .day, value: -799, to: today)!
+        XCTAssertEqual(totals[calendar.startOfDay(for: oldest)], 100)
+    }
+
     private func calendar(_ timezone: String = "UTC") -> Calendar {
         var result = Calendar(identifier: .gregorian)
         result.timeZone = TimeZone(identifier: timezone)!
