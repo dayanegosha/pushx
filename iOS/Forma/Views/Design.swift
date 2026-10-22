@@ -20,6 +20,10 @@ enum AppFont {
     static func numeric(_ size: CGFloat) -> Font {
         .custom("Geologica-Thin_Regular", fixedSize: size).monospacedDigit()
     }
+
+    static func counter(_ size: CGFloat) -> Font {
+        .custom("Geologica-Thin_Light", fixedSize: size)
+    }
 }
 
 extension Color {

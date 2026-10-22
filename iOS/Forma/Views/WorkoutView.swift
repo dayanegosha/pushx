@@ -23,6 +23,7 @@ struct WorkoutView: View {
     @State private var permissionIntro = false
     @State private var placementGuide = false
     @State private var awaitingPermission = false
+    @State private var displayedNotice: WorkoutNotice?
 
     private var count: Int { sensor.count }
     private var unavailable: Bool { !started && (sensor.status == .unavailable || sensor.status == .permissionDenied) }
@@ -32,15 +33,13 @@ struct WorkoutView: View {
             VStack(spacing: 0) {
                 header.padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 12)
                 GeometryReader { geometry in
-                    if summary != nil || permissionIntro || placementGuide || unavailable {
+                    if permissionIntro || placementGuide {
+                        introduction(permission: permissionIntro)
+                    } else if summary != nil || unavailable {
                         ScrollView {
                             VStack(spacing: 24) {
                                 if let result = summary {
                                     summaryContent(result)
-                                } else if permissionIntro {
-                                    introduction(permission: true)
-                                } else if placementGuide {
-                                    introduction(permission: false)
                                 } else {
                                     unavailableContent
                                 }
@@ -107,6 +106,9 @@ struct WorkoutView: View {
             }
             beginWhenReady()
         }
+        .task(id: noticeCandidate) {
+            await updateNotice(to: noticeCandidate)
+        }
         .confirmationDialog(L.text("save_before_exit"), isPresented: $showExit, titleVisibility: .visible) {
             Button(L.text("save_workout")) { finish() }
             Button(L.text("discard"), role: .destructive) { store.clearDraft(); dismiss() }
@@ -133,82 +135,84 @@ struct WorkoutView: View {
         }.foregroundStyle(.primary).buttonStyle(.plain)
     }
 
-    private var statusPill: some View {
-        HStack(spacing: 10) {
-            if sensor.isPhoneMoving && !paused {
-                Image(systemName: "iphone.radiowaves.left.and.right")
-                    .font(.system(size: 18, weight: .regular)).foregroundStyle(.secondary)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(L.text("workout_phone_moving")).font(AppFont.text(12, weight: .medium))
-                    Text(L.text("workout_hold_steady")).font(AppFont.text(10)).foregroundStyle(.secondary)
-                }.fixedSize(horizontal: false, vertical: true)
-            } else {
-                Circle().fill(sensor.faceVisible && !paused ? AccentChoice.current.color : Color.secondary)
-                    .frame(width: 7, height: 7)
-                Text(L.text(statusKey)).font(AppFont.text(12, weight: .medium))
-                    .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
-            }
-        }.padding(.horizontal, 18).padding(.vertical, 12)
-            .modifier(WorkoutGlass(shape: Capsule()))
-            .accessibilityIdentifier("workout_status")
+    private var noticeCandidate: WorkoutNotice? {
+        guard summary == nil, !permissionIntro, !placementGuide, !unavailable else { return nil }
+        if sensor.status == .permissionDenied { return .permission }
+        if sensor.status == .interrupted { return .interrupted }
+        if paused { return .paused }
+        if sensor.isPhoneMoving { return .moving }
+        if !started { return .connecting }
+        if !sensor.faceVisible { return .tracking }
+        if sensor.status == .measuring || !sensor.isCalibrated { return .measuring }
+        return nil
     }
 
-    private var statusKey: String {
-        if paused { return "paused" }
-        if sensor.status == .interrupted { return "workout_interrupted" }
-        if sensor.status == .requestingPermission { return "workout_connecting" }
-        if !started { return sensor.canStart ? "workout_ready" : "workout_connecting" }
-        if !sensor.faceVisible { return "workout_tracking" }
-        if !sensor.isCalibrated { return "workout_measuring" }
-        return "workout_counting"
+    private func updateNotice(to candidate: WorkoutNotice?) async {
+        guard candidate != displayedNotice else { return }
+        let delay = candidate?.presentationDelay ?? 600_000_000
+        if delay > 0 {
+            do { try await Task.sleep(nanoseconds: delay) }
+            catch { return }
+        }
+        guard !Task.isCancelled, noticeCandidate == candidate else { return }
+        withAnimation(.easeInOut(duration: 0.16)) { displayedNotice = candidate }
+    }
+
+    private func noticeBanner(_ notice: WorkoutNotice) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: notice.symbol).font(.system(size: 17, weight: .regular))
+                    .foregroundStyle(AccentChoice.current.color).frame(width: 22, height: 22)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L.text(notice.titleKey)).font(AppFont.text(12, weight: .medium))
+                    Text(L.text(notice.detailKey)).font(AppFont.text(11)).foregroundStyle(.secondary)
+                }.fixedSize(horizontal: false, vertical: true)
+            }
+            if notice == .permission {
+                Button(L.text("open_settings")) {
+                    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                }.buttonStyle(.bordered).controlSize(.small)
+            } else if notice == .interrupted {
+                Button(L.text("retry_camera")) { retryTracking() }
+                    .buttonStyle(.bordered).controlSize(.small)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .modifier(WorkoutGlass(shape: RoundedRectangle(cornerRadius: 28, style: .continuous)))
+        .accessibilityElement(children: notice == .permission || notice == .interrupted ? .contain : .combine)
+        .accessibilityIdentifier("workout_status")
     }
 
     private func readout(size: CGSize) -> some View {
-        VStack(spacing: 6) {
-            Text(L.text("workout_repetitions")).font(AppFont.text(11, weight: .medium))
-                .tracking(2).foregroundStyle(.secondary)
-            Text("\(count)")
-                .font(AppFont.numeric(min(300, max(128, min(size.width * 0.68, size.height * 0.48)))))
-                .lineLimit(1).minimumScaleFactor(0.25)
+        let fontSize = min(240, max(128, min(size.width * 0.56, size.height * 0.43)))
+        return Text("\(count)")
+                .font(AppFont.counter(fontSize)).tracking(-fontSize * 0.035)
+                .lineLimit(1).minimumScaleFactor(0.55)
                 .frame(maxWidth: .infinity).frame(height: max(158, min(330, size.height * 0.55)))
                 .contentTransition(.identity).transaction { $0.animation = nil }
                 .foregroundStyle(paused ? Color.secondary : Color.primary)
                 .accessibilityLabel(L.format("rep_count", count)).accessibilityIdentifier("rep_counter")
-        }
     }
 
     private func counterStage(size: CGSize) -> some View {
-        let slotHeight = min(132, max(80, size.height * 0.24))
-        return ZStack {
+        let noticeHeight = min(148, max(104, size.height * 0.25))
+        return ZStack(alignment: .top) {
             readout(size: size)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 24)
-            VStack(spacing: 0) {
-                ScrollView(.vertical, showsIndicators: false) {
-                    statusPill.padding(.horizontal, 24).padding(.top, 12).padding(.bottom, 8)
-                        .frame(maxWidth: .infinity)
-                }.frame(height: slotHeight)
-                Spacer(minLength: 0)
-                ScrollView(.vertical, showsIndicators: false) {
-                    counterHint.padding(.horizontal, 24).padding(.vertical, 12)
-                        .frame(maxWidth: .infinity)
-                }.frame(height: slotHeight)
-            }
+            ScrollView(.vertical, showsIndicators: false) {
+                ZStack(alignment: .top) {
+                    if let notice = displayedNotice {
+                        noticeBanner(notice).id(notice).transition(.opacity)
+                    }
+                }
+                .frame(maxWidth: 480)
+                .padding(.horizontal, 24).padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+            }.frame(height: noticeHeight)
         }.frame(width: size.width, height: size.height)
-    }
-
-    @ViewBuilder private var counterHint: some View {
-        if started && sensor.status == .permissionDenied {
-            settingsButton.frame(maxWidth: 420)
-        } else if !started && sensor.status == .interrupted {
-            Button(L.text("retry_camera")) { sensor.prepare(); beginWhenReady() }
-                .buttonStyle(FilledButton()).frame(maxWidth: 420)
-        } else if !sensor.isPhoneMoving && (paused || !sensor.faceVisible || !sensor.isCalibrated) {
-            Text(L.text(paused ? "workout_paused_hint" : !sensor.faceVisible ? "workout_face_hint" : "distance_hold_upper"))
-                .font(AppFont.text(14)).foregroundStyle(.secondary)
-                .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: 400)
-        }
     }
 
     private var controls: some View {
@@ -237,17 +241,28 @@ struct WorkoutView: View {
     }
 
     private func introduction(permission: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Spacer(minLength: 12)
-            WorkoutPlacementIllustration(permission: permission).frame(height: 190)
-                .frame(maxWidth: .infinity).background(Color.panel, in: RoundedRectangle(cornerRadius: 32))
-                .accessibilityHidden(true)
-            Text(L.text(permission ? "distance_permission_title" : "workout_guide_title"))
-                .font(AppFont.text(30, weight: .semibold)).fixedSize(horizontal: false, vertical: true)
-            Text(L.text(permission ? "distance_permission_body" : "workout_guide_body"))
-                .font(AppFont.text(15)).foregroundStyle(.secondary).lineSpacing(4)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 12)
+        VStack(alignment: .leading, spacing: 0) {
+            PushMark().stroke(Color.ink, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
+                .frame(width: 64, height: 64).padding(.bottom, 32)
+                .accessibilityElement(children: .ignore).accessibilityLabel("pushx")
+                .accessibilityIdentifier("workout_intro_mark")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    Text(L.text(permission ? "distance_permission_title" : "workout_guide_title"))
+                        .font(AppFont.text(28, weight: .medium)).fixedSize(horizontal: false, vertical: true)
+                    if permission {
+                        Text(L.text("distance_permission_body"))
+                            .font(AppFont.text(15)).foregroundStyle(.secondary).lineSpacing(4)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        VStack(alignment: .leading, spacing: 24) {
+                            placementStep(1, key: "workout_placement_one")
+                            placementStep(2, key: "workout_placement_two")
+                            placementStep(3, key: "workout_placement_three")
+                        }
+                    }
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 16)
+            }
             Button(L.text("workout_continue")) {
                 if permission {
                     permissionIntro = false
@@ -259,7 +274,20 @@ struct WorkoutView: View {
                     sensor.prepare()
                     beginWhenReady()
                 }
-            }.buttonStyle(FilledButton()).accessibilityIdentifier(permission ? "camera_permission_continue" : "placement_guide_continue")
+            }.buttonStyle(FilledButton())
+                .accessibilityIdentifier(permission ? "camera_permission_continue" : "placement_guide_continue")
+                .padding(.top, 24).padding(.bottom, 20)
+        }.padding(.horizontal, 24).padding(.top, 28)
+            .frame(maxWidth: 620).frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    private func placementStep(_ number: Int, key: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 18) {
+            Text(String(format: "%02d", number)).font(AppFont.text(12, weight: .medium))
+                .foregroundStyle(AccentChoice.current.color).fixedSize(horizontal: true, vertical: false)
+                .frame(minWidth: 24, alignment: .leading)
+            Text(L.text(key)).font(AppFont.text(15)).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -292,7 +320,7 @@ struct WorkoutView: View {
                 .foregroundStyle(AccentChoice.current.color).frame(width: 68, height: 68)
                 .modifier(WorkoutGlass(shape: Circle()))
             Text(L.text("well_done")).font(AppFont.text(30, weight: .semibold))
-            Text("\(result.repetitions)").font(AppFont.numeric(132)).lineLimit(1).minimumScaleFactor(0.3)
+            Text("\(result.repetitions)").font(AppFont.counter(132)).tracking(-4).lineLimit(1).minimumScaleFactor(0.55)
             Text(L.text("pushups_saved")).foregroundStyle(.secondary)
             if let error = store.storageError { StatusNote(text: error) }
             if let error = model.healthError { StatusNote(text: error) }
@@ -333,6 +361,16 @@ struct WorkoutView: View {
     private func saveDraft() {
         store.updateDraft(WorkoutDraft(id: workoutID, startedAt: startDate, updatedAt: .now, repetitions: count,
                                        detectionMode: "camera", ownerID: ownerID))
+    }
+
+    private func retryTracking() {
+        if started {
+            guard sensor.resume() else { return }
+            paused = false
+        } else {
+            sensor.prepare()
+            beginWhenReady()
+        }
     }
 
     private func togglePause() {
@@ -378,41 +416,50 @@ private struct WorkoutGlass<S: Shape>: ViewModifier {
     }
 }
 
-private struct WorkoutPlacementIllustration: View {
-    let permission: Bool
+enum WorkoutNotice: Hashable {
+    case connecting, measuring, tracking, moving, paused, interrupted, permission
 
-    var body: some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            let height = geometry.size.height
-            ZStack {
-                if permission {
-                    RoundedRectangle(cornerRadius: 22).stroke(Color.primary.opacity(0.6), lineWidth: 3)
-                        .frame(width: 88, height: 144)
-                    Capsule().fill(Color.primary).frame(width: 28, height: 6).offset(y: -57)
-                    Image(systemName: "faceid").font(.system(size: 36, weight: .ultraLight))
-                        .foregroundStyle(AccentChoice.current.color)
-                } else {
-                    Path { path in
-                        path.move(to: CGPoint(x: width * 0.15, y: height * 0.72))
-                        path.addLine(to: CGPoint(x: width * 0.39, y: height * 0.4))
-                        path.addLine(to: CGPoint(x: width * 0.66, y: height * 0.35))
-                        path.move(to: CGPoint(x: width * 0.62, y: height * 0.38))
-                        path.addLine(to: CGPoint(x: width * 0.57, y: height * 0.56))
-                        path.addLine(to: CGPoint(x: width * 0.7, y: height * 0.76))
-                    }.stroke(Color.primary.opacity(0.55), style: StrokeStyle(lineWidth: 13, lineCap: .round, lineJoin: .round))
-                    Circle().fill(Color.primary).frame(width: 24, height: 24)
-                        .position(x: width * 0.75, y: height * 0.32)
-                    Capsule().fill(Color.primary).frame(width: 38, height: 6)
-                        .position(x: width * 0.77, y: height * 0.79)
-                    Path { path in
-                        path.move(to: CGPoint(x: width * 0.74, y: height * 0.69))
-                        path.addLine(to: CGPoint(x: width * 0.71, y: height * 0.5))
-                        path.move(to: CGPoint(x: width * 0.8, y: height * 0.69))
-                        path.addLine(to: CGPoint(x: width * 0.83, y: height * 0.5))
-                    }.stroke(AccentChoice.current.color.opacity(0.6), style: StrokeStyle(lineWidth: 1.5, lineCap: .round, dash: [3, 5]))
-                }
-            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+    var presentationDelay: UInt64 {
+        switch self {
+        case .paused, .interrupted, .permission: return 0
+        case .moving, .connecting: return 350_000_000
+        case .tracking, .measuring: return 800_000_000
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .connecting: return "circle.dotted"
+        case .measuring: return "ruler"
+        case .tracking: return "eye"
+        case .moving: return "waveform.path"
+        case .paused: return "pause"
+        case .interrupted: return "arrow.clockwise"
+        case .permission: return "lock"
+        }
+    }
+
+    var titleKey: String {
+        switch self {
+        case .connecting: return "workout_connecting"
+        case .measuring: return "workout_measuring"
+        case .tracking: return "workout_tracking"
+        case .moving: return "workout_phone_moving"
+        case .paused: return "paused"
+        case .interrupted: return "workout_interrupted"
+        case .permission: return "distance_permission_title"
+        }
+    }
+
+    var detailKey: String {
+        switch self {
+        case .connecting: return "workout_notice_connecting"
+        case .measuring: return "distance_hold_upper"
+        case .tracking: return "workout_notice_face"
+        case .moving: return "workout_hold_steady"
+        case .paused: return "workout_notice_paused"
+        case .interrupted: return "workout_notice_interrupted"
+        case .permission: return "workout_notice_permission"
         }
     }
 }
