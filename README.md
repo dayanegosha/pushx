@@ -21,4 +21,4 @@ open Forma.xcodeproj
 
 Нужны собственные Apple Developer и Supabase. Сервер ещё не развёрнут: без его настройки Release остаётся на экране входа. Покупка отключена до указания публичной политики конфиденциальности. Локальный просмотр интерфейса доступен только в Debug с `UPRA_LOCAL_PREVIEW=1`; Release игнорирует этот флаг.
 
-[Интерфейс](Docs/Screenshots) · [Совместимость устройств](Docs/Compatibility.md) · [Датчики](Docs/Sensors.md) · [Архитектура](Docs/Architecture.md) · [Сервер и API](Docs/Backend.md) · [Проверки](Docs/Testing.md) · [Подготовка к App Store](Docs/AppStore.md) · [Проект политики конфиденциальности](Docs/PrivacyPolicy.ru.md) · [Шрифт и лицензия](Docs/Fonts.md)
+[Интерфейс](Docs/Screenshots) · [Совместимость устройств](Docs/Compatibility.md) · [Датчики](Docs/Sensors.md) · [Архитектура](Docs/Architecture.md) · [Сервер и API](Docs/Backend.md) · [Проверки](Docs/Testing.md) · [Аудит](Docs/Audit-2026-10-22.md) · [Подготовка к App Store](Docs/AppStore.md) · [Проект политики конфиденциальности](Docs/PrivacyPolicy.ru.md) · [Шрифт и лицензия](Docs/Fonts.md)

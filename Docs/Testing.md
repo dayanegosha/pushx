@@ -1,6 +1,6 @@
 # Проверка pushx
 
-Это воспроизводимые команды и план приёмки. Неотмеченный сценарий не считается проверенным. Итоговые результаты, версии инструментов и ссылки на `.xcresult` фиксируются в конце файла. Компиляция, симулятор, локальный StoreKit и тестовые сетевые ответы не заменяют проверку камеры, Health, Apple Auth и Sandbox на физических iPhone и iPad.
+Актуальный аудит от 22 октября — в [Audit-2026-10-22.md](Audit-2026-10-22.md). Ниже воспроизводимые команды и план приёмки. Неотмеченный сценарий не считается проверенным. Итоговые результаты, версии инструментов и ссылки на `.xcresult` фиксируются в конце файла. Компиляция, симулятор, локальный StoreKit и тестовые сетевые ответы не заменяют проверку камеры, Health, Apple Auth и Sandbox на физических iPhone и iPad.
 
 ## Сборка и XCTest
 
@@ -32,6 +32,7 @@ xcodebuild -project Forma.xcodeproj -scheme Forma -destination 'platform=iOS Sim
 ```sh
 node --experimental-strip-types --test tests/delete-account.test.ts
 deno check --config supabase/functions/delete-account/deno.json supabase/functions/delete-account/index.ts
+deno test --config supabase/functions/delete-account/deno.json tests/apple-token.test.ts
 ```
 
 SQL regression запускается только в пустой одноразовой локальной PostgreSQL БД. Не применяйте Auth fixture к рабочему Supabase:
@@ -66,7 +67,7 @@ psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f sup
 
 ## Матрица экранов и поворота
 
-Полная инвентаризация и план Duo — в [Compatibility.md](Compatibility.md). На текущем Xcode 27.0 нет Duo в `simctl list devicetypes`, а runtime 27.1 не установлен. Похожие размеры iPad не заменяют прямой тест Duo; для него нужен Xcode 27.1 и настоящий профиль.
+Полная инвентаризация и план Duo — в [Compatibility.md](Compatibility.md). В текущем Xcode 27.1 профиль Duo есть в `simctl list devicetypes`, а необходимый runtime 27.1 не установлен. Похожие размеры iPad не заменяют прямой тест Duo; для него нужен совместимый runtime 27.1 и запуск настоящего профиля.
 
 - [ ] На iPad Pro 11″ (M5) и mini (A17 Pro) запущен настоящий iPad simulator profile, а не iPhone compatibility mode.
 - [ ] На iPad Welcome, Home, History, Friends, Settings и Plus работают в портрете и landscape, с большим системным текстом и клавиатурой. На iPhone поворот устройства сохраняет портретный интерфейс.
