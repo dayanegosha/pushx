@@ -20,6 +20,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>pushx uses the front camera to count push-ups on your device. Video is never recorded or uploaded.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>pushx detects phone movement to prevent accidental counts. Motion readings stay on your device and are not saved.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>pushx does not read your health records. Workout syncing only writes sessions you record in pushx.</string>
 	<key>NSHealthUpdateUsageDescription</key>

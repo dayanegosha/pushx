@@ -7,6 +7,11 @@ struct FaceDistanceEngine {
     private var cycle = RepCycleEngine(calibration: RepCalibration(upperScale: 0.001, lowerScale: 0.999))
     private var lastSample: TimeInterval?
     private var faceID: UUID?
+    private var occludedSince: TimeInterval?
+    private var lastMovement: Double?
+    private var lastVisibleAt: TimeInterval?
+    private let occlusionGrace: TimeInterval = 0.85
+    var isBridgingTrackingLoss: Bool { occludedSince != nil }
 
     mutating func reset(preservingCount: Bool = false) {
         if !preservingCount { count = 0 }
@@ -15,6 +20,7 @@ struct FaceDistanceEngine {
         cycle.reset()
         lastSample = nil
         faceID = nil
+        clearOcclusion()
     }
 
     @discardableResult
@@ -24,18 +30,29 @@ struct FaceDistanceEngine {
         lastSample = time
         guard let distance, let faceID, distance.isFinite, (0.08...1.5).contains(distance) else {
             samples.removeAll(keepingCapacity: true)
-            cycle.reset(preservingCount: true)
+            if distance == nil, let movement = lastMovement, movement >= cycle.calibration.lowerThreshold,
+               cycle.phase == .lowerReached,
+               let visibleAt = lastVisibleAt, time - visibleAt <= occlusionGrace {
+                if occludedSince == nil { occludedSince = time }
+                cycle.update(faceScale: movement, at: time)
+            } else {
+                cycle.reset(preservingCount: true)
+                clearOcclusion()
+            }
             return false
         }
-        if let previous = self.faceID, previous != faceID {
+        let bridged = occludedSince != nil && lastVisibleAt.map { time - $0 <= occlusionGrace } == true
+        if let previous = self.faceID, previous != faceID, !bridged {
             baseline = nil
             samples.removeAll(keepingCapacity: true)
             cycle.reset(preservingCount: true)
+            clearOcclusion()
         }
         self.faceID = faceID
         if gap {
             samples.removeAll(keepingCapacity: true)
             cycle.reset(preservingCount: true)
+            clearOcclusion()
         }
         if baseline == nil {
             guard (0.25...1.0).contains(distance) else {
@@ -56,10 +73,18 @@ struct FaceDistanceEngine {
         }
         guard let baseline else { return false }
         let movement = min(0.999, max(0.001, (1 - distance / baseline) / 0.40))
+        lastMovement = movement
+        lastVisibleAt = time
+        occludedSince = nil
         if cycle.update(faceScale: movement, at: time) {
             count += 1
             return true
         }
         return false
+    }
+    private mutating func clearOcclusion() {
+        occludedSince = nil
+        lastMovement = nil
+        lastVisibleAt = nil
     }
 }

@@ -31,10 +31,10 @@ final class FaceDistanceTests: XCTestCase {
         XCTAssertEqual(engine.count, 0)
     }
 
-    func testTrackingLossDiscardsThePartialMovement() {
+    func testTrackingLossAtTheUpperPositionCannotCreateARep() {
         var engine = FaceDistanceEngine()
         warmUp(&engine)
-        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.3), (1.55, 0.3),
+        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, nil), (1.55, nil),
                        (1.6, nil), (1.75, 0.5), (1.9, 0.5)])
         XCTAssertEqual(engine.count, 0)
         feed(&engine, [(2.1, 0.3), (2.25, 0.3), (2.45, 0.5), (2.6, 0.5)])
@@ -75,6 +75,50 @@ final class FaceDistanceTests: XCTestCase {
         var engine = FaceDistanceEngine()
         warmUp(&engine)
         feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.3), (1.55, 0.3), (2.5, 0.5), (2.65, 0.5)])
+        XCTAssertEqual(engine.count, 0)
+    }
+
+    func testShortTrackingLossAtTheBottomPreservesTheRep() {
+        var engine = FaceDistanceEngine()
+        warmUp(&engine)
+        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.3), (1.55, 0.3),
+                       (1.7, nil), (1.85, nil), (2.0, 0.5), (2.15, 0.5)])
+        XCTAssertEqual(engine.count, 1)
+    }
+
+    func testFaceAnchorCanBeReacquiredAfterBriefBottomOcclusion() {
+        var engine = FaceDistanceEngine()
+        warmUp(&engine)
+        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.3), (1.55, 0.3), (1.7, nil)])
+        let reacquired = UUID()
+        engine.update(distance: 0.5, faceID: reacquired, at: 1.9)
+        engine.update(distance: 0.5, faceID: reacquired, at: 2.05)
+        XCTAssertEqual(engine.count, 1)
+        XCTAssertEqual(engine.baseline ?? 0, 0.5, accuracy: 0.001)
+    }
+
+    func testProlongedBottomOcclusionDoesNotCountOnReturn() {
+        var engine = FaceDistanceEngine()
+        warmUp(&engine)
+        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.3), (1.55, 0.3),
+                       (1.7, nil), (1.9, nil), (2.1, nil), (2.3, nil), (2.5, nil),
+                       (2.7, 0.5), (2.85, 0.5)])
+        XCTAssertEqual(engine.count, 0)
+    }
+
+    func testOcclusionBeforeReachingTheBottomCannotCount() {
+        var engine = FaceDistanceEngine()
+        warmUp(&engine)
+        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.43), (1.55, 0.43),
+                       (1.7, nil), (1.9, 0.5), (2.05, 0.5)])
+        XCTAssertEqual(engine.count, 0)
+    }
+
+    func testOneLowOutlierFollowedByTrackingLossCannotSatisfyTheLowerDwell() {
+        var engine = FaceDistanceEngine()
+        warmUp(&engine)
+        feed(&engine, [(1.1, 0.5), (1.25, 0.5), (1.4, 0.3), (1.55, nil),
+                       (1.7, nil), (1.9, 0.5), (2.05, 0.5)])
         XCTAssertEqual(engine.count, 0)
     }
 

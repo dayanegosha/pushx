@@ -1,4 +1,5 @@
 "CFBundleDisplayName" = "pushx";
 "NSCameraUsageDescription" = "pushx uses the front camera to count push-ups on your device. Video is never recorded or uploaded.";
+"NSMotionUsageDescription" = "pushx detects phone movement to prevent accidental counts. Motion readings stay on your device and are not saved.";
 "NSHealthShareUsageDescription" = "pushx does not read your health records. Workout syncing only adds sessions recorded in pushx.";
 "NSHealthUpdateUsageDescription" = "With your permission, pushx adds your completed push-up workouts to Apple Health.";
