@@ -21,6 +21,8 @@ struct SettingsView: View {
     @State private var manageSubscriptions = false
     @State private var goalEditor = DevelopmentLaunch.goalEditor
     @State private var nameEditor = false
+    @State private var healthAuthorizationID: UUID?
+    @State private var healthAuthorizationTask: Task<Void, Never>?
 
     private var profileName: String {
         ProfileName.normalized(auth.profile?.displayName ?? auth.session?.displayName) ?? L.text("participant_name")
@@ -66,14 +68,8 @@ struct SettingsView: View {
                     }
                 } header: { Text(L.text("reminder_section")) } footer: { Text(L.text("reminder_footer")) }
                 Section {
-                    Toggle("Apple Health", isOn: Binding(get: { healthEnabled }, set: { enabled in
-                        if enabled {
-                            Task {
-                                healthEnabled = await health.requestAuthorization()
-                                if healthEnabled { await model.synchronizeHealth() }
-                            }
-                        } else { healthEnabled = false; model.healthError = nil }
-                    })).disabled(!health.isAvailable || health.isBusy)
+                    Toggle("Apple Health", isOn: Binding(get: { healthEnabled }, set: setHealthEnabled))
+                        .disabled(!health.isAvailable || (health.isBusy && !healthEnabled))
                     if healthEnabled {
                         Button(L.text("sync_health")) { Task { await model.synchronizeHealth() } }.disabled(health.isBusy)
                     }
@@ -133,6 +129,25 @@ struct SettingsView: View {
                 .onChange(of: scenePhase) { _, value in
                     if value == .active { Task { await reminder.refresh() } }
                 }
+        }
+    }
+
+    private func setHealthEnabled(_ enabled: Bool) {
+        healthAuthorizationTask?.cancel()
+        healthAuthorizationTask = nil
+        healthAuthorizationID = nil
+        healthEnabled = enabled
+        model.healthError = nil
+        guard enabled else { return }
+        let requestID = UUID()
+        healthAuthorizationID = requestID
+        healthAuthorizationTask = Task {
+            let authorized = await health.requestAuthorization()
+            guard !Task.isCancelled, healthAuthorizationID == requestID, healthEnabled else { return }
+            healthAuthorizationID = nil
+            healthAuthorizationTask = nil
+            healthEnabled = authorized
+            if authorized { await model.synchronizeHealth() }
         }
     }
 }

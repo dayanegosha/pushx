@@ -18,7 +18,10 @@ final class FaceDistanceCounter: ObservableObject {
     @Published private(set) var faceVisible = false
     @Published private(set) var isCalibrated = false
     @Published private(set) var isPhoneMoving = false
-    private let pipeline = FaceDistancePipeline()
+    private let pipeline: FaceDistanceStreaming
+    private let supportsFaceTracking: () -> Bool
+    private let cameraAuthorization: () -> AVAuthorizationStatus
+    private let clock: () -> TimeInterval
     private var engine = FaceDistanceEngine()
     private let motion = CMMotionManager()
     private let motionQueue: OperationQueue = {
@@ -39,12 +42,25 @@ final class FaceDistanceCounter: ObservableObject {
 
     var canStart: Bool { status == .ready && !isPhoneMoving }
 
-    init() {
-        pipeline.onSample = { [weak self] distance, id, time in
-            Task { @MainActor in self?.receive(distance: distance, id: id, time: time) }
+    convenience init() {
+        self.init(pipeline: FaceDistancePipeline(), supportsFaceTracking: { ARFaceTrackingConfiguration.isSupported },
+                  cameraAuthorization: { AVCaptureDevice.authorizationStatus(for: .video) })
+    }
+
+    init(pipeline: FaceDistanceStreaming, supportsFaceTracking: @escaping () -> Bool,
+         cameraAuthorization: @escaping () -> AVAuthorizationStatus, clock: @escaping () -> TimeInterval = CACurrentMediaTime) {
+        self.pipeline = pipeline
+        self.supportsFaceTracking = supportsFaceTracking
+        self.cameraAuthorization = cameraAuthorization
+        self.clock = clock
+        pipeline.onSample = { [weak self] distance, id, time, token in
+            Task { @MainActor in self?.receive(distance: distance, id: id, time: time, token: token) }
         }
-        pipeline.onFailure = { [weak self] in
-            Task { @MainActor in self?.interrupt() }
+        pipeline.onFailure = { [weak self] token in
+            Task { @MainActor in
+                guard let self, self.generation == token else { return }
+                self.interrupt()
+            }
         }
         backgroundObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
@@ -54,6 +70,7 @@ final class FaceDistanceCounter: ObservableObject {
     }
 
     deinit {
+        watchdog?.cancel()
         motion.stopDeviceMotionUpdates()
         motionQueue.cancelAllOperations()
         if let backgroundObserver { NotificationCenter.default.removeObserver(backgroundObserver) }
@@ -61,11 +78,11 @@ final class FaceDistanceCounter: ObservableObject {
 
     func prepare() {
         guard status == .idle || status == .interrupted || status == .paused || status == .permissionDenied else { return }
-        guard ARFaceTrackingConfiguration.isSupported else { status = .unavailable; return }
+        guard supportsFaceTracking() else { status = .unavailable; return }
         desiredRunning = true
         let token = UUID()
         generation = token
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        switch cameraAuthorization() {
         case .authorized: run(token: token)
         case .notDetermined:
             status = .requestingPermission
@@ -85,7 +102,7 @@ final class FaceDistanceCounter: ObservableObject {
         engine.reset()
         count = 0
         isCalibrated = false
-        acceptAfter = CACurrentMediaTime()
+        acceptAfter = clock()
         status = .measuring
     }
 
@@ -99,7 +116,7 @@ final class FaceDistanceCounter: ObservableObject {
     @discardableResult
     func resume() -> Bool {
         guard status == .paused || status == .interrupted || status == .permissionDenied else { return false }
-        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else {
+        guard cameraAuthorization() == .authorized else {
             status = .permissionDenied
             return false
         }
@@ -125,9 +142,9 @@ final class FaceDistanceCounter: ObservableObject {
 
     private func run(token: UUID, measuring: Bool = false) {
         guard generation == token, desiredRunning else { return }
-        acceptAfter = CACurrentMediaTime()
+        acceptAfter = clock()
         lastDelivery = nil
-        pipeline.start()
+        pipeline.start(token: token)
         status = measuring ? .measuring : .ready
         startMotion(token: token)
         watchdog?.cancel()
@@ -135,27 +152,46 @@ final class FaceDistanceCounter: ObservableObject {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 250_000_000)
                 guard !Task.isCancelled, let self else { return }
-                if !self.isPhoneMoving, let last = self.lastDelivery, CACurrentMediaTime() - last > 0.4 {
-                    self.engine.update(distance: nil, faceID: nil, at: CACurrentMediaTime())
-                    self.faceVisible = self.engine.isBridgingTrackingLoss
+                let now = self.clock()
+                let silence = now - (self.lastDelivery ?? self.acceptAfter)
+                if silence > 3 {
+                    self.interrupt()
+                    return
+                }
+                if !self.isPhoneMoving, self.lastDelivery != nil, silence > 0.4 {
+                    self.engine.update(distance: nil, faceID: nil, at: now)
+                    let visible = self.engine.isBridgingTrackingLoss
+                    if self.faceVisible != visible { self.faceVisible = visible }
                 }
             }
         }
     }
 
-    private func receive(distance: Double?, id: UUID?, time: TimeInterval) {
-        guard desiredRunning, time >= acceptAfter, time <= CACurrentMediaTime() + 0.05,
-              CACurrentMediaTime() - time <= 0.4 else { return }
+    private func receive(distance: Double?, id: UUID?, time: TimeInterval, token: UUID) {
+        guard desiredRunning, generation == token, time >= acceptAfter, time <= clock() + 0.05,
+              clock() - time <= 0.4 else { return }
         lastDelivery = time
-        guard !isPhoneMoving else { faceVisible = false; return }
+        guard !isPhoneMoving else {
+            if faceVisible { faceVisible = false }
+            return
+        }
         guard status == .measuring || status == .counting else {
-            faceVisible = distance != nil && distance?.isFinite == true
+            let visible = validDistance(distance)
+            if faceVisible != visible { faceVisible = visible }
             return
         }
         if engine.update(distance: distance, faceID: id, at: time) { count = engine.count }
-        faceVisible = (distance != nil && distance?.isFinite == true) || engine.isBridgingTrackingLoss
-        isCalibrated = engine.baseline != nil
-        status = isCalibrated ? .counting : .measuring
+        let visible = validDistance(distance) || engine.isBridgingTrackingLoss
+        if faceVisible != visible { faceVisible = visible }
+        let calibrated = engine.baseline != nil
+        if isCalibrated != calibrated { isCalibrated = calibrated }
+        let nextStatus: Status = calibrated ? .counting : .measuring
+        if status != nextStatus { status = nextStatus }
+    }
+
+    private func validDistance(_ distance: Double?) -> Bool {
+        guard let distance else { return false }
+        return distance.isFinite && (0.08...1.5).contains(distance)
     }
 
     private func startMotion(token: UUID) {
@@ -179,7 +215,7 @@ final class FaceDistanceCounter: ObservableObject {
     }
 
     private func receiveMotion(acceleration: Double, rotation: Double, at time: TimeInterval, token: UUID) {
-        let now = CACurrentMediaTime()
+        let now = clock()
         guard desiredRunning, generation == token, time >= acceptAfter,
               time <= now + 0.05, now - time <= 0.25 else { return }
         let moving = stability.update(userAcceleration: acceleration, rotationRate: rotation, at: time)
@@ -203,7 +239,7 @@ final class FaceDistanceCounter: ObservableObject {
     private func stopPipeline() {
         desiredRunning = false
         generation = UUID()
-        acceptAfter = CACurrentMediaTime()
+        acceptAfter = clock()
         watchdog?.cancel()
         watchdog = nil
         motion.stopDeviceMotionUpdates()
@@ -215,46 +251,66 @@ final class FaceDistanceCounter: ObservableObject {
     }
 }
 
-private final class FaceDistancePipeline: NSObject, ARSessionDelegate {
-    var onSample: ((Double?, UUID?, TimeInterval) -> Void)?
-    var onFailure: (() -> Void)?
-    private let session = ARSession()
+protocol FaceDistanceStreaming: AnyObject {
+    var onSample: ((Double?, UUID?, TimeInterval, UUID) -> Void)? { get set }
+    var onFailure: ((UUID) -> Void)? { get set }
+    func start(token: UUID)
+    func stop()
+}
+
+private final class FaceDistancePipeline: NSObject, ARSessionDelegate, FaceDistanceStreaming {
+    var onSample: ((Double?, UUID?, TimeInterval, UUID) -> Void)?
+    var onFailure: ((UUID) -> Void)?
+    private var session: ARSession?
+    private var token: UUID?
     private let queue = DispatchQueue(label: "app.forma.face-distance", qos: .userInitiated)
     private var lastTracked: (id: UUID, distance: Double, time: TimeInterval)?
     private var anchorID: UUID?
     private var continuityID: UUID?
     private var usedDepth = false
 
-    override init() {
-        super.init()
-        session.delegate = self
-        session.delegateQueue = queue
-    }
+    deinit { session?.pause() }
 
-    func start() {
+    func start(token: UUID) {
         let configuration = ARFaceTrackingConfiguration()
         configuration.isLightEstimationEnabled = false
         if let format = ARFaceTrackingConfiguration.supportedVideoFormats.first(where: { $0.captureDeviceType == .builtInTrueDepthCamera }) {
             configuration.videoFormat = format
         }
+        configuration.maximumNumberOfTrackedFaces = min(2, ARFaceTrackingConfiguration.supportedNumberOfTrackedFaces)
         queue.sync {
+            session?.pause()
+            session?.delegate = nil
+            let session = ARSession()
+            self.session = session
+            self.token = token
+            session.delegate = self
+            session.delegateQueue = queue
             lastTracked = nil
             anchorID = nil
             continuityID = nil
             usedDepth = false
+            session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
         }
-        configuration.maximumNumberOfTrackedFaces = min(2, ARFaceTrackingConfiguration.supportedNumberOfTrackedFaces)
-        session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
     }
 
-    func stop() { session.pause() }
+    func stop() {
+        queue.sync {
+            token = nil
+            session?.delegate = nil
+            session?.pause()
+            session = nil
+            lastTracked = nil
+        }
+    }
 
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        guard session === self.session, let token else { return }
         let faces = frame.anchors.compactMap { $0 as? ARFaceAnchor }.filter(\.isTracked)
         guard faces.count == 1, let face = faces.first else {
             if faces.count > 1 {
                 lastTracked = nil
-                onSample?(.nan, nil, frame.timestamp)
+                onSample?(.nan, nil, frame.timestamp, token)
                 return
             }
             if let previous = lastTracked, frame.timestamp - previous.time <= 0.85,
@@ -263,9 +319,9 @@ private final class FaceDistancePipeline: NSObject, ARSessionDelegate {
                let distance = DepthDistanceSampler.distance(in: captured.converting(toDepthDataType: kCVPixelFormatType_DepthFloat32).depthDataMap),
                distance < min(0.4, previous.distance - 0.03) {
                 usedDepth = true
-                onSample?(distance, previous.id, frame.timestamp)
+                onSample?(distance, previous.id, frame.timestamp, token)
             } else {
-                onSample?(nil, nil, frame.timestamp)
+                onSample?(nil, nil, frame.timestamp, token)
             }
             return
         }
@@ -281,9 +337,16 @@ private final class FaceDistancePipeline: NSObject, ARSessionDelegate {
         let distance = Double(simd_length(SIMD3<Float>(translation.x, translation.y, translation.z)))
         let id = continuityID ?? face.identifier
         lastTracked = (id, distance, frame.timestamp)
-        onSample?(distance, id, frame.timestamp)
+        onSample?(distance, id, frame.timestamp, token)
     }
 
-    func session(_ session: ARSession, didFailWithError error: Error) { onFailure?() }
-    func sessionWasInterrupted(_ session: ARSession) { onFailure?() }
+    func session(_ session: ARSession, didFailWithError error: Error) {
+        guard session === self.session, let token else { return }
+        onFailure?(token)
+    }
+
+    func sessionWasInterrupted(_ session: ARSession) {
+        guard session === self.session, let token else { return }
+        onFailure?(token)
+    }
 }

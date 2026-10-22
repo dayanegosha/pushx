@@ -19,6 +19,7 @@
 		3CBAA7891AC8280754637DBB /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1011C7A12DA5B731DA4FA0 /* SubscriptionService.swift */; };
 		446DDFDA33671526158A78CF /* WorkoutStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D75F7285A4432EBEC290476 /* WorkoutStoreTests.swift */; };
 		471940294C4D2BDE5F66F336 /* StreakTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DEDAD5CE08730ACFC51051B /* StreakTests.swift */; };
+		4AEAA097C2D680300ACD8123 /* FaceDistanceCounterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A6616415F32B67EF91BACE /* FaceDistanceCounterTests.swift */; };
 		4B0025CED7E7F66B0C71426F /* Forma.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2061462EF1BE93E59B0E70 /* Forma.storekit */; };
 		4D3A489CFC2C5088F71CCD26 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 64F325CA4B4AA2AD5A80E34B /* Localizable.strings */; };
 		5362971B028F6052DA1395F1 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3CFE1551A5CF366C84BADC1 /* AppConfiguration.swift */; };
@@ -75,6 +76,7 @@
 		080A4D5102367C3343B53A3B /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
 		0CB6C40CAABF7C45EAD047E2 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		1C0D8AC00591582C965D176A /* RepCycleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCycleEngine.swift; sourceTree = "<group>"; };
+		20A6616415F32B67EF91BACE /* FaceDistanceCounterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDistanceCounterTests.swift; sourceTree = "<group>"; };
 		264A9B73EE8314C55721F274 /* Forma.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Forma.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		398C021D358303F287112268 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		3B30B7A7810326A086770DA4 /* FaceDistanceCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDistanceCounter.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 				A2312C74747E1615690835A5 /* DailyReminderTests.swift */,
 				D7E828B4374F682DA1F7E1C6 /* DepthDistanceTests.swift */,
 				4C6437A76C3B1360E0541E17 /* DeviceStabilityTests.swift */,
+				20A6616415F32B67EF91BACE /* FaceDistanceCounterTests.swift */,
 				442269BE6C9DBED72BA68B53 /* FaceDistanceTests.swift */,
 				7C8C41FBC1C11B8FA4949EF4 /* RepCycleTests.swift */,
 				BCDED05D38288080E42E9FFE /* ServiceTests.swift */,
@@ -411,6 +414,7 @@
 				110335E4110268EEA437DA83 /* DailyReminderTests.swift in Sources */,
 				EC4A3495F8FF781D7B6ED7F2 /* DepthDistanceTests.swift in Sources */,
 				FD943AC64925F2CF50F9912B /* DeviceStabilityTests.swift in Sources */,
+				4AEAA097C2D680300ACD8123 /* FaceDistanceCounterTests.swift in Sources */,
 				E489DB6C901A1A599D62E7BF /* FaceDistanceTests.swift in Sources */,
 				78D9311851C6CB916EF607FE /* RepCycleTests.swift in Sources */,
 				1CC7DA151754905E75B45285 /* ServiceTests.swift in Sources */,

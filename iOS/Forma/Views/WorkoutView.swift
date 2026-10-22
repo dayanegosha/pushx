@@ -4,6 +4,7 @@ import ARKit
 import AVFoundation
 
 struct WorkoutView: View {
+    private enum PersistenceAction { case save, discard }
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var model: AppModel
@@ -20,6 +21,8 @@ struct WorkoutView: View {
     @State private var ownerID: UUID?
     @State private var summary: WorkoutRecord?
     @State private var showExit = false
+    @State private var showSaveError = false
+    @State private var persistenceAction = PersistenceAction.save
     @State private var permissionIntro = false
     @State private var placementGuide = false
     @State private var awaitingPermission = false
@@ -111,14 +114,33 @@ struct WorkoutView: View {
         }
         .confirmationDialog(L.text("save_before_exit"), isPresented: $showExit, titleVisibility: .visible) {
             Button(L.text("save_workout")) { finish() }
-            Button(L.text("discard"), role: .destructive) { store.clearDraft(); dismiss() }
+            Button(L.text("discard"), role: .destructive) { discard() }
+        }
+        .alert(L.text("status"), isPresented: $showSaveError) {
+            Button(L.text(persistenceAction == .discard ? "discard" : "save_workout"),
+                   role: persistenceAction == .discard ? .destructive : nil) {
+                if persistenceAction == .discard { discard() } else { finish() }
+            }
+            Button(L.text("cancel"), role: .cancel) {}
+        } message: {
+            Text(store.storageError ?? L.text("storage_error"))
         }
     }
 
     private var header: some View {
         HStack {
             Button {
-                if summary == nil && started && count > 0 { showExit = true } else { dismiss() }
+                if summary == nil && started && count > 0 {
+                    paused = true
+                    sensor.pause()
+                    SpeechService.shared.stop()
+                    saveDraft()
+                    showExit = true
+                } else if summary == nil {
+                    discard()
+                } else {
+                    dismiss()
+                }
             } label: {
                 Image(systemName: "xmark").font(.system(size: 15, weight: .medium))
                     .frame(width: 44, height: 44).modifier(WorkoutGlass(shape: Circle()))
@@ -385,21 +407,42 @@ struct WorkoutView: View {
         }
     }
 
+    private func discard() {
+        paused = true
+        sensor.pause()
+        SpeechService.shared.stop()
+        guard store.clearDraft() else {
+            persistenceAction = .discard
+            showSaveError = true
+            return
+        }
+        started = false
+        sensor.stop()
+        dismiss()
+    }
+
     private func finish() {
         guard summary == nil else { return }
-        guard count > 0 else { store.clearDraft(); dismiss(); return }
+        guard count > 0 else { discard(); return }
+        paused = true
+        sensor.pause()
+        SpeechService.shared.stop()
         let item = WorkoutRecord(id: workoutID, startedAt: startDate, endedAt: .now, repetitions: count,
                                  detectionMode: "camera", ownerID: ownerID)
+        guard store.save(item) else {
+            persistenceAction = .save
+            showSaveError = true
+            return
+        }
         summary = item
         sensor.stop()
-        SpeechService.shared.stop()
-        store.save(item)
         Task { await model.synchronize() }
     }
 
     static func elapsed(_ interval: TimeInterval) -> String {
-        let seconds = max(0, Int(interval))
-        return String(format: "%02d:%02d", seconds / 60, seconds % 60)
+        guard interval.isFinite, interval > 0 else { return "00:00" }
+        let seconds = interval >= Double(Int.max) ? Int.max : Int(interval)
+        return String(format: "%02lld:%02lld", Int64(seconds / 60), Int64(seconds % 60))
     }
 }
 
@@ -445,7 +488,7 @@ enum WorkoutNotice: Hashable {
         case .measuring: return "workout_measuring"
         case .tracking: return "workout_tracking"
         case .moving: return "workout_phone_moving"
-        case .paused: return "paused"
+        case .paused: return "pause"
         case .interrupted: return "workout_interrupted"
         case .permission: return "distance_permission_title"
         }

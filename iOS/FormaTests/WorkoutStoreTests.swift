@@ -52,7 +52,7 @@ final class WorkoutStoreTests: XCTestCase {
             let guest = record(repetitions: 7, owner: nil)
             let alice = record(repetitions: 20, owner: ownerA, offset: 120)
             let bob = record(repetitions: 30, owner: ownerB, offset: 240)
-            [guest, alice, bob].forEach(store.save)
+            [guest, alice, bob].forEach { store.save($0) }
 
             let reloaded = WorkoutStore(directory: directory)
             XCTAssertEqual(reloaded.visible(for: nil).map(\.id), [guest.id])
@@ -145,7 +145,7 @@ final class WorkoutStoreTests: XCTestCase {
             let owned = record(repetitions: 20, owner: ownerA)
             let other = record(repetitions: 30, owner: ownerB, offset: 120)
             let guest = record(repetitions: 10, owner: nil, offset: 240)
-            [owned, other, guest].forEach(store.save)
+            [owned, other, guest].forEach { store.save($0) }
             store.updateDraft(WorkoutDraft(id: UUID(), startedAt: baseDate,
                                            updatedAt: baseDate.addingTimeInterval(30),
                                            repetitions: 7, detectionMode: "camera", ownerID: ownerA))
@@ -167,7 +167,7 @@ final class WorkoutStoreTests: XCTestCase {
             let owned = record(repetitions: 20, owner: ownerA)
             let guest = record(repetitions: 10, owner: nil, offset: 120)
             let draftID = UUID()
-            [owned, guest].forEach(store.save)
+            [owned, guest].forEach { store.save($0) }
             store.updateDraft(WorkoutDraft(id: draftID, startedAt: baseDate,
                                            updatedAt: baseDate.addingTimeInterval(30),
                                            repetitions: 6, detectionMode: "touch", ownerID: nil))
@@ -180,6 +180,194 @@ final class WorkoutStoreTests: XCTestCase {
             XCTAssertTrue(reloaded.records.allSatisfy { $0.ownerID == nil })
             XCTAssertEqual(reloaded.records.first { $0.id == draftID }?.repetitions, 6)
             XCTAssertEqual(reloaded.visible(for: nil).count, 2)
+        }
+    }
+
+    @MainActor
+    func testSavingAnotherWorkoutDoesNotDiscardPendingDraft() async throws {
+        try withTemporaryDirectory { directory in
+            let store = WorkoutStore(directory: directory)
+            let draftID = UUID()
+            store.updateDraft(WorkoutDraft(id: draftID, startedAt: baseDate,
+                                           updatedAt: baseDate.addingTimeInterval(30), repetitions: 5,
+                                           detectionMode: "camera", ownerID: ownerA))
+            store.save(record(repetitions: 8, owner: ownerB, offset: 120))
+            let reloaded = WorkoutStore(directory: directory)
+            XCTAssertEqual(reloaded.records.count, 2)
+            XCTAssertEqual(reloaded.records.first { $0.id == draftID }?.repetitions, 5)
+            XCTAssertTrue(reloaded.recoveredWorkout)
+        }
+    }
+
+    @MainActor
+    func testLongPausedSessionRemainsSavedLocallyWhenCloudDurationLimitWouldRejectIt() async throws {
+        try withTemporaryDirectory { directory in
+            let store = WorkoutStore(directory: directory)
+            var longSession = record(repetitions: 12, owner: ownerA)
+            longSession.endedAt = longSession.startedAt.addingTimeInterval(7 * 3600)
+            store.save(longSession)
+            let reloaded = WorkoutStore(directory: directory)
+            XCTAssertEqual(reloaded.records, [longSession])
+            XCTAssertNil(reloaded.storageError)
+        }
+    }
+
+    @MainActor
+    func testFailedSaveReportsFailureAndPreservesRecoveryDraftForRetry() async throws {
+        try withTemporaryDirectory { directory in
+            let store = WorkoutStore(directory: directory)
+            let original = record(repetitions: 5, owner: ownerA)
+            store.updateDraft(WorkoutDraft(id: original.id, startedAt: original.startedAt,
+                                           updatedAt: original.endedAt, repetitions: 5,
+                                           detectionMode: "camera", ownerID: ownerA))
+            let archiveURL = directory.appendingPathComponent("workouts.json")
+            try FileManager.default.removeItem(at: archiveURL)
+            try FileManager.default.createDirectory(at: archiveURL, withIntermediateDirectories: false)
+            var completed = original
+            completed.repetitions = 10
+            XCTAssertFalse(store.save(completed))
+            XCTAssertNotNil(store.storageError)
+            XCTAssertTrue(store.records.isEmpty)
+            try FileManager.default.removeItem(at: archiveURL)
+            XCTAssertTrue(store.save(record(repetitions: 8, owner: ownerB, offset: 120)))
+            let reloaded = WorkoutStore(directory: directory)
+            XCTAssertTrue(reloaded.recoveredWorkout)
+            XCTAssertEqual(reloaded.records.first { $0.id == original.id }?.repetitions, 5)
+        }
+    }
+
+    @MainActor
+    func testFailedDiscardReportsFailureAndKeepsDraftUntilSuccessfulRetry() async throws {
+        try withTemporaryDirectory { directory in
+            let store = WorkoutStore(directory: directory)
+            let original = record(repetitions: 5, owner: ownerA)
+            store.updateDraft(WorkoutDraft(id: original.id, startedAt: original.startedAt,
+                                           updatedAt: original.endedAt, repetitions: 5,
+                                           detectionMode: "camera", ownerID: ownerA))
+            let archiveURL = directory.appendingPathComponent("workouts.json")
+            try FileManager.default.removeItem(at: archiveURL)
+            try FileManager.default.createDirectory(at: archiveURL, withIntermediateDirectories: false)
+            XCTAssertFalse(store.clearDraft())
+            XCTAssertNotNil(store.storageError)
+            try FileManager.default.removeItem(at: archiveURL)
+            XCTAssertTrue(store.save(record(repetitions: 8, owner: ownerB, offset: 120)))
+            let afterFailure = WorkoutStore(directory: directory)
+            XCTAssertEqual(afterFailure.records.first { $0.id == original.id }?.repetitions, 5)
+            XCTAssertTrue(afterFailure.recoveredWorkout)
+            XCTAssertTrue(store.clearDraft())
+            let afterRetry = WorkoutStore(directory: directory)
+            XCTAssertFalse(afterRetry.recoveredWorkout)
+            XCTAssertFalse(afterRetry.records.contains { $0.id == original.id })
+        }
+    }
+
+    @MainActor
+    func testFailedOwnerDeletionCannotRestoreRecordsOrDraftOnNextLaunch() async throws {
+        try withTemporaryDirectory { directory in
+            let suite = "pushx.deletion.tests." + UUID().uuidString
+            let defaults = UserDefaults(suiteName: suite)!
+            defer { defaults.removePersistentDomain(forName: suite) }
+            let store = WorkoutStore(directory: directory, defaults: defaults)
+            let deleted = record(repetitions: 12, owner: ownerA)
+            let preserved = record(repetitions: 8, owner: ownerB, offset: 120)
+            XCTAssertTrue(store.save(deleted))
+            XCTAssertTrue(store.save(preserved))
+            store.updateDraft(WorkoutDraft(id: UUID(), startedAt: baseDate, updatedAt: baseDate.addingTimeInterval(30),
+                                           repetitions: 5, detectionMode: "camera", ownerID: ownerA))
+            let archiveURL = directory.appendingPathComponent("workouts.json")
+            let oldArchive = try Data(contentsOf: archiveURL)
+            try FileManager.default.removeItem(at: archiveURL)
+            try FileManager.default.createDirectory(at: archiveURL, withIntermediateDirectories: false)
+            XCTAssertFalse(store.deleteOwned(by: ownerA))
+            XCTAssertEqual(store.records, [preserved])
+            XCTAssertFalse(store.save(deleted))
+            try FileManager.default.removeItem(at: archiveURL)
+            try oldArchive.write(to: archiveURL)
+            let reloaded = WorkoutStore(directory: directory, defaults: defaults)
+            XCTAssertEqual(reloaded.records, [preserved])
+            XCTAssertFalse(reloaded.recoveredWorkout)
+            XCTAssertNil(reloaded.storageError)
+            let openedAgain = WorkoutStore(directory: directory, defaults: defaults)
+            XCTAssertEqual(openedAgain.records, [preserved])
+            XCTAssertTrue(defaults.dictionaryRepresentation().keys.filter { $0.hasPrefix("workoutDeletedOwners.") }.isEmpty)
+        }
+    }
+
+    @MainActor
+    func testDeletionTombstoneIsScopedToItsArchive() async throws {
+        try withTemporaryDirectory { directory in
+            let suite = "pushx.deletion.scope.tests." + UUID().uuidString
+            let defaults = UserDefaults(suiteName: suite)!
+            defer { defaults.removePersistentDomain(forName: suite) }
+            let firstDirectory = directory.appendingPathComponent("first", isDirectory: true)
+            let secondDirectory = directory.appendingPathComponent("second", isDirectory: true)
+            let first = WorkoutStore(directory: firstDirectory, defaults: defaults)
+            let second = WorkoutStore(directory: secondDirectory, defaults: defaults)
+            let original = record(repetitions: 10, owner: ownerA)
+            XCTAssertTrue(first.save(original))
+            XCTAssertTrue(second.save(original))
+            let archiveURL = firstDirectory.appendingPathComponent("workouts.json")
+            try FileManager.default.removeItem(at: archiveURL)
+            try FileManager.default.createDirectory(at: archiveURL, withIntermediateDirectories: false)
+            XCTAssertFalse(first.deleteOwned(by: ownerA))
+            let reloadedSecond = WorkoutStore(directory: secondDirectory, defaults: defaults)
+            XCTAssertEqual(reloadedSecond.records, [original])
+        }
+    }
+
+    @MainActor
+    func testOtherOwnerCannotReplaceAWorkoutOrItsRecoveryDraft() async throws {
+        try withTemporaryDirectory { directory in
+            let store = WorkoutStore(directory: directory)
+            let original = record(repetitions: 10, owner: ownerA)
+            store.save(original)
+            var conflicting = original
+            conflicting.ownerID = ownerB
+            conflicting.repetitions = 99
+            store.save(conflicting)
+            store.updateDraft(WorkoutDraft(id: original.id, startedAt: baseDate,
+                                           updatedAt: baseDate.addingTimeInterval(30), repetitions: 99,
+                                           detectionMode: "camera", ownerID: ownerB))
+            let reloaded = WorkoutStore(directory: directory)
+            XCTAssertEqual(reloaded.records, [original])
+            XCTAssertFalse(reloaded.recoveredWorkout)
+            XCTAssertTrue(reloaded.visible(for: ownerB).isEmpty)
+        }
+    }
+
+    @MainActor
+    func testInvalidLocalAndRemoteWorkoutsCannotCorruptStatisticsOrCSV() async throws {
+        try withTemporaryDirectory { directory in
+            let store = WorkoutStore(directory: directory)
+            let valid = record(repetitions: 12, owner: ownerA)
+            store.save(valid)
+            for repetitions in [-1, 0, 601, Int.max] {
+                store.save(record(repetitions: repetitions, owner: ownerA))
+            }
+            var invalidDate = record(repetitions: 10, owner: ownerA)
+            invalidDate.endedAt = invalidDate.startedAt.addingTimeInterval(-1)
+            store.save(invalidDate)
+            var invalidMode = record(repetitions: 10, owner: ownerA)
+            invalidMode.detectionMode = "=HYPERLINK(\"https://invalid\"),unsafe\n"
+            store.save(invalidMode)
+            store.merge([remote(repetitions: Int.max), remote(repetitions: -5)], owner: ownerA)
+            let reloaded = WorkoutStore(directory: directory)
+            XCTAssertEqual(reloaded.records, [valid])
+            XCTAssertFalse(reloaded.csv(for: ownerA).contains("HYPERLINK"))
+        }
+    }
+
+    @MainActor
+    func testMalformedArchiveEntriesAreFilteredAndLegacyTouchIsRetained() async throws {
+        try withTemporaryDirectory { directory in
+            struct Archive: Encodable { let records: [WorkoutRecord]; let draft: WorkoutDraft? }
+            let valid = record(repetitions: 7, owner: ownerA, mode: "touch")
+            let invalid = record(repetitions: Int.max, owner: ownerB)
+            let archive = Archive(records: [valid, valid, invalid], draft: nil)
+            try JSONEncoder().encode(archive).write(to: directory.appendingPathComponent("workouts.json"))
+            let reloaded = WorkoutStore(directory: directory)
+            XCTAssertEqual(reloaded.records, [valid])
+            XCTAssertNotNil(reloaded.storageError)
         }
     }
 

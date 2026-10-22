@@ -39,7 +39,7 @@ final class HealthService: ObservableObject {
     func saveWorkout(id: UUID, start: Date, end: Date, repetitions: Int) async throws {
         refreshAuthorization()
         guard isAuthorized else { throw HealthFailure.permissionRequired }
-        guard repetitions > 0, end > start else { throw HealthFailure.invalidWorkout }
+        guard WorkoutRecord.isValid(start: start, end: end, repetitions: repetitions, mode: "camera") else { throw HealthFailure.invalidWorkout }
         if let task = savingTasks[id] { return try await task.value }
         let task = Task { try await self.writeWorkout(id: id, start: start, end: end, repetitions: repetitions) }
         savingTasks[id] = task

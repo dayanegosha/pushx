@@ -21,6 +21,7 @@ final class SpeechService: NSObject, AVSpeechSynthesizerDelegate {
             try session.setActive(true)
             audioSessionActive = true
         } catch {
+            deactivateAudio()
             return
         }
         let utterance = AVSpeechUtterance(string: String(count))
@@ -40,6 +41,14 @@ final class SpeechService: NSObject, AVSpeechSynthesizerDelegate {
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        deactivateWhenIdle()
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        deactivateWhenIdle()
+    }
+
+    nonisolated private func deactivateWhenIdle() {
         Task { @MainActor [weak self] in
             guard let self, !self.synthesizer.isSpeaking else { return }
             self.deactivateAudio()
@@ -48,7 +57,9 @@ final class SpeechService: NSObject, AVSpeechSynthesizerDelegate {
 
     private func deactivateAudio() {
         guard audioSessionActive else { return }
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        audioSessionActive = false
+        do {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            audioSessionActive = false
+        } catch {}
     }
 }
