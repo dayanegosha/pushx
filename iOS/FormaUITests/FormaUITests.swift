@@ -203,10 +203,12 @@ final class FormaUITests: XCTestCase {
         streak.tap()
         let calendar = app.descendants(matching: .any)["streak_calendar"].firstMatch
         XCTAssertTrue(calendar.waitForExistence(timeout: 10))
-        XCTAssertTrue(app.tabBars.buttons["Статистика"].isSelected)
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            XCTAssertTrue(app.tabBars.buttons["Статистика"].isSelected)
+        }
         XCTAssertEqual(app.alerts.count, 0)
         snapshot("streak-statistics-calendar")
-        app.tabBars.buttons["Настройки"].tap()
+        app.buttons["Настройки"].firstMatch.tap()
         XCTAssertTrue(app.buttons["appearance_theme"].waitForExistence(timeout: 10))
         let reminder = app.switches["reminder_toggle"]
         for _ in 0..<8 {

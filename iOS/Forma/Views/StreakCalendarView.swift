@@ -142,7 +142,8 @@ struct StreakCalendarView: View {
                 .accessibilityIdentifier("streak_selected_total")
             Text(L.text(statusKey(day: day, today: today, repetitions: repetitions)))
                 .font(AppFont.text(12)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-        }.accessibilityIdentifier("streak_calendar_detail")
+        }.accessibilityElement(children: .contain)
+            .accessibilityIdentifier("streak_calendar_detail")
     }
 
     private func statusKey(day: Date, today: Date, repetitions: Int) -> String {
