@@ -94,3 +94,86 @@ test("rejects malformed/oversized input", async () => {
   await errorCode(await handler(request({ method: "GET" })), 405, "method_not_allowed");
   assert.deepEqual(calls, []);
 });
+test("ignores untrusted user IDs and editable user metadata", async () => {
+  const { handler, calls } = fixture();
+  const response = await handler(request({ body: {
+    authorizationCode: "fresh-code", idToken: "valid.apple.identity.token", user_id: "victim",
+    user_metadata: { provider: "apple", sub: "victim-apple" },
+  } }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(calls, ["exchange", "revoke", "delete:user-1"]);
+});
+test("does not treat another identity provider as Apple", async () => {
+  const { handler, calls } = fixture({ getUser: async () => ({
+    id: "user-1", identities: [{ provider: "email", identity_data: { sub: "apple-1" } }],
+  }) });
+  await errorCode(await handler(request()), 403, "apple_identity_mismatch");
+  assert.deepEqual(calls, []);
+});
+test("rejects future and non-finite Apple token issue dates", async () => {
+  for (const iat of [now + 31, NaN, Infinity, -Infinity]) {
+    const { handler, calls } = fixture({ verifyAppleToken: async () => ({ sub: "apple-1", iat }) });
+    await errorCode(await handler(request()), 401, "apple_reauthentication_required");
+    assert.deepEqual(calls, []);
+  }
+});
+test("does not revoke or delete after an invalid exchanged identity token", async () => {
+  const { handler, calls } = fixture({ verifyAppleToken: async (token) => {
+    if (token === "exchanged") throw new Error("signature");
+    return { sub: "apple-1", iat: now };
+  } });
+  await errorCode(await handler(request()), 400, "apple_authorization_failed");
+  assert.deepEqual(calls, ["exchange"]);
+});
+test("does not exchange any Apple code when authentication service fails", async () => {
+  const { handler, calls } = fixture({ getUser: async () => { throw new Error("unavailable"); } });
+  await errorCode(await handler(request()), 503, "service_unavailable");
+  assert.deepEqual(calls, []);
+});
+test("only accepts the exact JSON media type", async () => {
+  const { handler, calls } = fixture();
+  const input = request();
+  input.headers.set("Content-Type", "application/jsonp");
+  await errorCode(await handler(input), 400, "invalid_request");
+  assert.deepEqual(calls, []);
+  const valid = request();
+  valid.headers.set("Content-Type", "Application/JSON; charset=utf-8");
+  assert.equal((await handler(valid)).status, 200);
+});
+test("rejects malformed JSON and non-object JSON without any account mutation", async () => {
+  for (const body of ["{", "null", "[]", "true", '"apple"']) {
+    const { handler, calls } = fixture();
+    const input = new Request(request(), { body });
+    await errorCode(await handler(input), 400, "invalid_request");
+    assert.deepEqual(calls, []);
+  }
+});
+test("limits the total body across chunks and cancels the stream", async () => {
+  const { handler, calls } = fixture();
+  let cancelled = false;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) { controller.enqueue(new Uint8Array(9000)); },
+    cancel() { cancelled = true; },
+  });
+  const input = new Request(request(), { body: stream, duplex: "half" } as RequestInit);
+  await errorCode(await handler(input), 400, "invalid_request");
+  assert.equal(cancelled, true);
+  assert.deepEqual(calls, []);
+});
+test("stalled request bodies expire without consuming an Apple code", async () => {
+  const { handler, calls } = fixture({ bodyTimeoutMilliseconds: 10 });
+  let cancelled = false;
+  const stream = new ReadableStream<Uint8Array>({ cancel() { cancelled = true; } });
+  const input = new Request(request(), { body: stream, duplex: "half" } as RequestInit);
+  await errorCode(await handler(input), 400, "invalid_request");
+  assert.equal(cancelled, true);
+  assert.deepEqual(calls, []);
+});
+test("rejects malformed UTF-8 rather than replacing bytes in credentials", async () => {
+  const { handler, calls } = fixture();
+  const prefix = new TextEncoder().encode('{"authorizationCode":"fresh-code","idToken":"valid.apple.identity.');
+  const suffix = new TextEncoder().encode('token"}');
+  const body = new Uint8Array([...prefix, 0xff, ...suffix]);
+  await errorCode(await handler(new Request(request(), { body })), 400, "invalid_request");
+  assert.deepEqual(calls, []);
+});

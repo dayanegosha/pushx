@@ -19,6 +19,7 @@ export interface Dependencies {
   revokeToken: (token: string, hint: string) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
   now: () => number;
+  bodyTimeoutMilliseconds?: number;
 }
 export class OperationError extends Error {
   readonly code: string;
@@ -38,6 +39,39 @@ function appleSubjects(user: AuthUser): Set<string> {
     if (typeof subject === "string" && subject.length) values.add(subject);
   }
   return values;
+}
+
+async function readInput(request: Request, timeoutMilliseconds: number): Promise<unknown> {
+  const reader = request.body?.getReader();
+  if (!reader) throw new OperationError("invalid_request", 400);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const read = async () => {
+    let length = 0;
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      length += chunk.value.byteLength;
+      if (length > 16384) throw new OperationError("invalid_request", 400);
+      chunks.push(chunk.value);
+    }
+    const bytes = new Uint8Array(length);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    try { return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); }
+    catch { throw new OperationError("invalid_request", 400); }
+  };
+  try {
+    return await Promise.race([
+      read(),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new OperationError("invalid_request", 400)), timeoutMilliseconds);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timeout);
+    void reader.cancel().catch(() => {});
+  }
 }
 
 export function createHandler(deps: Dependencies): (request: Request) => Promise<Response> {
@@ -66,29 +100,10 @@ export function createHandler(deps: Dependencies): (request: Request) => Promise
       if (!bearer || bearer.length > 16384) return respond({ error: "authentication_required" }, 401);
       const user = await deps.getUser(bearer);
       if (!user) return respond({ error: "authentication_required" }, 401);
-      if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+      if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
         return respond({ error: "invalid_request" }, 400);
       }
-      const reader = request.body?.getReader();
-      if (!reader) return respond({ error: "invalid_request" }, 400);
-      let length = 0;
-      const chunks: Uint8Array[] = [];
-      while (true) {
-        const chunk = await reader.read();
-        if (chunk.done) break;
-        length += chunk.value.byteLength;
-        if (length > 16384) {
-          await reader.cancel();
-          return respond({ error: "invalid_request" }, 400);
-        }
-        chunks.push(chunk.value);
-      }
-      const bytes = new Uint8Array(length);
-      let offset = 0;
-      for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-      let input: unknown;
-      try { input = JSON.parse(new TextDecoder().decode(bytes)); }
-      catch { return respond({ error: "invalid_request" }, 400); }
+      const input = await readInput(request, deps.bodyTimeoutMilliseconds ?? 10000);
       if (!input || typeof input !== "object" || Array.isArray(input)) return respond({ error: "invalid_request" }, 400);
       const { authorizationCode, idToken } = input as Record<string, unknown>;
       if (typeof authorizationCode !== "string" || authorizationCode.length < 8 || authorizationCode.length > 4096

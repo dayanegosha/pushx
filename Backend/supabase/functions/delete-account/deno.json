@@ -1,6 +1,6 @@
 {
   "imports": {
-    "jose": "npm:jose@6.1.0"
+    "jose": "npm:jose@6.2.12"
   },
   "compilerOptions": {
     "strict": true,

@@ -1,5 +1,6 @@
-import { createRemoteJWKSet, importPKCS8, jwtVerify, SignJWT } from "jose";
-import { createHandler, OperationError, type AppleClaims, type AuthUser } from "./handler.ts";
+import { createRemoteJWKSet, importPKCS8, SignJWT } from "jose";
+import { createHandler, OperationError, type AuthUser } from "./handler.ts";
+import { createAppleTokenVerifier } from "./apple.ts";
 
 const env = (name: string) => Deno.env.get(name)?.trim() ?? "";
 const supabaseURL = env("SUPABASE_URL").replace(/\/$/, "");
@@ -26,14 +27,7 @@ async function clientSecret(): Promise<string> {
     .setAudience("https://appleid.apple.com").setIssuedAt().setExpirationTime("5m").sign(key);
 }
 
-async function verifyAppleToken(token: string): Promise<AppleClaims> {
-  const { payload } = await jwtVerify(token, appleJWKS, {
-    issuer: "https://appleid.apple.com", audience: appleClientID, algorithms: ["RS256"],
-    requiredClaims: ["sub", "iat", "exp"], clockTolerance: 30,
-  });
-  if (typeof payload.sub !== "string" || !payload.sub || typeof payload.iat !== "number") throw new Error("invalid_claims");
-  return { sub: payload.sub, iat: payload.iat };
-}
+const verifyAppleToken = createAppleTokenVerifier(appleClientID, appleJWKS);
 
 const handler = createHandler({
   allowedOrigins,

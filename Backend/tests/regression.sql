@@ -149,5 +149,6 @@ do $$ begin
   begin perform public.set_display_name('Deleted'); raise exception 'deleted JWT still edits name';
   exception when insufficient_privilege then if sqlerrm <> 'authentication_required' then raise; end if; end;
 end; $$;
+\ir security.sql
 rollback;
 \echo 'pushx PostgreSQL regression passed'

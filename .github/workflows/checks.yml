@@ -50,6 +50,9 @@ jobs:
         run: deno check --config supabase/functions/delete-account/deno.json supabase/functions/delete-account/index.ts
       - name: Edge tests
         run: node --experimental-strip-types --test Backend/tests/delete-account.test.ts
+      - name: Apple token signature tests
+        working-directory: Backend
+        run: deno test --config supabase/functions/delete-account/deno.json tests/apple-token.test.ts
       - name: Database tests
         env:
           PGPASSWORD: postgres
