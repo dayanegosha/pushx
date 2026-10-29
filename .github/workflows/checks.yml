@@ -22,7 +22,7 @@ jobs:
           echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
       - name: Test
         working-directory: iOS
-        run: xcodebuild -project Forma.xcodeproj -scheme Forma -destination "platform=iOS Simulator,id=$DEVICE_ID" -only-testing:FormaTests -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO test
+        run: xcodebuild -project pushx.xcodeproj -scheme pushx -destination "platform=iOS Simulator,id=$DEVICE_ID" -only-testing:pushxTests -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO test
   backend:
     runs-on: ubuntu-latest
     services:
@@ -30,7 +30,7 @@ jobs:
         image: postgres:17
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: forma_test
+          POSTGRES_DB: pushx_test
         ports: ['5432:5432']
         options: >-
           --health-cmd pg_isready
@@ -57,8 +57,8 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: |
-          psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/tests/bootstrap.sql
+          psql -h localhost -U postgres -d pushx_test -v ON_ERROR_STOP=1 -f Backend/tests/bootstrap.sql
           for migration in Backend/supabase/migrations/*.sql; do
-            psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f "$migration"
+            psql -h localhost -U postgres -d pushx_test -v ON_ERROR_STOP=1 -f "$migration"
           done
-          psql -h localhost -U postgres -d forma_test -v ON_ERROR_STOP=1 -f Backend/tests/regression.sql
+          psql -h localhost -U postgres -d pushx_test -v ON_ERROR_STOP=1 -f Backend/tests/regression.sql

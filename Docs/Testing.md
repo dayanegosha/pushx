@@ -10,18 +10,18 @@
 brew install xcodegen
 cd iOS
 xcodegen generate
-xcodebuild -project Forma.xcodeproj -scheme Forma -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project pushx.xcodeproj -scheme pushx -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
 Для запуска тестов выберите доступный конкретный симулятор. Generic destination подходит для сборки, но не для выполнения XCTest:
 
 ```sh
 xcrun simctl list devices available
-xcodebuild -project Forma.xcodeproj -scheme Forma -showdestinations
-xcodebuild -project Forma.xcodeproj -scheme Forma -destination 'platform=iOS Simulator,id=SIMULATOR_UDID' -resultBundlePath ../TestResults/Forma.xcresult test
+xcodebuild -project pushx.xcodeproj -scheme pushx -showdestinations
+xcodebuild -project pushx.xcodeproj -scheme pushx -destination 'platform=iOS Simulator,id=SIMULATOR_UDID' -resultBundlePath ../TestResults/pushx.xcresult test
 ```
 
-Замените `SIMULATOR_UDID` на ID из вывода команд; для каждого прогона используйте новый путь `.xcresult`. Для проверки на физическом iPhone или iPad откройте `Forma.xcodeproj`, выберите Team и физическое устройство, включите Developer Mode по запросу iOS и запустите схему `Forma`.
+Замените `SIMULATOR_UDID` на ID из вывода команд; для каждого прогона используйте новый путь `.xcresult`. Для проверки на физическом iPhone или iPad откройте `pushx.xcodeproj`, выберите Team и физическое устройство, включите Developer Mode по запросу iOS и запустите схему `pushx`.
 
 Существующие `RepCycleTests` проверяют полный цикл, начало снизу, дрожание порогов, потерю лица/кадров, паузу, неверное время и калибровку с выбросами. `ServiceTests` используют `URLProtocol`: проверяют nonce, refresh, даты, форму RPC, пагинацию, серверные ошибки и подтверждение удаления. Они не обращаются к реальному Apple и Supabase.
 
@@ -38,7 +38,7 @@ deno test --config supabase/functions/delete-account/deno.json tests/apple-token
 SQL regression запускается только в пустой одноразовой локальной PostgreSQL БД. Не применяйте Auth fixture к рабочему Supabase:
 
 ```sh
-psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f supabase/migrations/202610180001_forma.sql -f supabase/migrations/202610210001_profile_display_names.sql -f tests/regression.sql
+psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f supabase/migrations/202610180001_pushx.sql -f supabase/migrations/202610210001_profile_display_names.sql -f tests/regression.sql
 ```
 
 Покрыты запрет анонимного доступа и прямой записи, изоляция владельца, заявки/принятие/блокировки, закрытый список блокировок, рейтинг, неизменяемость UUID, пересечение тренировок, недопустимые даты/повторения и каскад удаления. Edge tests подменяют сетевые и JWT-адаптеры, проверяя порядок операций и отказ при несовпадении Apple identity. Для настоящих ключей и сети нужен отдельный прогон.
@@ -51,7 +51,7 @@ psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f sup
 | Первый запуск с настроенным сервером | Обязательный вход Apple без кнопки пропуска; отмена оставляет Welcome, успех открывает приложение |
 | Следующий запуск после входа | Сессия восстанавливается; постоянный повтор Apple диалога не требуется |
 | Выход / недействительная сессия | Возврат к экрану входа, чужая история не показывается |
-| `UPRA_LOCAL_PREVIEW=1` | В Debug доступен локальный UI preview, Release продолжает требовать вход |
+| `PUSHX_LOCAL_PREVIEW=1` | В Debug доступен локальный UI preview, Release продолжает требовать вход |
 | RU, EN, 简体中文 и системный язык | Все экраны, ошибки, permission strings и числа понятны; ключи локализации не видны |
 | Светлая, тёмная и системная темы | Читаемые контраст и состояния кнопок на всех экранах |
 | VoiceOver и увеличенный текст | Элементы имеют названия; доступ к завершению, настройкам и закрытию Plus сохраняется |
@@ -63,7 +63,7 @@ psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f sup
 | Голос выключен/включён, три языка, музыка параллельно | Правильное число и язык, нет накопленной очереди устаревших чисел |
 | Отказ в камере и повторное разрешение в iOS | Автосчёт закрыт, переход в Settings понятен; восстановление разрешения без переустановки |
 
-Для локальной проверки UI на симуляторе задайте `UPRA_LOCAL_PREVIEW=1` в Xcode Scheme → Run → Arguments → Environment Variables для Debug ; Simulator показывает недоступность ARKit, не имитируя физические повторения. Проверку обязательного входа выполняйте отдельно без флага; Release с тем же флагом не должен обходить Welcome. Не заполняйте облачную историю вымышленными реальными пользователями ради скриншотов. Снимок симулятора фиксирует UI, а не точность распознавания.
+Для локальной проверки UI на симуляторе задайте `PUSHX_LOCAL_PREVIEW=1` в Xcode Scheme → Run → Arguments → Environment Variables для Debug ; Simulator показывает недоступность ARKit, не имитируя физические повторения. Проверку обязательного входа выполняйте отдельно без флага; Release с тем же флагом не должен обходить Welcome. Не заполняйте облачную историю вымышленными реальными пользователями ради скриншотов. Снимок симулятора фиксирует UI, а не точность распознавания.
 
 ## Матрица экранов и поворота
 
@@ -133,7 +133,7 @@ psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f sup
 
 ## Подписки и удаление
 
-Сначала проверьте локальный `Forma.storekit`, затем ту же матрицу в Sandbox / TestFlight с реальными настройками App Store Connect. Для покупки нужен опубликованный HTTPS `PRIVACY_URL`; без него кнопка покупки намеренно отключена.
+Сначала проверьте локальный `pushx.storekit`, затем ту же матрицу в Sandbox / TestFlight с реальными настройками App Store Connect. Для покупки нужен опубликованный HTTPS `PRIVACY_URL`; без него кнопка покупки намеренно отключена.
 
 - [ ] Покупка monthly/yearly открывает только Plus; цена и период соответствуют StoreKit.
 - [ ] Cancel и pending не открывают Plus; unverified transaction не считается покупкой.
@@ -192,7 +192,7 @@ Release собирается без подписи (`pushx-final-streak-release.
 - На iPhone SE, runtime 26.5, прошли фиксированная главная и сохранение двух повторений при запросе landscape: приложение остаётся в портрете. Максимальный текст сначала выявил ошибку области нажатия; после исправления отдельный сценарий прошёл, кнопка старта открывает тренировку (`PushxPortraitSETests.xcresult`, `PushxSEAccessibilityFixTests.xcresult`).
 - Снимки Geologica, монохромной волны, кнопки Apple высотой 44 points, друзей и редактирования имени сняты с iPhone 17 Pro и iPad Pro 11″ в обеих темах. Длинные русские и китайские имена не обрезаются. На iPad дополнительно снята главная в landscape.
 
-Release-сборка `generic/platform=iOS` проходит без подписи. В собранном Info.plist: `UIDeviceFamily = [1, 2]`, минимум 17.0, Geologica зарегистрирован и включён вместе с OFL. На iPhone разрешён только портрет; iPad сохраняет четыре ориентации. Debug-флаги `UPRA_LOCAL_PREVIEW` и `FORMA_RESET_DATA` отсутствуют в Release executable.
+Release-сборка `generic/platform=iOS` проходит без подписи. В собранном Info.plist: `UIDeviceFamily = [1, 2]`, минимум 17.0, Geologica зарегистрирован и включён вместе с OFL. На iPhone разрешён только портрет; iPad сохраняет четыре ориентации. Debug-флаги `PUSHX_LOCAL_PREVIEW` и `PUSHX_RESET_DATA` отсутствуют в Release executable.
 
 На физическом iPhone 17 Pro с iOS 27.0.1 установлена и запущена отдельная development-копия **pushx test**, bundle ID `app.forma.pushups.local`. Она подписана Personal Team, сохраняет HealthKit, использует реальный локальный счётчик и пропускает облачный вход только в этой тестовой копии. Production-проект сохраняет обязательный вход Apple и свои entitlements. Полную сборку Personal Team не подписывает: Xcode сообщает, что Sign in with Apple для неё недоступен. Запуск приложения на устройстве ещё не подтверждает точность камеры или успешную запись тренировки в Health.
 

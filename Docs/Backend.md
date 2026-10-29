@@ -1,6 +1,6 @@
 # pushx · сервер и API
 
-Серверная часть подготовлена для Supabase: Auth с Apple, PostgreSQL с RLS и Edge Function удаления аккаунта. Она **не развёрнута**: в комплекте нет проекта Supabase, ключей Apple или работающего публичного адреса. При первом запуске Release обязателен вход с Apple: счётчик и история открываются после получения сессии. Без развёрнутого сервера и публичной конфигурации экран входа не пропускает дальше — это блокирующая задача перед релизом. Только Debug-флаг `UPRA_LOCAL_PREVIEW=1` разрешает локальную проверку интерфейса. Подписка не требуется для счётчика, друзей и рейтинга.
+Серверная часть подготовлена для Supabase: Auth с Apple, PostgreSQL с RLS и Edge Function удаления аккаунта. Она **не развёрнута**: в комплекте нет проекта Supabase, ключей Apple или работающего публичного адреса. При первом запуске Release обязателен вход с Apple: счётчик и история открываются после получения сессии. Без развёрнутого сервера и публичной конфигурации экран входа не пропускает дальше — это блокирующая задача перед релизом. Только Debug-флаг `PUSHX_LOCAL_PREVIEW=1` разрешает локальную проверку интерфейса. Подписка не требуется для счётчика, друзей и рейтинга.
 
 ## Развёртывание
 
@@ -193,7 +193,7 @@ node --experimental-strip-types --test tests/delete-account.test.ts
 SQL-тесты запускайте **только в пустой одноразовой локальной БД**, так как `bootstrap.sql` создаёт тестовые роли и Auth schema:
 
 ```sh
-psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f supabase/migrations/202610180001_forma.sql -f supabase/migrations/202610210001_profile_display_names.sql -f tests/regression.sql
+psql "$DISPOSABLE_DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/bootstrap.sql -f supabase/migrations/202610180001_pushx.sql -f supabase/migrations/202610210001_profile_display_names.sql -f tests/regression.sql
 ```
 
 На настоящем локальном Supabase bootstrap не применяется; Auth и роли уже создаёт платформа. Для проверки Deno adapter:

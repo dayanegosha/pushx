@@ -6,7 +6,7 @@ alter table public.profiles add constraint profiles_display_name_length
 
 create or replace function public.get_profile() returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare v_id uuid := forma_private.require_user();
+declare v_id uuid := pushx_private.require_user();
 begin
   return (select jsonb_build_object('id', id, 'friend_code', friend_code,
     'created_at', created_at, 'display_name', display_name)
@@ -17,7 +17,7 @@ $$;
 create function public.set_display_name(p_display_name text, p_only_if_empty boolean default false) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare
-  v_id uuid := forma_private.require_user();
+  v_id uuid := pushx_private.require_user();
   v_name text;
   v_whitespace text := U&'\0009\000A\000B\000C\000D\0020\0085\00A0\1680\2000\2001\2002\2003\2004\2005\2006\2007\2008\2009\200A\2028\2029\202F\205F\3000';
 begin
@@ -36,7 +36,7 @@ $$;
 
 create or replace function public.get_friends() returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare v_id uuid := forma_private.require_user();
+declare v_id uuid := pushx_private.require_user();
 begin
   return coalesce((select jsonb_agg(jsonb_build_object(
     'user_id', p.id, 'friend_code', p.friend_code, 'display_name', p.display_name,
@@ -51,7 +51,7 @@ $$;
 
 create or replace function public.get_blocked_users() returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare v_id uuid := forma_private.require_user();
+declare v_id uuid := pushx_private.require_user();
 begin
   return coalesce((select jsonb_agg(jsonb_build_object('user_id', p.id,
     'friend_code', p.friend_code, 'display_name', p.display_name)
@@ -63,7 +63,7 @@ $$;
 
 create or replace function public.get_daily_leaderboard(p_day date default (now() at time zone 'UTC')::date) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare v_id uuid := forma_private.require_user();
+declare v_id uuid := pushx_private.require_user();
 begin
   if p_day is null or p_day < (now() at time zone 'UTC')::date - 366 or p_day > (now() at time zone 'UTC')::date then
     raise exception using errcode = '22023', message = 'invalid_day';

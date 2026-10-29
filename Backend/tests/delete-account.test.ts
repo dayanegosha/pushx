@@ -6,7 +6,7 @@ const now = 1802810000;
 function fixture(overrides: Partial<Dependencies> = {}) {
   const calls: string[] = [];
   const deps: Dependencies = {
-    allowedOrigins: new Set(["https://forma.example"]),
+    allowedOrigins: new Set(["https://pushx.example"]),
     now: () => now,
     getUser: async () => ({ id: "user-1", identities: [{ provider: "apple", identity_data: { sub: "apple-1" } }] }),
     verifyAppleToken: async () => ({ sub: "apple-1", iat: now }),
@@ -80,9 +80,9 @@ test("reports delete failure and never pretends success", async () => {
 });
 test("CORS allows only exact configured origins", async () => {
   const { handler } = fixture();
-  const allowed = await handler(request({ method: "OPTIONS", origin: "https://forma.example" }));
+  const allowed = await handler(request({ method: "OPTIONS", origin: "https://pushx.example" }));
   assert.equal(allowed.status, 204);
-  assert.equal(allowed.headers.get("access-control-allow-origin"), "https://forma.example");
+  assert.equal(allowed.headers.get("access-control-allow-origin"), "https://pushx.example");
   const denied = await handler(request({ origin: "https://attacker.example" }));
   await errorCode(denied, 403, "origin_not_allowed");
   assert.equal(denied.headers.get("access-control-allow-origin"), null);

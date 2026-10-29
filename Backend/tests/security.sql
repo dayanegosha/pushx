@@ -1,18 +1,18 @@
 reset role;
 do $$ declare v_function record; v_table record; begin
-  if has_schema_privilege('anon', 'forma_private', 'USAGE')
-    or has_schema_privilege('authenticated', 'forma_private', 'USAGE') then
+  if has_schema_privilege('anon', 'pushx_private', 'USAGE')
+    or has_schema_privilege('authenticated', 'pushx_private', 'USAGE') then
     raise exception 'private schema exposed';
   end if;
   for v_function in
     select p.oid, p.proname, p.prosecdef, p.proconfig, n.nspname
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-      where n.nspname in ('public', 'forma_private')
+      where n.nspname in ('public', 'pushx_private')
   loop
     if has_function_privilege('anon', v_function.oid, 'EXECUTE') then
       raise exception 'anonymous execute exposed on %', v_function.proname;
     end if;
-    if v_function.nspname = 'forma_private'
+    if v_function.nspname = 'pushx_private'
       and has_function_privilege('authenticated', v_function.oid, 'EXECUTE') then
       raise exception 'private function exposed on %', v_function.proname;
     end if;

@@ -139,7 +139,7 @@ delete from auth.users where id = '00000000-0000-0000-0000-000000000001';
 do $$ begin
   if exists (select 1 from public.workouts) then raise exception 'deletion workout cascade'; end if;
   if exists (select 1 from public.user_blocks) then raise exception 'deletion block cascade'; end if;
-  if exists (select 1 from forma_private.friend_request_events) then raise exception 'deletion event cascade'; end if;
+  if exists (select 1 from pushx_private.friend_request_events) then raise exception 'deletion event cascade'; end if;
 end; $$;
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
